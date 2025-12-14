@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, Loader2, CheckCircle2, Clock, ShieldCheck, Zap } from 'lucide-react';
+import { Sparkles, ArrowRight, Loader2, CheckCircle2, Clock, ShieldCheck, Zap, TrendingUp, BarChart3, Target } from 'lucide-react';
 import { generateAudit } from '../services/geminiService';
 import { AuditResult, SectionId } from '../types';
 import { Button } from './ui/Button';
@@ -111,6 +111,76 @@ export const AuditTool: React.FC = () => {
                       </motion.div>
                     ))}
                   </div>
+
+                  {/* Section Benchmark IA/Automatisation - Placée stratégiquement après les suggestions et avant le CTA */}
+                  {result.benchmark && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="mt-10 bg-gradient-to-br from-orange-900/20 to-violet-900/20 rounded-2xl p-8 border border-orange-500/20 relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 left-0 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl -z-10" />
+                      <div className="absolute bottom-0 right-0 w-40 h-40 bg-violet-500/10 rounded-full blur-3xl -z-10" />
+                      
+                      <div className="relative z-10">
+                          <div className="flex items-center gap-3 mb-6">
+                              <BarChart3 className="w-6 h-6 text-orange-400" />
+                              <h4 className="text-2xl font-bold text-white">
+                                  Benchmark IA/Automatisation
+                              </h4>
+                          </div>
+                          <p className="text-gray-300 mb-6 text-sm">
+                              Données comparatives basées sur des études réelles du secteur <span className="font-semibold text-orange-300 capitalize">{result.benchmark.sectorAverage}</span> en 2024. 
+                              <span className="text-cyan-300 font-medium"> Sources vérifiées : thunderbit.com, gsst.fr</span>
+                          </p>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                              <div className="bg-slate-800/40 rounded-xl p-5 border border-orange-500/20 hover:bg-slate-800/60 transition-colors">
+                                  <div className="flex items-center gap-2 mb-2">
+                                      <Target className="w-5 h-5 text-orange-400" />
+                                      <span className="text-xs font-semibold text-gray-400 uppercase">Processus automatisés</span>
+                                  </div>
+                                  <div className="text-3xl font-bold text-white mb-1">{result.benchmark.automatedProcessesPercentage}%</div>
+                                  <p className="text-xs text-gray-400">des entreprises du secteur</p>
+                              </div>
+                              
+                              <div className="bg-slate-800/40 rounded-xl p-5 border border-cyan-500/20 hover:bg-slate-800/60 transition-colors">
+                                  <div className="flex items-center gap-2 mb-2">
+                                      <Clock className="w-5 h-5 text-cyan-400" />
+                                      <span className="text-xs font-semibold text-gray-400 uppercase">Temps économisé</span>
+                                  </div>
+                                  <div className="text-2xl font-bold text-white mb-1">{result.benchmark.averageTimeSavedPerTask}</div>
+                                  <p className="text-xs text-gray-400">par tâche automatisée</p>
+                              </div>
+                              
+                              <div className="bg-slate-800/40 rounded-xl p-5 border border-violet-500/20 hover:bg-slate-800/60 transition-colors">
+                                  <div className="flex items-center gap-2 mb-2">
+                                      <TrendingUp className="w-5 h-5 text-violet-400" />
+                                      <span className="text-xs font-semibold text-gray-400 uppercase">ROI moyen</span>
+                                  </div>
+                                  <div className="text-2xl font-bold text-white mb-1">{result.benchmark.averageROI}</div>
+                                  <p className="text-xs text-gray-400">dès la première année</p>
+                              </div>
+                              
+                              <div className="bg-slate-800/40 rounded-xl p-5 border border-green-500/20 hover:bg-slate-800/60 transition-colors">
+                                  <div className="flex items-center gap-2 mb-2">
+                                      <Zap className="w-5 h-5 text-green-400" />
+                                      <span className="text-xs font-semibold text-gray-400 uppercase">Rentabilité</span>
+                                  </div>
+                                  <div className="text-2xl font-bold text-white mb-1">{result.benchmark.paybackPeriod}</div>
+                                  <p className="text-xs text-gray-400">pour récupérer l'investissement</p>
+                              </div>
+                          </div>
+                          
+                          <div className="mt-6 p-4 bg-gradient-to-r from-orange-500/10 to-violet-500/10 rounded-lg border border-orange-500/20">
+                              <p className="text-sm text-orange-200 text-center">
+                                  <span className="font-bold">💡 Le potentiel de transformation est réel.</span> Les entreprises qui automatisent leurs processus gagnent en compétitivité et libèrent du temps pour l'essentiel.
+                              </p>
+                          </div>
+                      </div>
+                    </motion.div>
+                  )}
                   
                   <div className="mt-10 bg-gradient-to-br from-violet-900/30 to-cyan-900/30 rounded-2xl p-8 border border-violet-500/30 relative overflow-hidden group">
                       <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl -z-10" />
@@ -124,7 +194,7 @@ export const AuditTool: React.FC = () => {
                               <div className="flex items-start gap-2 mt-4 text-sm text-cyan-200 bg-cyan-900/20 p-3 rounded-lg border border-cyan-500/20">
                                   <ShieldCheck className="w-5 h-5 shrink-0 text-cyan-400" />
                                   <span>
-                                      <span className="font-bold text-cyan-400">Garantie Résultat :</span> Nous ne facturons que si nous créons de la valeur réelle pour vous.
+                                      <span className="font-bold text-cyan-400">Garantie Résultat :</span> Nous ne facturons que si nous créons de la valeur réelle pour vous. <span className="font-bold text-cyan-300">Remboursé à 90%</span>, comme nous sommes sûrs de vous apporter ces technologies de la bonne manière.
                                   </span>
                               </div>
                           </div>

@@ -5,9 +5,18 @@ export interface AuditSuggestion {
   difficulty: 'Facile' | 'Moyen' | 'Complexe';
 }
 
+export interface BenchmarkData {
+  automatedProcessesPercentage: number;
+  averageTimeSavedPerTask: string;
+  averageROI: string;
+  paybackPeriod: string;
+  sectorAverage: string;
+}
+
 export interface AuditResult {
   analysis: string;
   suggestions: AuditSuggestion[];
+  benchmark?: BenchmarkData;
 }
 
 export enum SectionId {
@@ -19,4 +28,4 @@ export enum SectionId {
   FAQ = 'faq'
 }
 
-export type PageView = 'home' | 'about' | 'virtual-employees';
+export type PageView = 'home' | 'about' | 'virtual-employees' | 'upload-photos';
