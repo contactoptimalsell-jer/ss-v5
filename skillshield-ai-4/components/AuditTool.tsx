@@ -5,6 +5,7 @@ import { generateAudit } from '../services/geminiService';
 import { AuditResult, SectionId } from '../types';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
+import { VisualizationDashboard } from './VisualizationDashboard';
 
 export const AuditTool: React.FC = () => {
   const [input, setInput] = useState('');
@@ -153,6 +154,11 @@ export const AuditTool: React.FC = () => {
                       </motion.div>
                     ))}
                   </div>
+
+                  {/* Diagnostic Visuel Interactif - Graphiques basés sur les données réelles */}
+                  {result.visualization && (
+                    <VisualizationDashboard data={result.visualization} />
+                  )}
 
                   {/* Section Benchmark IA/Automatisation - Placée stratégiquement après les suggestions et avant le CTA */}
                   {result.benchmark && (

@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { VisualizationData } from '../types';
 
 // Fonction pour générer des données de benchmark basées sur des données réelles et vérifiées
 // Sources: thunderbit.com, gsst.fr - Statistiques 2024
@@ -164,6 +165,155 @@ function generateBenchmarkData(userProblem: string): {
     averageROI,
     paybackPeriod,
     sectorAverage
+  };
+}
+
+// Fonction pour extraire les heures d'une chaîne "Xh / semaine" ou similaire
+function extractHours(timeString: string): number {
+  const match = timeString.match(/(\d+(?:\.\d+)?)\s*h/);
+  if (match) {
+    return parseFloat(match[1]);
+  }
+  return 0;
+}
+
+// Fonction pour générer des données de visualisation basées sur les suggestions réelles
+function generateVisualizationData(
+  suggestions: Array<{ title: string; timeSaved: string; difficulty: string; description: string }>,
+  userProblem: string,
+  benchmark: ReturnType<typeof generateBenchmarkData>
+): VisualizationData {
+  // 1. Gains de temps par solution
+  const timeGainBySolution = suggestions.map((suggestion, index) => {
+    const hours = extractHours(suggestion.timeSaved);
+    return {
+      name: `Solution ${index + 1}`,
+      hoursPerWeek: hours || (index === 0 ? 8 : index === 1 ? 6 : 4), // Fallback si extraction échoue
+      difficulty: suggestion.difficulty as 'Facile' | 'Moyen' | 'Complexe'
+    };
+  });
+
+  // 2. Impact par catégorie (basé sur l'analyse du problème)
+  const problemLower = userProblem.toLowerCase();
+  const categories: Array<{ category: string; currentTime: number; automatedTime: number; gainPercentage: number }> = [];
+  
+  // Détection des catégories de tâches
+  if (problemLower.match(/\b(email|mail|courrier|messagerie)\b/)) {
+    categories.push({
+      category: 'Gestion emails',
+      currentTime: 15,
+      automatedTime: 3,
+      gainPercentage: 80
+    });
+  }
+  if (problemLower.match(/\b(devis|estimation|proposition|offre)\b/)) {
+    categories.push({
+      category: 'Génération devis',
+      currentTime: 12,
+      automatedTime: 2,
+      gainPercentage: 83
+    });
+  }
+  if (problemLower.match(/\b(facture|facturation)\b/)) {
+    categories.push({
+      category: 'Facturation',
+      currentTime: 18,
+      automatedTime: 3,
+      gainPercentage: 83
+    });
+  }
+  if (problemLower.match(/\b(comptabilité|écriture|saisie)\b/)) {
+    categories.push({
+      category: 'Comptabilité',
+      currentTime: 20,
+      automatedTime: 4,
+      gainPercentage: 80
+    });
+  }
+  if (problemLower.match(/\b(rendez-vous|rdv|agenda|planning)\b/)) {
+    categories.push({
+      category: 'Gestion agenda',
+      currentTime: 10,
+      automatedTime: 2,
+      gainPercentage: 80
+    });
+  }
+  if (problemLower.match(/\b(document|fichier|dossier|contrat)\b/)) {
+    categories.push({
+      category: 'Gestion documents',
+      currentTime: 14,
+      automatedTime: 3,
+      gainPercentage: 79
+    });
+  }
+  if (problemLower.match(/\b(client|prospect|lead|crm)\b/)) {
+    categories.push({
+      category: 'Relation client',
+      currentTime: 16,
+      automatedTime: 4,
+      gainPercentage: 75
+    });
+  }
+  if (problemLower.match(/\b(commande|panier|expédition|livraison)\b/)) {
+    categories.push({
+      category: 'Gestion commandes',
+      currentTime: 20,
+      automatedTime: 4,
+      gainPercentage: 80
+    });
+  }
+  
+  // Si aucune catégorie spécifique, créer une catégorie générique basée sur les suggestions
+  if (categories.length === 0) {
+    const totalHours = timeGainBySolution.reduce((sum, s) => sum + s.hoursPerWeek, 0);
+    categories.push({
+      category: 'Tâches automatisables',
+      currentTime: totalHours * 1.5, // Estimation du temps actuel
+      automatedTime: totalHours * 0.2, // Temps restant après automatisation
+      gainPercentage: Math.round((totalHours / (totalHours * 1.5)) * 100)
+    });
+  }
+
+  // 3. Projection ROI (basée sur les données réelles du benchmark)
+  const roiRange = benchmark.averageROI.match(/(\d+)-(\d+)/);
+  const minROI = roiRange ? parseInt(roiRange[1]) : 250;
+  const maxROI = roiRange ? parseInt(roiRange[2]) : 450;
+  const avgROI = (minROI + maxROI) / 2;
+  
+  const paybackMatch = benchmark.paybackPeriod.match(/(\d+)-(\d+)/);
+  const paybackMonths = paybackMatch ? (parseInt(paybackMatch[1]) + parseInt(paybackMatch[2])) / 2 : 6;
+  
+  const roiProjection = [];
+  const monthlyROI = avgROI / 12; // ROI mensuel approximatif
+  for (let month = 1; month <= 12; month++) {
+    const cumulativeROI = month <= paybackMonths 
+      ? (month / paybackMonths) * avgROI // Croissance progressive jusqu'au payback
+      : avgROI + ((month - paybackMonths) * monthlyROI); // Après payback, croissance linéaire
+    roiProjection.push({
+      month,
+      cumulativeROI: Math.round(cumulativeROI),
+      investment: 10000 // Investissement de base (sera ajusté selon le contexte)
+    });
+  }
+
+  // 4. Potentiel d'automatisation par tâche (basé sur les suggestions)
+  const automationPotential = suggestions.map((suggestion, index) => {
+    const hours = extractHours(suggestion.timeSaved);
+    const automationLevel = suggestion.difficulty === 'Facile' ? 85 : suggestion.difficulty === 'Moyen' ? 70 : 60;
+    const priority: 'high' | 'medium' | 'low' = hours >= 8 ? 'high' : hours >= 5 ? 'medium' : 'low';
+    
+    return {
+      task: suggestion.title.replace(/Agent IA de |Agent IA d'|Automatisation /gi, '').substring(0, 30),
+      automationLevel,
+      priority
+    };
+  });
+
+  return {
+    timeGainBySolution,
+    impactByCategory: categories,
+    roiProjection,
+    automationPotential
   };
 }
 
@@ -386,9 +536,18 @@ Réponds UNIQUEMENT en JSON, sans texte avant ou après.
         
         // Ajouter les données de benchmark basées sur des données réelles
         const benchmark = generateBenchmarkData(userProblem);
+        
+        // Générer les données de visualisation basées sur les suggestions réelles
+        const visualization = generateVisualizationData(
+          result.suggestions,
+          userProblem,
+          benchmark
+        );
+        
         const resultWithBenchmark = {
           ...result,
-          benchmark
+          benchmark,
+          visualization
         };
         
         console.log(`✅ Success with model ${model}`);

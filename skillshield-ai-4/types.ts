@@ -13,10 +13,35 @@ export interface BenchmarkData {
   sectorAverage: string;
 }
 
+export interface VisualizationData {
+  timeGainBySolution: {
+    name: string;
+    hoursPerWeek: number;
+    difficulty: 'Facile' | 'Moyen' | 'Complexe';
+  }[];
+  impactByCategory: {
+    category: string;
+    currentTime: number;
+    automatedTime: number;
+    gainPercentage: number;
+  }[];
+  roiProjection: {
+    month: number;
+    cumulativeROI: number;
+    investment: number;
+  }[];
+  automationPotential: {
+    task: string;
+    automationLevel: number; // 0-100
+    priority: 'high' | 'medium' | 'low';
+  }[];
+}
+
 export interface AuditResult {
   analysis: string;
   suggestions: AuditSuggestion[];
   benchmark?: BenchmarkData;
+  visualization?: VisualizationData;
 }
 
 export enum SectionId {
