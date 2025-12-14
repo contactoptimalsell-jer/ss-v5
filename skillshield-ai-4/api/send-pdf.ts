@@ -52,7 +52,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       currentY += 14;
       
       doc.fontSize(12)
-         .fillColor('#374151')
+         .fillColor('#000000')
          .text('Plan d\'Automatisation Personnalisé', margin, currentY, { 
            width: contentWidth,
            align: 'left',
@@ -154,7 +154,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
           
           textY += titleHeight + 4;
           doc.fontSize(7.5)
-             .fillColor('#6b7280')
+             .fillColor('#000000')
              .text(metaText, colX + 4, textY, { 
                width: colWidth - 8,
                lineGap: 0.5
@@ -162,7 +162,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
           
           textY += metaHeight + 4;
           doc.fontSize(7.5)
-             .fillColor('#4b5563')
+             .fillColor('#000000')
              .text(descText, colX + 4, textY, { 
                width: colWidth - 8,
                align: 'justify',
@@ -204,7 +204,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         
         textY += titleHeight + 4;
         doc.fontSize(7.5)
-           .fillColor('#6b7280')
+           .fillColor('#000000')
            .text(metaText, margin + 4, textY, { 
              width: contentWidth - 8,
              lineGap: 0.5
@@ -212,7 +212,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         
         textY += metaHeight + 4;
         doc.fontSize(7.5)
-           .fillColor('#4b5563')
+           .fillColor('#000000')
            .text(descText, margin + 4, textY, { 
              width: contentWidth - 8,
              align: 'justify',
@@ -257,7 +257,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .fillColor('#9333EA')
            .text('Secteur', benchCol1, currentY + 4, { width: benchColWidth, lineGap: 0 });
         doc.fontSize(8)
-           .fillColor('#4b5563')
+           .fillColor('#000000')
            .text(auditResult.benchmark.sectorAverage, benchCol1, currentY + 13, { 
              width: benchColWidth,
              lineGap: 1
@@ -267,7 +267,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .fillColor('#9333EA')
            .text('Processus automatisés', benchCol2, currentY + 4, { width: benchColWidth, lineGap: 0 });
         doc.fontSize(8)
-           .fillColor('#4b5563')
+           .fillColor('#000000')
            .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, currentY + 13, { 
              width: benchColWidth,
              lineGap: 1
@@ -277,7 +277,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .fillColor('#9333EA')
            .text('Temps économisé', benchCol1, currentY + 23, { width: benchColWidth, lineGap: 0 });
         doc.fontSize(8)
-           .fillColor('#4b5563')
+           .fillColor('#000000')
            .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, currentY + 32, { 
              width: benchColWidth,
              lineGap: 1
@@ -287,7 +287,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .fillColor('#9333EA')
            .text('ROI moyen', benchCol2, currentY + 23, { width: benchColWidth, lineGap: 0 });
         doc.fontSize(8)
-           .fillColor('#4b5563')
+           .fillColor('#000000')
            .text(auditResult.benchmark.averageROI, benchCol2, currentY + 32, { 
              width: benchColWidth,
              lineGap: 1
@@ -297,7 +297,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .fillColor('#9333EA')
            .text('Retour investissement', benchCol1, currentY + 37, { width: benchColWidth, lineGap: 0 });
         doc.fontSize(8)
-           .fillColor('#4b5563')
+           .fillColor('#000000')
            .text(auditResult.benchmark.paybackPeriod, benchCol1, currentY + 46, { 
              width: benchColWidth,
              lineGap: 1
@@ -337,7 +337,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
                .fill();
             
             doc.fontSize(8)
-               .fillColor('#374151')
+               .fillColor('#000000')
                .text(step, margin + 8, currentY, { 
                  width: contentWidth - 8,
                  lineGap: 0
@@ -388,7 +388,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            });
         
         doc.fontSize(7.5)
-           .fillColor('#4b5563')
+           .fillColor('#000000')
            .text(nextStepsText2, margin + 4, currentY + text1Height + 5, { 
              width: contentWidth - 8,
              align: 'center',
@@ -405,7 +405,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       
       // Footer copyright sur chaque page
       doc.fontSize(7)
-         .fillColor('#6b7280')
+         .fillColor('#000000')
          .text(copyrightText, margin, footerY, { 
            width: contentWidth,
            align: 'center',
@@ -414,7 +414,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       
       // Disclaimer en dessous
       doc.fontSize(6.5)
-         .fillColor('#9ca3af')
+         .fillColor('#000000')
          .text(disclaimerText, margin, footerY + 8, { 
            width: contentWidth,
            align: 'center',
