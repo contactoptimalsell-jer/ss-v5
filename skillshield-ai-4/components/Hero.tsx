@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from './ui/Button';
-import { Sparkles, ArrowRight, Lightbulb } from 'lucide-react';
+import { Sparkles, ArrowRight, Lightbulb, Mail } from 'lucide-react';
 import { SectionId } from '../types';
 
 export const Hero: React.FC = () => {
@@ -56,14 +56,35 @@ export const Hero: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="flex flex-col md:flex-row items-center justify-center gap-6"
+          className="flex flex-col items-center justify-center gap-6"
         >
-          <Button onClick={openCalendly} icon={<Sparkles className="w-5 h-5"/>} className="shadow-violet-500/20 hover:shadow-violet-500/40 border border-white/10">
-            Libérer mon potentiel (Audit Offert)
-          </Button>
-          <Button variant="secondary" onClick={() => document.getElementById(SectionId.APPROACH)?.scrollIntoView({ behavior: 'smooth' })} icon={<ArrowRight className="w-5 h-5"/>}>
-            Découvrir notre méthode
-          </Button>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+            <Button onClick={openCalendly} icon={<Sparkles className="w-5 h-5"/>} className="shadow-violet-500/20 hover:shadow-violet-500/40 border border-white/10">
+              Libérer mon potentiel (Audit Offert)
+            </Button>
+            <Button variant="secondary" onClick={() => document.getElementById(SectionId.APPROACH)?.scrollIntoView({ behavior: 'smooth' })} icon={<ArrowRight className="w-5 h-5"/>}>
+              Découvrir notre méthode
+            </Button>
+          </div>
+          
+          {/* Bouton Contact Email - Transparence */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="mt-4"
+          >
+            <a 
+              href="mailto:contact@skillshield-ai.com?subject=Question%20sur%20SkillShield%20AI"
+              className="inline-flex items-center gap-2 px-6 py-3 text-sm text-gray-400 hover:text-cyan-400 transition-colors border border-white/10 hover:border-cyan-500/30 rounded-full bg-white/5 hover:bg-white/10 backdrop-blur-sm"
+            >
+              <Mail className="w-4 h-4" />
+              <span>contact@skillshield-ai.com</span>
+            </a>
+            <p className="text-xs text-gray-500 mt-2 text-center">
+              Transparence totale • Réponse sous 24h
+            </p>
+          </motion.div>
         </motion.div>
 
         {/* Floating Social Proof */}

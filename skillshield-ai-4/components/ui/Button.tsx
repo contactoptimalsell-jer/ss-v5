@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'tertiary';
+  variant?: 'primary' | 'secondary' | 'tertiary' | 'outline';
   children: React.ReactNode;
   icon?: React.ReactNode;
 }
@@ -13,7 +13,8 @@ export const Button: React.FC<ButtonProps> = ({ variant = 'primary', children, i
   const variants = {
     primary: "bg-gradient-to-r from-violet-500 via-cyan-400 to-violet-500 bg-[length:200%_100%] hover:bg-[100%_0] text-white shadow-xl shadow-violet-500/40 hover:shadow-2xl hover:shadow-cyan-400/50 py-4 px-8 md:px-10",
     secondary: "bg-violet-500/10 border-2 border-violet-400/50 text-violet-300 hover:bg-violet-500/20 hover:border-violet-400 py-3 px-6",
-    tertiary: "bg-white/5 border border-white/10 text-cyan-300 hover:bg-white/10 py-3 px-6"
+    tertiary: "bg-white/5 border border-white/10 text-cyan-300 hover:bg-white/10 py-3 px-6",
+    outline: "bg-transparent border-2 border-white/20 text-white hover:border-white/40 hover:bg-white/5 py-3 px-6"
   };
 
   return (

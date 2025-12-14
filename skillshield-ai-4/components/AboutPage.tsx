@@ -3,22 +3,35 @@ import { motion } from 'framer-motion';
 import { TrendingUp, AlertTriangle, Heart, Shield, Zap, Sparkles, UserCheck, Bot } from 'lucide-react';
 import { Button } from './ui/Button';
 
+// Photo de Thomas Estevenon - Base64 intégrée pour synchronisation sur skillshield.app
+// Pour mettre à jour : remplacez cette constante par la nouvelle photo en base64
+const THOMAS_PHOTO_BASE64 = ''; // TODO: Remplacer par la chaîne base64 de la photo
+
 export const AboutPage: React.FC<{ onNavigateHome: () => void }> = ({ onNavigateHome }) => {
-  // --- GESTION DES PHOTOS (LECTURE SEULE) ---
-  const [jeromeImgSrc] = useState(() => {
+  // --- GESTION DES PHOTOS (FIGÉES) ---
+  // Photos statiques - upload désactivé définitivement
+  const [jeromeImgSrc] = useState<string>(() => {
     try {
-      return localStorage.getItem('skillshield_jerome_photo') || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1000&auto=format&fit=crop';
+      const saved = localStorage.getItem('skillshield_jerome_photo');
+      if (saved) return saved;
+      return 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1000&auto=format&fit=crop';
     } catch {
       return 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1000&auto=format&fit=crop';
     }
   });
 
-  const [thomasImgSrc] = useState(() => {
-    try {
-      return localStorage.getItem('skillshield_thomas_photo') || 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=1000&auto=format&fit=crop';
-    } catch {
-      return 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=1000&auto=format&fit=crop';
+  const [thomasImgSrc] = useState<string>(() => {
+    // Priorité 1: Photo base64 intégrée dans le code (visible pour tous)
+    if (THOMAS_PHOTO_BASE64) {
+      return THOMAS_PHOTO_BASE64;
     }
+    // Priorité 2: Photo depuis localStorage (pour développement local)
+    try {
+      const saved = localStorage.getItem('skillshield_thomas_photo');
+      if (saved) return saved;
+    } catch {}
+    // Priorité 3: Photo par défaut
+    return 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=1000&auto=format&fit=crop';
   });
 
   const openCalendly = () => {
@@ -241,7 +254,7 @@ export const AboutPage: React.FC<{ onNavigateHome: () => void }> = ({ onNavigate
       <section className="container mx-auto px-6 mb-24">
         <div className="flex flex-col gap-24 max-w-5xl mx-auto">
             
-            {/* Jérôme Karr - Photo statique */}
+            {/* Jérôme Karr - Photo figée */}
             <div className="flex flex-col md:flex-row items-center gap-12">
                 <div 
                   className="w-48 h-48 md:w-64 md:h-64 shrink-0 rounded-full border-4 border-violet-500/30 p-2 relative"
@@ -257,7 +270,7 @@ export const AboutPage: React.FC<{ onNavigateHome: () => void }> = ({ onNavigate
                 </div>
                 <div className="flex-1 text-center md:text-left">
                     <h3 className="text-2xl font-bold text-white mb-2">Jérôme Karr</h3>
-                    <p className="text-violet-400 font-medium mb-4">Fondateur SkillShield AI</p>
+                    <p className="text-violet-400 font-medium mb-4">Cofondateur & Expert Intelligence Artificielle</p>
                     <p className="text-gray-400 mb-6 italic relative">
                         <span className="text-4xl text-violet-500/20 absolute -top-4 -left-2">"</span>
                         J'ai vu trop de chefs d'entreprise brillants s'épuiser à la tâche. L'IA est le levier le plus puissant que j'ai jamais vu pour briser ce plafond de verre. Mon obsession ? Que vous rentriez chez vous à 17h, l'esprit léger.
@@ -269,7 +282,7 @@ export const AboutPage: React.FC<{ onNavigateHome: () => void }> = ({ onNavigate
                 </div>
             </div>
 
-            {/* Thomas Estevenon - Photo statique */}
+            {/* Thomas Estevenon - Photo figée */}
             <div className="flex flex-col md:flex-row-reverse items-center gap-12">
                 <div 
                     className="w-48 h-48 md:w-64 md:h-64 shrink-0 rounded-full border-4 border-cyan-500/30 p-2 relative"

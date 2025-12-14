@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Hero } from './components/Hero';
 import { ProblemSection } from './components/ProblemSection';
+import { GuardianModeSection } from './components/GuardianModeSection';
 import { ProcessSection } from './components/ProcessSection';
 import { AuditTool } from './components/AuditTool';
 import { Footer } from './components/Footer';
 import { AboutPage } from './components/AboutPage';
 import { VirtualEmployeesPage } from './components/VirtualEmployeesPage';
-import { Menu, ShieldCheck, Home, X, Upload } from 'lucide-react';
+import { UploadPhotosPage } from './components/UploadPhotosPage';
+import { Menu, ShieldCheck, Home, X, Upload, Mail } from 'lucide-react';
 import { Logo } from './components/ui/Logo';
 import { SectionId, PageView } from './types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -76,6 +78,18 @@ const App: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Raccourci clavier pour accéder à l'upload (Ctrl/Cmd + Shift + U)
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'U') {
+        e.preventDefault();
+        navigateTo('upload-photos');
+      }
+    };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
+
   const openCalendly = () => {
     window.open('https://calendly.com/b00784336-essec?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app', '_blank');
     setIsMobileMenuOpen(false);
@@ -106,6 +120,7 @@ const App: React.FC = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <Hero />
             <ProblemSection />
+            <GuardianModeSection />
             
             <section className="py-20 bg-slate-800/30 border-y border-white/5">
                <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
@@ -174,6 +189,20 @@ const App: React.FC = () => {
                             <span>Si aucun bénéfice le 1er mois, <span className="font-bold text-violet-200">remboursé à 90%</span>. Cet appel peut tout changer.</span>
                         </div>
                      </div>
+                     
+                     {/* Contact Email - Transparence */}
+                     <div className="mt-6 pt-6 border-t border-white/10 w-full max-w-md">
+                        <a 
+                          href="mailto:contact@skillshield-ai.com?subject=Question%20sur%20SkillShield%20AI"
+                          className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm text-gray-300 hover:text-cyan-400 transition-colors border border-white/10 hover:border-cyan-500/30 rounded-full bg-white/5 hover:bg-white/10 backdrop-blur-sm w-full md:w-auto"
+                        >
+                          <Mail className="w-4 h-4" />
+                          <span>Nous contacter directement</span>
+                        </a>
+                        <p className="text-xs text-gray-500 mt-3 text-center">
+                          💬 Transparence totale • contact@skillshield-ai.com • Réponse sous 24h
+                        </p>
+                     </div>
                   </div>
                </div>
             </section>
@@ -189,6 +218,12 @@ const App: React.FC = () => {
         return (
            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <VirtualEmployeesPage onNavigateHome={() => navigateTo('home')} />
+          </motion.div>
+        );
+      case 'upload-photos':
+        return (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <UploadPhotosPage onNavigateHome={() => navigateTo('home')} />
           </motion.div>
         );
       default:
