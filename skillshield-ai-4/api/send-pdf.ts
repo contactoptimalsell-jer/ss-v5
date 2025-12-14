@@ -25,16 +25,16 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       let currentY = margin;
 
       // === EN-TÊTE PREMIUM ===
-      // Barre de couleur violet en haut (style SkillShield)
+      // Barre de couleur violet vive en haut (style SkillShield)
       doc.rect(margin, currentY, contentWidth, 3)
-         .fillColor('#8B5CF6')
+         .fillColor('#9333EA')
          .fill();
       
       currentY += 15;
       
       // Titre principal avec style SkillShield premium
       doc.fontSize(24)
-         .fillColor('#8B5CF6')
+         .fillColor('#9333EA')
          .text('SkillShield AI', margin, currentY, { 
            width: contentWidth,
            align: 'left'
@@ -52,13 +52,13 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       currentY += 28;
 
       // === SECTION 1: ANALYSE ===
-      // Titre de section avec accent cyan premium
+      // Titre de section avec accent cyan vif premium
       doc.rect(margin, currentY, 4, 14)
-         .fillColor('#22D3EE')
+         .fillColor('#06B6D4')
          .fill();
       
       doc.fontSize(12)
-         .fillColor('#8B5CF6')
+         .fillColor('#9333EA')
          .text('ANALYSE DE VOTRE SITUATION', margin + 10, currentY + 3, { 
            width: contentWidth - 10
          });
@@ -89,11 +89,11 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
 
       // === SECTION 2: SOLUTIONS (2 colonnes premium) ===
       doc.rect(margin, currentY, 4, 14)
-         .fillColor('#22D3EE')
+         .fillColor('#06B6D4')
          .fill();
       
       doc.fontSize(12)
-         .fillColor('#8B5CF6')
+         .fillColor('#9333EA')
          .text('SOLUTIONS D\'AUTOMATISATION IA', margin + 10, currentY + 3, { 
            width: contentWidth - 10
          });
@@ -121,7 +121,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
              .stroke();
           
           doc.fontSize(9.5)
-             .fillColor('#8B5CF6')
+             .fillColor('#9333EA')
              .text(`${index + 1}. ${suggestion.title}`, colX + 6, currentY + 6, { 
                width: colWidth - 12,
                lineGap: 2
@@ -161,7 +161,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .stroke();
         
         doc.fontSize(9.5)
-           .fillColor('#8B5CF6')
+           .fillColor('#9333EA')
            .text(`3. ${suggestion.title}`, margin + 6, currentY + 6, { 
              width: contentWidth - 12,
              lineGap: 2
@@ -189,25 +189,25 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       // === SECTION 3: BENCHMARK (si disponible) ===
       if (auditResult.benchmark) {
         doc.rect(margin, currentY, 4, 14)
-           .fillColor('#22D3EE')
+           .fillColor('#06B6D4')
            .fill();
         
         doc.fontSize(12)
-           .fillColor('#8B5CF6')
+           .fillColor('#9333EA')
            .text('BENCHMARK SECTEUR', margin + 10, currentY + 3, { 
              width: contentWidth - 10
            });
         
         currentY += 20;
         
-        // Fond premium pour le benchmark
+        // Fond premium vif pour le benchmark
         doc.rect(margin, currentY, contentWidth, 52)
-           .fillColor('#F0F9FF')
+           .fillColor('#ECFEFF')
            .fill();
         
         doc.rect(margin, currentY, contentWidth, 52)
-           .strokeColor('#DBEAFE')
-           .lineWidth(0.5)
+           .strokeColor('#06B6D4')
+           .lineWidth(1)
            .stroke();
         
         // Benchmark en 2 colonnes avec espacement harmonieux
@@ -216,7 +216,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         const benchColWidth = contentWidth / 2 - 16;
         
         doc.fontSize(8.5)
-           .fillColor('#1e40af')
+           .fillColor('#9333EA')
            .text('Secteur', benchCol1, currentY + 6, { width: benchColWidth });
         doc.fontSize(8.5)
            .fillColor('#4b5563')
@@ -226,7 +226,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            });
         
         doc.fontSize(8.5)
-           .fillColor('#1e40af')
+           .fillColor('#9333EA')
            .text('Processus automatisés', benchCol2, currentY + 6, { width: benchColWidth });
         doc.fontSize(8.5)
            .fillColor('#4b5563')
@@ -235,7 +235,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            });
         
         doc.fontSize(8.5)
-           .fillColor('#1e40af')
+           .fillColor('#9333EA')
            .text('Temps économisé', benchCol1, currentY + 28, { width: benchColWidth });
         doc.fontSize(8.5)
            .fillColor('#4b5563')
@@ -244,7 +244,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            });
         
         doc.fontSize(8.5)
-           .fillColor('#1e40af')
+           .fillColor('#9333EA')
            .text('ROI moyen', benchCol2, currentY + 28, { width: benchColWidth });
         doc.fontSize(8.5)
            .fillColor('#4b5563')
@@ -253,7 +253,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            });
         
         doc.fontSize(8.5)
-           .fillColor('#1e40af')
+           .fillColor('#9333EA')
            .text('Retour investissement', benchCol1, currentY + 44, { width: benchColWidth });
         doc.fontSize(8.5)
            .fillColor('#4b5563')
@@ -266,11 +266,11 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
 
       // === SECTION 4: PLAN D'ACTION (premium et élégant) ===
       doc.rect(margin, currentY, 4, 14)
-         .fillColor('#22D3EE')
+         .fillColor('#06B6D4')
          .fill();
       
       doc.fontSize(12)
-         .fillColor('#8B5CF6')
+         .fillColor('#9333EA')
          .text('PLAN D\'ACTION EN 5 ÉTAPES', margin + 10, currentY + 3, { 
            width: contentWidth - 10
          });
@@ -286,9 +286,9 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       ];
       
       steps.forEach((step) => {
-        // Point cyan premium pour chaque étape
+        // Point cyan vif premium pour chaque étape
         doc.circle(margin + 4, currentY + 4, 2.5)
-           .fillColor('#22D3EE')
+           .fillColor('#06B6D4')
            .fill();
         
         doc.fontSize(8.5)
@@ -304,11 +304,11 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
 
       // === SECTION 5: PROCHAINES ÉTAPES (premium) ===
       doc.rect(margin, currentY, 4, 14)
-         .fillColor('#22D3EE')
+         .fillColor('#06B6D4')
          .fill();
       
       doc.fontSize(12)
-         .fillColor('#8B5CF6')
+         .fillColor('#9333EA')
          .text('PROCHAINES ÉTAPES', margin + 10, currentY + 3, { 
            width: contentWidth - 10
          });
@@ -326,7 +326,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
          .stroke();
       
       doc.fontSize(8.5)
-         .fillColor('#059669')
+         .fillColor('#10B981')
          .text('✓ Appel de 15 min | ✓ Devis gratuit | ✓ Garantie résultat (90%)', 
                margin + 6, currentY + 6, { 
                  width: contentWidth - 12,
