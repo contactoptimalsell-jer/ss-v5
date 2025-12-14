@@ -11,34 +11,91 @@ function getDefaultBenchmark(): AuditResult['benchmark'] {
   };
 }
 
-// Fonction helper pour générer des données de visualisation par défaut
+// Fonction helper pour extraire les heures
+function extractHoursFromString(timeString: string): number {
+  const match = timeString.match(/(\d+(?:\.\d+)?)\s*h/);
+  return match ? parseFloat(match[1]) : 0;
+}
+
+// Fonction helper pour générer des données de visualisation par défaut avec ROI réaliste
 function getDefaultVisualization(suggestions: AuditResult['suggestions']): VisualizationData {
+  const timeGainBySolution = suggestions.map((s, index) => {
+    const hours = extractHoursFromString(s.timeSaved);
+    return {
+      name: `Solution ${index + 1}`,
+      hoursPerWeek: hours || (index === 0 ? 8 : index === 1 ? 6 : 5),
+      difficulty: s.difficulty as 'Facile' | 'Moyen' | 'Complexe'
+    };
+  });
+
+  // Calcul ROI réaliste
+  const totalHoursPerWeek = timeGainBySolution.reduce((sum, s) => sum + s.hoursPerWeek, 0);
+  const totalHoursPerYear = totalHoursPerWeek * 52;
+  const hourlyRate = 60; // €/h - Valeur conservatrice
+  const annualValueSaved = totalHoursPerYear * hourlyRate;
+  
+  // Coût d'implémentation selon difficulté
+  let implementationCost = 0;
+  suggestions.forEach(s => {
+    if (s.difficulty === 'Facile') {
+      implementationCost += 4000;
+    } else if (s.difficulty === 'Moyen') {
+      implementationCost += 6500;
+    } else {
+      implementationCost += 11500;
+    }
+  });
+  
+  const annualMaintenanceCost = implementationCost * 0.15;
+  const annualGains = annualValueSaved - annualMaintenanceCost;
+  const realROI = (annualGains / implementationCost) * 100;
+  const adjustedROI = Math.max(200, Math.min(realROI, 500)); // Plage réaliste
+  
+  // Payback period
+  const monthlyGains = (totalHoursPerWeek * 4.33 * hourlyRate) - (annualMaintenanceCost / 12);
+  const paybackMonths = monthlyGains > 0 
+    ? Math.max(2, Math.min(Math.ceil(implementationCost / monthlyGains), 12))
+    : 6;
+  
+  // Projection ROI sur 12 mois
+  const roiProjection = [];
+  for (let month = 1; month <= 12; month++) {
+    if (month <= paybackMonths) {
+      const progress = month / paybackMonths;
+      const cumulativeROI = adjustedROI * progress * 0.3;
+      roiProjection.push({
+        month,
+        cumulativeROI: Math.round(Math.max(0, cumulativeROI)),
+        investment: Math.round(implementationCost)
+      });
+    } else {
+      const monthsAfterPayback = month - paybackMonths;
+      const remainingMonths = 12 - paybackMonths;
+      const progress = monthsAfterPayback / remainingMonths;
+      const cumulativeROI = (adjustedROI * 0.3) + (adjustedROI * 0.7 * progress);
+      roiProjection.push({
+        month,
+        cumulativeROI: Math.round(cumulativeROI),
+        investment: Math.round(implementationCost)
+      });
+    }
+  }
+
   return {
-    timeGainBySolution: suggestions.map((s, index) => {
-      const hours = parseInt(s.timeSaved.match(/\d+/)?.[0] || '0');
-      return {
-        name: `Solution ${index + 1}`,
-        hoursPerWeek: hours || (index === 0 ? 8 : index === 1 ? 6 : 5),
-        difficulty: s.difficulty as 'Facile' | 'Moyen' | 'Complexe'
-      };
-    }),
+    timeGainBySolution,
     impactByCategory: [
       {
         category: 'Tâches automatisables',
-        currentTime: 20,
-        automatedTime: 4,
-        gainPercentage: 80
+        currentTime: totalHoursPerWeek * 1.5,
+        automatedTime: totalHoursPerWeek * 0.2,
+        gainPercentage: Math.round((totalHoursPerWeek / (totalHoursPerWeek * 1.5)) * 100)
       }
     ],
-    roiProjection: Array.from({ length: 12 }, (_, i) => ({
-      month: i + 1,
-      cumulativeROI: Math.round(250 + (i * 15)),
-      investment: 10000
-    })),
+    roiProjection,
     automationPotential: suggestions.map(s => ({
       task: s.title.replace(/Agent IA de |Agent IA d'|Automatisation /gi, '').substring(0, 30),
       automationLevel: s.difficulty === 'Facile' ? 85 : s.difficulty === 'Moyen' ? 70 : 60,
-      priority: (parseInt(s.timeSaved.match(/\d+/)?.[0] || '0') >= 8 ? 'high' : parseInt(s.timeSaved.match(/\d+/)?.[0] || '0') >= 5 ? 'medium' : 'low') as 'high' | 'medium' | 'low'
+      priority: (extractHoursFromString(s.timeSaved) >= 8 ? 'high' : extractHoursFromString(s.timeSaved) >= 5 ? 'medium' : 'low') as 'high' | 'medium' | 'low'
     }))
   };
 }
