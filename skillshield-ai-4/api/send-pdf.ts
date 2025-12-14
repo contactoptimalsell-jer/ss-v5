@@ -59,7 +59,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 14;
+      currentY += 16;
 
       // === SECTION 1: ANALYSE ===
       // Titre de section avec accent cyan vif premium
@@ -74,29 +74,29 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 12;
+      currentY += 13;
       
-      const problemText = `Problème identifié : ${userProblem.substring(0, 130)}${userProblem.length > 130 ? '...' : ''}`;
+      const problemText = `Problème identifié : ${userProblem.substring(0, 150)}${userProblem.length > 150 ? '...' : ''}`;
       doc.fontSize(8.5)
          .fillColor('#000000')
          .text(problemText, margin, currentY, { 
            width: contentWidth,
            align: 'left',
-           lineGap: 0.5
+           lineGap: 1
          });
       
-      currentY += calculateTextHeight(problemText, contentWidth, 8.5, 0.5) + 6;
+      currentY += calculateTextHeight(problemText, contentWidth, 8.5, 1) + 7;
       
-      const analysisText = auditResult.analysis.substring(0, 240) + (auditResult.analysis.length > 240 ? '...' : '');
+      const analysisText = auditResult.analysis.substring(0, 280) + (auditResult.analysis.length > 280 ? '...' : '');
       doc.fontSize(8.5)
          .fillColor('#000000')
          .text(analysisText, margin, currentY, { 
            width: contentWidth,
            align: 'justify',
-           lineGap: 1.5
+           lineGap: 2
          });
       
-      currentY += calculateTextHeight(analysisText, contentWidth, 8.5, 1.5) + 10;
+      currentY += calculateTextHeight(analysisText, contentWidth, 8.5, 2) + 12;
 
       // === SECTION 2: SOLUTIONS (2 colonnes premium) ===
       doc.rect(margin, currentY, 3, 10)
@@ -110,7 +110,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 12;
+      currentY += 13;
       
       const colWidth = (contentWidth - 6) / 2;
       const solutions = auditResult.suggestions;
@@ -124,12 +124,12 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
           
           const titleText = `${index + 1}. ${suggestion.title}`;
           const metaText = `${suggestion.difficulty} • ${suggestion.timeSaved}`;
-          const descText = suggestion.description.substring(0, 110) + (suggestion.description.length > 110 ? '...' : '');
+          const descText = suggestion.description.substring(0, 130) + (suggestion.description.length > 130 ? '...' : '');
           
-          const titleHeight = calculateTextHeight(titleText, colWidth - 8, 8.5, 0.5);
-          const metaHeight = calculateTextHeight(metaText, colWidth - 8, 7, 0.5);
-          const descHeight = calculateTextHeight(descText, colWidth - 8, 7.5, 1);
-          const boxHeight = Math.ceil(titleHeight + metaHeight + descHeight + 8);
+          const titleHeight = calculateTextHeight(titleText, colWidth - 8, 8.5, 1);
+          const metaHeight = calculateTextHeight(metaText, colWidth - 8, 7.5, 0.5);
+          const descHeight = calculateTextHeight(descText, colWidth - 8, 7.5, 1.5);
+          const boxHeight = Math.ceil(titleHeight + metaHeight + descHeight + 10);
           
           maxSolutionHeight = Math.max(maxSolutionHeight, boxHeight);
           
@@ -144,46 +144,46 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
              .lineWidth(0.5)
              .stroke();
           
-          let textY = currentY + 3;
+          let textY = currentY + 4;
           doc.fontSize(8.5)
              .fillColor('#9333EA')
              .text(titleText, colX + 4, textY, { 
                width: colWidth - 8,
-               lineGap: 0.5
+               lineGap: 1
              });
           
-          textY += titleHeight + 3;
-          doc.fontSize(7)
+          textY += titleHeight + 4;
+          doc.fontSize(7.5)
              .fillColor('#6b7280')
              .text(metaText, colX + 4, textY, { 
                width: colWidth - 8,
                lineGap: 0.5
              });
           
-          textY += metaHeight + 3;
+          textY += metaHeight + 4;
           doc.fontSize(7.5)
              .fillColor('#4b5563')
              .text(descText, colX + 4, textY, { 
                width: colWidth - 8,
                align: 'justify',
-               lineGap: 1
+               lineGap: 1.5
              });
         }
       });
       
-      currentY += maxSolutionHeight + 6;
+      currentY += maxSolutionHeight + 7;
       
       // Solution 3 en pleine largeur premium
       if (solutions.length > 2 && currentY < maxY - 50) {
         const suggestion = solutions[2];
         const titleText = `3. ${suggestion.title}`;
         const metaText = `${suggestion.difficulty} • ${suggestion.timeSaved}`;
-        const descText = suggestion.description.substring(0, 180) + (suggestion.description.length > 180 ? '...' : '');
+        const descText = suggestion.description.substring(0, 220) + (suggestion.description.length > 220 ? '...' : '');
         
-        const titleHeight = calculateTextHeight(titleText, contentWidth - 8, 8.5, 0.5);
-        const metaHeight = calculateTextHeight(metaText, contentWidth - 8, 7, 0.5);
-        const descHeight = calculateTextHeight(descText, contentWidth - 8, 7.5, 1);
-        const boxHeight = Math.ceil(titleHeight + metaHeight + descHeight + 8);
+        const titleHeight = calculateTextHeight(titleText, contentWidth - 8, 8.5, 1);
+        const metaHeight = calculateTextHeight(metaText, contentWidth - 8, 7.5, 0.5);
+        const descHeight = calculateTextHeight(descText, contentWidth - 8, 7.5, 1.5);
+        const boxHeight = Math.ceil(titleHeight + metaHeight + descHeight + 10);
         
         doc.rect(margin, currentY, contentWidth, boxHeight)
            .fillColor('#F8FAFC')
@@ -194,32 +194,32 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .lineWidth(0.5)
            .stroke();
         
-        let textY = currentY + 3;
+        let textY = currentY + 4;
         doc.fontSize(8.5)
            .fillColor('#9333EA')
            .text(titleText, margin + 4, textY, { 
              width: contentWidth - 8,
-             lineGap: 0.5
+             lineGap: 1
            });
         
-        textY += titleHeight + 3;
-        doc.fontSize(7)
+        textY += titleHeight + 4;
+        doc.fontSize(7.5)
            .fillColor('#6b7280')
            .text(metaText, margin + 4, textY, { 
              width: contentWidth - 8,
              lineGap: 0.5
            });
         
-        textY += metaHeight + 3;
+        textY += metaHeight + 4;
         doc.fontSize(7.5)
            .fillColor('#4b5563')
            .text(descText, margin + 4, textY, { 
              width: contentWidth - 8,
              align: 'justify',
-             lineGap: 1
+             lineGap: 1.5
            });
         
-        currentY += boxHeight + 4;
+        currentY += boxHeight + 5;
       }
 
       // === SECTION 3: BENCHMARK (si disponible) ===
@@ -235,10 +235,10 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
              lineGap: 0
            });
         
-        currentY += 12;
+        currentY += 13;
         
         // Fond premium vif pour le benchmark
-        const benchHeight = 38;
+        const benchHeight = 42;
         doc.rect(margin, currentY, contentWidth, benchHeight)
            .fillColor('#ECFEFF')
            .fill();
@@ -249,61 +249,61 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .stroke();
         
         // Benchmark en 2 colonnes avec espacement harmonieux
-        const benchCol1 = margin + 5;
-        const benchCol2 = margin + contentWidth / 2 + 5;
-        const benchColWidth = contentWidth / 2 - 10;
+        const benchCol1 = margin + 6;
+        const benchCol2 = margin + contentWidth / 2 + 6;
+        const benchColWidth = contentWidth / 2 - 12;
         
-        doc.fontSize(7.5)
+        doc.fontSize(8)
            .fillColor('#9333EA')
-           .text('Secteur', benchCol1, currentY + 3, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(7.5)
+           .text('Secteur', benchCol1, currentY + 4, { width: benchColWidth, lineGap: 0 });
+        doc.fontSize(8)
            .fillColor('#4b5563')
-           .text(auditResult.benchmark.sectorAverage, benchCol1, currentY + 11, { 
+           .text(auditResult.benchmark.sectorAverage, benchCol1, currentY + 13, { 
              width: benchColWidth,
-             lineGap: 0.5
+             lineGap: 1
            });
         
-        doc.fontSize(7.5)
+        doc.fontSize(8)
            .fillColor('#9333EA')
-           .text('Processus automatisés', benchCol2, currentY + 3, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(7.5)
+           .text('Processus automatisés', benchCol2, currentY + 4, { width: benchColWidth, lineGap: 0 });
+        doc.fontSize(8)
            .fillColor('#4b5563')
-           .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, currentY + 11, { 
+           .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, currentY + 13, { 
              width: benchColWidth,
-             lineGap: 0.5
+             lineGap: 1
            });
         
-        doc.fontSize(7.5)
+        doc.fontSize(8)
            .fillColor('#9333EA')
-           .text('Temps économisé', benchCol1, currentY + 20, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(7.5)
+           .text('Temps économisé', benchCol1, currentY + 23, { width: benchColWidth, lineGap: 0 });
+        doc.fontSize(8)
            .fillColor('#4b5563')
-           .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, currentY + 28, { 
+           .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, currentY + 32, { 
              width: benchColWidth,
-             lineGap: 0.5
+             lineGap: 1
            });
         
-        doc.fontSize(7.5)
+        doc.fontSize(8)
            .fillColor('#9333EA')
-           .text('ROI moyen', benchCol2, currentY + 20, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(7.5)
+           .text('ROI moyen', benchCol2, currentY + 23, { width: benchColWidth, lineGap: 0 });
+        doc.fontSize(8)
            .fillColor('#4b5563')
-           .text(auditResult.benchmark.averageROI, benchCol2, currentY + 28, { 
+           .text(auditResult.benchmark.averageROI, benchCol2, currentY + 32, { 
              width: benchColWidth,
-             lineGap: 0.5
+             lineGap: 1
            });
         
-        doc.fontSize(7.5)
+        doc.fontSize(8)
            .fillColor('#9333EA')
-           .text('Retour investissement', benchCol1, currentY + 33, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(7.5)
+           .text('Retour investissement', benchCol1, currentY + 37, { width: benchColWidth, lineGap: 0 });
+        doc.fontSize(8)
            .fillColor('#4b5563')
-           .text(auditResult.benchmark.paybackPeriod, benchCol1, currentY + 41, { 
+           .text(auditResult.benchmark.paybackPeriod, benchCol1, currentY + 46, { 
              width: benchColWidth,
-             lineGap: 0.5
+             lineGap: 1
            });
         
-        currentY += benchHeight + 4;
+        currentY += benchHeight + 5;
       }
 
       // === SECTION 4: PLAN D'ACTION (premium et élégant) ===
@@ -319,7 +319,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
              lineGap: 0
            });
         
-        currentY += 12;
+        currentY += 13;
         
         const steps = [
           '1. Audit Complet',
@@ -336,17 +336,17 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
                .fillColor('#06B6D4')
                .fill();
             
-            doc.fontSize(7.5)
+            doc.fontSize(8)
                .fillColor('#374151')
                .text(step, margin + 8, currentY, { 
                  width: contentWidth - 8,
                  lineGap: 0
                });
-            currentY += 7;
+            currentY += 8;
           }
         });
         
-        currentY += 3;
+        currentY += 4;
       }
 
       // === SECTION 5: PROCHAINES ÉTAPES (premium) ===
@@ -362,13 +362,13 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
              lineGap: 0
            });
         
-        currentY += 12;
+        currentY += 13;
         
         const nextStepsText1 = '✓ Appel de 15 min | ✓ Devis gratuit | ✓ Garantie résultat (90%)';
         const nextStepsText2 = 'contact@skillshield-ai.com | Réponse sous 24h';
-        const text1Height = calculateTextHeight(nextStepsText1, contentWidth - 8, 7.5, 0.5);
-        const text2Height = calculateTextHeight(nextStepsText2, contentWidth - 8, 7, 0.5);
-        const boxHeight = Math.ceil(text1Height + text2Height + 8);
+        const text1Height = calculateTextHeight(nextStepsText1, contentWidth - 8, 8, 1);
+        const text2Height = calculateTextHeight(nextStepsText2, contentWidth - 8, 7.5, 0.5);
+        const boxHeight = Math.ceil(text1Height + text2Height + 10);
         
         // Fond premium avec accent violet-cyan
         doc.rect(margin, currentY, contentWidth, boxHeight)
@@ -380,16 +380,16 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .lineWidth(0.5)
            .stroke();
         
-        doc.fontSize(7.5)
+        doc.fontSize(8)
            .fillColor('#10B981')
-           .text(nextStepsText1, margin + 4, currentY + 3, { 
+           .text(nextStepsText1, margin + 4, currentY + 4, { 
              width: contentWidth - 8,
-             lineGap: 0.5
+             lineGap: 1
            });
         
-        doc.fontSize(7)
+        doc.fontSize(7.5)
            .fillColor('#4b5563')
-           .text(nextStepsText2, margin + 4, currentY + text1Height + 4, { 
+           .text(nextStepsText2, margin + 4, currentY + text1Height + 5, { 
              width: contentWidth - 8,
              align: 'center',
              lineGap: 0.5
