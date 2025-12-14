@@ -34,13 +34,16 @@ export const AuditTool: React.FC = () => {
       <div className="container mx-auto px-6 max-w-4xl">
         <div className="text-center mb-12">
           <span className="inline-block px-4 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-sm font-bold mb-4">
-            ✨ Faites le premier pas
+            🎯 Test Gratuit • 2 Minutes
           </span>
-          <h2 className="text-3xl md:text-5xl font-bold font-display text-white mb-6">
-            Où perdez-vous <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">votre énergie ?</span>
+          <h2 className="text-3xl md:text-5xl font-bold font-display text-white mb-4">
+            Découvrez ce que vous pouvez <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">automatiser dès aujourd'hui</span>
           </h2>
-          <p className="text-gray-400 text-lg">
-            Décrivez une tâche qui vous pèse. L'IA va vous montrer comment la transformer en opportunité.
+          <p className="text-gray-300 text-lg font-medium mb-2">
+            Décrivez une tâche chronophage. Notre IA vous montre <span className="text-cyan-300">exactement</span> comment l'automatiser et combien de temps vous gagnerez.
+          </p>
+          <p className="text-gray-500 text-sm">
+            <span className="text-violet-300 font-semibold">Gratuit</span> • <span className="text-cyan-300 font-semibold">Sans engagement</span> • <span className="text-green-300 font-semibold">Résultats en 30 secondes</span>
           </p>
         </div>
 
