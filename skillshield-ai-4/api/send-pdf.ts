@@ -17,24 +17,6 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       doc.on('data', (chunk) => chunks.push(chunk));
       doc.on('end', () => resolve(Buffer.concat(chunks)));
       doc.on('error', reject);
-      
-      // Ajouter le footer sur chaque page
-      doc.on('pageAdded', () => {
-        const pageHeight = doc.page.height || 842;
-        const pageWidth = doc.page.width || 595;
-        const margin = 45;
-        const contentWidth = pageWidth - 2 * margin;
-        const footerY = pageHeight - 50;
-        
-        doc.fontSize(7.5)
-           .fillColor('#6b7280')
-           .text('© 2025 SkillShield AI. Tous droits réservés.', 
-                 margin, footerY, { 
-                   width: contentWidth,
-                   align: 'center',
-                   lineGap: 0
-                 });
-      });
 
       const pageWidth = doc.page?.width || 595;
       const pageHeight = doc.page?.height || 842;
