@@ -3,13 +3,110 @@ import PDFDocument from 'pdfkit';
 import nodemailer from 'nodemailer';
 import { AuditResult } from '../types';
 
+// Fonction pour dessiner le logo SkillShield dans le PDF
+function drawLogo(doc: PDFKit.PDFDocument, x: number, y: number, size: number) {
+  const centerX = x + size / 2;
+  const centerY = y + size / 2;
+  
+  // Couleurs
+  const shieldColor = '#60a5fa'; // cyan-400
+  const brainColor = '#34d399'; // green-400
+  const circuitColor = '#3b82f6'; // blue-500
+  
+  doc.save();
+  
+  // Bouclier - forme simplifiée avec rectangle
+  doc.rect(centerX - 20, centerY - 25, 40, 45)
+     .fillColor(shieldColor)
+     .fill()
+     .strokeColor('#1e40af')
+     .lineWidth(2)
+     .stroke();
+  
+  // Pointe du bouclier (triangle)
+  doc.moveTo(centerX, centerY - 25)
+     .lineTo(centerX - 15, centerY - 15)
+     .lineTo(centerX, centerY - 20)
+     .lineTo(centerX + 15, centerY - 15)
+     .closePath()
+     .fillColor(shieldColor)
+     .fill()
+     .strokeColor('#1e40af')
+     .lineWidth(2)
+     .stroke();
+  
+  // Cerveau - hémisphères simplifiés avec des cercles
+  // Hémisphère gauche
+  doc.circle(centerX - 8, centerY, 7)
+     .strokeColor(brainColor)
+     .lineWidth(2.5)
+     .stroke();
+  
+  // Hémisphère droit
+  doc.circle(centerX + 8, centerY, 7)
+     .strokeColor(brainColor)
+     .lineWidth(2.5)
+     .stroke();
+  
+  // Détails du cerveau (gyri) - petits cercles
+  doc.circle(centerX - 10, centerY - 2, 1.5).fillColor(brainColor).fill();
+  doc.circle(centerX + 10, centerY - 2, 1.5).fillColor(brainColor).fill();
+  doc.circle(centerX - 8, centerY + 4, 1.2).fillColor(brainColor).fill();
+  doc.circle(centerX + 8, centerY + 4, 1.2).fillColor(brainColor).fill();
+  
+  // Lignes de circuit (simplifiées)
+  doc.moveTo(centerX - 30, centerY - 15)
+     .lineTo(centerX - 25, centerY - 10)
+     .strokeColor(circuitColor)
+     .lineWidth(1.5)
+     .stroke();
+  
+  doc.moveTo(centerX + 30, centerY - 15)
+     .lineTo(centerX + 25, centerY - 10)
+     .strokeColor(circuitColor)
+     .lineWidth(1.5)
+     .stroke();
+  
+  doc.circle(centerX - 30, centerY - 15, 1.5).fillColor(circuitColor).fill();
+  doc.circle(centerX + 30, centerY - 15, 1.5).fillColor(circuitColor).fill();
+  
+  doc.restore();
+}
+
+// Fonction pour ajouter le disclaimer en bas de page
+function addDisclaimer(doc: PDFKit.PDFDocument) {
+  const pageHeight = doc.page.height;
+  const pageWidth = doc.page.width;
+  const margin = 50;
+  
+  doc.fontSize(8)
+     .fillColor('#6b7280')
+     .text('© ' + new Date().getFullYear() + ' SkillShield AI. Tous droits réservés.', 
+           margin, 
+           pageHeight - 40, 
+           { 
+             width: pageWidth - 2 * margin, 
+             align: 'center' 
+           });
+  
+  doc.fontSize(7)
+     .fillColor('#9ca3af')
+     .text('Ce document est la propriété exclusive de SkillShield AI. Toute reproduction, distribution ou utilisation non autorisée est strictement interdite.', 
+           margin, 
+           pageHeight - 25, 
+           { 
+             width: pageWidth - 2 * margin, 
+             align: 'center' 
+           });
+}
+
 // Fonction pour générer le PDF personnalisé
 function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     try {
       const doc = new PDFDocument({
         size: 'A4',
-        margins: { top: 50, bottom: 50, left: 50, right: 50 }
+        margins: { top: 50, bottom: 80, left: 50, right: 50 }
       });
 
       const chunks: Buffer[] = [];
@@ -18,15 +115,34 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       doc.on('end', () => resolve(Buffer.concat(chunks)));
       doc.on('error', reject);
 
-      // En-tête avec logo/titre
+      // Ajouter le disclaimer sur chaque page
+      doc.on('pageAdded', () => {
+        addDisclaimer(doc);
+      });
+
+      // En-tête avec logo
+      const pageWidth = doc.page.width;
+      const margin = 50;
+      const logoSize = 50;
+      const logoX = (pageWidth - logoSize) / 2;
+      
+      // Dessiner le logo
+      drawLogo(doc, logoX, 20, logoSize);
+      
+      doc.moveDown(3);
+      
+      // Titre
       doc.fontSize(24)
          .fillColor('#6366f1')
          .text('SkillShield AI', { align: 'center' });
       
       doc.moveDown(0.5);
       doc.fontSize(18)
-         .fillColor('#ffffff')
+         .fillColor('#1f2937')
          .text('Votre Plan d\'Automatisation en 5 Étapes', { align: 'center' });
+      
+      // Ajouter le disclaimer sur la première page
+      addDisclaimer(doc);
       
       doc.moveDown(1);
 
@@ -37,12 +153,12 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       
       doc.moveDown(0.5);
       doc.fontSize(11)
-         .fillColor('#e5e7eb')
+         .fillColor('#1f2937')
          .text(`Problème identifié : ${userProblem}`, { indent: 20 });
       
       doc.moveDown(0.3);
       doc.fontSize(11)
-         .fillColor('#d1d5db')
+         .fillColor('#4b5563')
          .text(auditResult.analysis, { indent: 20, align: 'justify' });
 
       doc.moveDown(1);
@@ -56,22 +172,22 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
 
       auditResult.suggestions.forEach((suggestion, index) => {
         doc.fontSize(12)
-           .fillColor('#60a5fa')
+           .fillColor('#2563eb')
            .text(`${index + 1}. ${suggestion.title}`, { indent: 20 });
         
         doc.moveDown(0.2);
         doc.fontSize(10)
-           .fillColor('#9ca3af')
+           .fillColor('#6b7280')
            .text(`   Difficulté : ${suggestion.difficulty}`, { indent: 30 });
         
         doc.moveDown(0.1);
         doc.fontSize(10)
-           .fillColor('#34d399')
+           .fillColor('#059669')
            .text(`   Temps économisé : ${suggestion.timeSaved}`, { indent: 30 });
         
         doc.moveDown(0.3);
         doc.fontSize(10)
-           .fillColor('#d1d5db')
+           .fillColor('#4b5563')
            .text(suggestion.description, { indent: 30, align: 'justify' });
         
         doc.moveDown(0.5);
@@ -86,27 +202,27 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         
         doc.moveDown(0.5);
         doc.fontSize(11)
-           .fillColor('#d1d5db')
+           .fillColor('#4b5563')
            .text(`Secteur : ${auditResult.benchmark.sectorAverage}`, { indent: 20 });
         
         doc.moveDown(0.3);
         doc.fontSize(11)
-           .fillColor('#d1d5db')
+           .fillColor('#4b5563')
            .text(`% de processus automatisés : ${auditResult.benchmark.automatedProcessesPercentage}%`, { indent: 20 });
         
         doc.moveDown(0.3);
         doc.fontSize(11)
-           .fillColor('#d1d5db')
+           .fillColor('#4b5563')
            .text(`Temps économisé par tâche : ${auditResult.benchmark.averageTimeSavedPerTask}`, { indent: 20 });
         
         doc.moveDown(0.3);
         doc.fontSize(11)
-           .fillColor('#d1d5db')
+           .fillColor('#4b5563')
            .text(`ROI moyen : ${auditResult.benchmark.averageROI}`, { indent: 20 });
         
         doc.moveDown(0.3);
         doc.fontSize(11)
-           .fillColor('#d1d5db')
+           .fillColor('#4b5563')
            .text(`Période de retour sur investissement : ${auditResult.benchmark.paybackPeriod}`, { indent: 20 });
       }
 
@@ -143,12 +259,12 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
 
       steps.forEach((step, index) => {
         doc.fontSize(12)
-           .fillColor('#60a5fa')
+           .fillColor('#2563eb')
            .text(`${step.title}`, { indent: 20 });
         
         doc.moveDown(0.2);
         doc.fontSize(10)
-           .fillColor('#d1d5db')
+           .fillColor('#4b5563')
            .text(step.description, { indent: 30, align: 'justify' });
         
         doc.moveDown(0.5);
@@ -162,33 +278,36 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       
       doc.moveDown(0.5);
       doc.fontSize(11)
-         .fillColor('#d1d5db')
+         .fillColor('#4b5563')
          .text('Vous êtes prêt à transformer votre entreprise ?', { indent: 20 });
       
       doc.moveDown(0.5);
       doc.fontSize(11)
-         .fillColor('#34d399')
+         .fillColor('#059669')
          .text('✓ Planifiez un appel de 15 minutes avec notre équipe', { indent: 20 });
       
       doc.moveDown(0.3);
       doc.fontSize(11)
-         .fillColor('#34d399')
+         .fillColor('#059669')
          .text('✓ Recevez un devis personnalisé gratuit', { indent: 20 });
       
       doc.moveDown(0.3);
       doc.fontSize(11)
-         .fillColor('#34d399')
+         .fillColor('#059669')
          .text('✓ Bénéficiez de notre garantie résultat (remboursé à 90%)', { indent: 20 });
 
       doc.moveDown(1);
       doc.fontSize(10)
-         .fillColor('#9ca3af')
+         .fillColor('#6b7280')
          .text('Contact : contact@skillshield-ai.com', { align: 'center' });
       
       doc.moveDown(0.2);
       doc.fontSize(10)
-         .fillColor('#9ca3af')
+         .fillColor('#6b7280')
          .text('Réponse sous 24h • Garantie Résultat', { align: 'center' });
+
+      // Ajouter le disclaimer final avant la fin
+      addDisclaimer(doc);
 
       doc.end();
     } catch (error) {
