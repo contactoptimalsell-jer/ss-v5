@@ -3,101 +3,82 @@ import PDFDocument from 'pdfkit';
 import nodemailer from 'nodemailer';
 import { AuditResult } from '../types';
 
-// Fonction pour dessiner le logo SkillShield dans le PDF
+// Fonction pour dessiner le logo SkillShield dans le PDF (version simplifiée)
 function drawLogo(doc: PDFKit.PDFDocument, x: number, y: number, size: number) {
-  const centerX = x + size / 2;
-  const centerY = y + size / 2;
-  
-  // Couleurs
-  const shieldColor = '#60a5fa'; // cyan-400
-  const brainColor = '#34d399'; // green-400
-  const circuitColor = '#3b82f6'; // blue-500
-  
-  doc.save();
-  
-  // Bouclier - forme simplifiée avec rectangle
-  doc.rect(centerX - 20, centerY - 25, 40, 45)
-     .fillColor(shieldColor)
-     .fill()
-     .strokeColor('#1e40af')
-     .lineWidth(2)
-     .stroke();
-  
-  // Pointe du bouclier (triangle)
-  doc.moveTo(centerX, centerY - 25)
-     .lineTo(centerX - 15, centerY - 15)
-     .lineTo(centerX, centerY - 20)
-     .lineTo(centerX + 15, centerY - 15)
-     .closePath()
-     .fillColor(shieldColor)
-     .fill()
-     .strokeColor('#1e40af')
-     .lineWidth(2)
-     .stroke();
-  
-  // Cerveau - hémisphères simplifiés avec des cercles
-  // Hémisphère gauche
-  doc.circle(centerX - 8, centerY, 7)
-     .strokeColor(brainColor)
-     .lineWidth(2.5)
-     .stroke();
-  
-  // Hémisphère droit
-  doc.circle(centerX + 8, centerY, 7)
-     .strokeColor(brainColor)
-     .lineWidth(2.5)
-     .stroke();
-  
-  // Détails du cerveau (gyri) - petits cercles
-  doc.circle(centerX - 10, centerY - 2, 1.5).fillColor(brainColor).fill();
-  doc.circle(centerX + 10, centerY - 2, 1.5).fillColor(brainColor).fill();
-  doc.circle(centerX - 8, centerY + 4, 1.2).fillColor(brainColor).fill();
-  doc.circle(centerX + 8, centerY + 4, 1.2).fillColor(brainColor).fill();
-  
-  // Lignes de circuit (simplifiées)
-  doc.moveTo(centerX - 30, centerY - 15)
-     .lineTo(centerX - 25, centerY - 10)
-     .strokeColor(circuitColor)
-     .lineWidth(1.5)
-     .stroke();
-  
-  doc.moveTo(centerX + 30, centerY - 15)
-     .lineTo(centerX + 25, centerY - 10)
-     .strokeColor(circuitColor)
-     .lineWidth(1.5)
-     .stroke();
-  
-  doc.circle(centerX - 30, centerY - 15, 1.5).fillColor(circuitColor).fill();
-  doc.circle(centerX + 30, centerY - 15, 1.5).fillColor(circuitColor).fill();
-  
-  doc.restore();
+  try {
+    const centerX = x + size / 2;
+    const centerY = y + size / 2;
+    
+    // Bouclier - rectangle simple
+    doc.rect(centerX - 20, centerY - 25, 40, 45)
+       .fillColor('#60a5fa')
+       .fill()
+       .strokeColor('#1e40af')
+       .lineWidth(2)
+       .stroke();
+    
+    // Pointe du bouclier (triangle)
+    doc.moveTo(centerX, centerY - 25)
+       .lineTo(centerX - 15, centerY - 15)
+       .lineTo(centerX + 15, centerY - 15)
+       .closePath()
+       .fillColor('#60a5fa')
+       .fill()
+       .strokeColor('#1e40af')
+       .lineWidth(2)
+       .stroke();
+    
+    // Cerveau - deux cercles pour les hémisphères
+    doc.circle(centerX - 8, centerY, 7)
+       .strokeColor('#34d399')
+       .lineWidth(2.5)
+       .stroke();
+    
+    doc.circle(centerX + 8, centerY, 7)
+       .strokeColor('#34d399')
+       .lineWidth(2.5)
+       .stroke();
+    
+    // Petits détails
+    doc.circle(centerX - 10, centerY - 2, 1.5).fillColor('#34d399').fill();
+    doc.circle(centerX + 10, centerY - 2, 1.5).fillColor('#34d399').fill();
+    
+  } catch (error) {
+    console.error('Erreur lors du dessin du logo:', error);
+    // Si le logo échoue, on continue sans logo
+  }
 }
 
 // Fonction pour ajouter le disclaimer en bas de page
 function addDisclaimer(doc: PDFKit.PDFDocument) {
-  const pageHeight = doc.page.height;
-  const pageWidth = doc.page.width;
-  const margin = 50;
-  
-  doc.fontSize(8)
-     .fillColor('#6b7280')
-     .text('© ' + new Date().getFullYear() + ' SkillShield AI. Tous droits réservés.', 
-           margin, 
-           pageHeight - 40, 
-           { 
-             width: pageWidth - 2 * margin, 
-             align: 'center' 
-           });
-  
-  doc.fontSize(7)
-     .fillColor('#9ca3af')
-     .text('Ce document est la propriété exclusive de SkillShield AI. Toute reproduction, distribution ou utilisation non autorisée est strictement interdite.', 
-           margin, 
-           pageHeight - 25, 
-           { 
-             width: pageWidth - 2 * margin, 
-             align: 'center' 
-           });
+  try {
+    const pageHeight = doc.page.height || 842; // A4 height par défaut
+    const pageWidth = doc.page.width || 595; // A4 width par défaut
+    const margin = 50;
+    
+    doc.fontSize(8)
+       .fillColor('#6b7280')
+       .text('© ' + new Date().getFullYear() + ' SkillShield AI. Tous droits réservés.', 
+             margin, 
+             pageHeight - 40, 
+             { 
+               width: pageWidth - 2 * margin, 
+               align: 'center' 
+             });
+    
+    doc.fontSize(7)
+       .fillColor('#9ca3af')
+       .text('Ce document est la propriété exclusive de SkillShield AI. Toute reproduction, distribution ou utilisation non autorisée est strictement interdite.', 
+             margin, 
+             pageHeight - 25, 
+             { 
+               width: pageWidth - 2 * margin, 
+               align: 'center' 
+             });
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout du disclaimer:', error);
+    // On continue même si le disclaimer échoue
+  }
 }
 
 // Fonction pour générer le PDF personnalisé
@@ -115,19 +96,20 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       doc.on('end', () => resolve(Buffer.concat(chunks)));
       doc.on('error', reject);
 
-      // Ajouter le disclaimer sur chaque page
-      doc.on('pageAdded', () => {
-        addDisclaimer(doc);
-      });
+      // Note: Le disclaimer sera ajouté manuellement sur chaque page
 
       // En-tête avec logo
-      const pageWidth = doc.page.width;
+      const pageWidth = doc.page?.width || 595; // A4 width par défaut
       const margin = 50;
       const logoSize = 50;
       const logoX = (pageWidth - logoSize) / 2;
       
-      // Dessiner le logo
-      drawLogo(doc, logoX, 20, logoSize);
+      // Dessiner le logo (dans un try-catch pour éviter les erreurs)
+      try {
+        drawLogo(doc, logoX, 20, logoSize);
+      } catch (logoError) {
+        console.error('Erreur lors du dessin du logo, continuation sans logo:', logoError);
+      }
       
       doc.moveDown(3);
       
@@ -196,6 +178,8 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       // Section 3: Benchmark (si disponible)
       if (auditResult.benchmark) {
         doc.addPage();
+        addDisclaimer(doc); // Ajouter disclaimer sur la nouvelle page
+        
         doc.fontSize(16)
            .fillColor('#8b5cf6')
            .text('3. Benchmark IA/Automatisation', { underline: true });
@@ -228,6 +212,8 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
 
       // Section 4: Plan d'action en 5 étapes
       doc.addPage();
+      addDisclaimer(doc); // Ajouter disclaimer sur la nouvelle page
+      
       doc.fontSize(16)
          .fillColor('#8b5cf6')
          .text('4. Votre Plan d\'Action en 5 Étapes', { underline: true });
@@ -272,6 +258,8 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
 
       // Section 5: Prochaines étapes
       doc.addPage();
+      addDisclaimer(doc); // Ajouter disclaimer sur la nouvelle page
+      
       doc.fontSize(16)
          .fillColor('#8b5cf6')
          .text('5. Prochaines Étapes', { underline: true });
@@ -402,11 +390,16 @@ export default async function handler(
   }
 
   try {
+    console.log('Début de la génération du PDF...');
+    
     // Générer le PDF
     const pdfBuffer = await generatePDF(auditResult as AuditResult, userProblem);
+    console.log('PDF généré avec succès, taille:', pdfBuffer.length, 'bytes');
 
+    console.log('Début de l\'envoi de l\'email...');
     // Envoyer l'email avec le PDF
     await sendEmailWithPDF(email, pdfBuffer, userProblem);
+    console.log('Email envoyé avec succès');
 
     return res.status(200).json({ 
       success: true,
@@ -414,7 +407,13 @@ export default async function handler(
     });
 
   } catch (error: any) {
-    console.error('Erreur lors de l\'envoi du PDF:', error);
+    console.error('❌ Erreur complète lors de l\'envoi du PDF:', error);
+    console.error('Stack trace:', error.stack);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      name: error.name
+    });
     
     // Erreur spécifique pour SMTP
     if (error.code === 'EAUTH' || error.code === 'ECONNECTION') {
@@ -426,7 +425,8 @@ export default async function handler(
 
     return res.status(500).json({ 
       error: 'Erreur lors de l\'envoi du PDF',
-      message: error.message || 'Une erreur inattendue s\'est produite'
+      message: error.message || 'Une erreur inattendue s\'est produite',
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 }
