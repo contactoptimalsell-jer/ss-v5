@@ -16,7 +16,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
     try {
       const doc = new PDFDocument({
         size: 'A4',
-        margins: { top: 25, bottom: 50, left: 40, right: 40 }
+        margins: { top: 30, bottom: 60, left: 45, right: 45 }
       });
 
       const chunks: Buffer[] = [];
@@ -27,348 +27,398 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
 
       const pageWidth = doc.page?.width || 595;
       const pageHeight = doc.page?.height || 842;
-      const margin = 40;
+      const margin = 45;
       const contentWidth = pageWidth - 2 * margin;
-      const maxY = pageHeight - 50; // Zone maximale avant le footer
-      let currentY = 25;
+      const maxY = pageHeight - 60; // Zone maximale avant le footer
+      let currentY = 30;
+      
+      // Constantes pour une structure cohérente
+      const SECTION_SPACING = 12; // Espacement entre sections
+      const SUBSECTION_SPACING = 8; // Espacement dans les sous-sections
 
-      // === EN-TÊTE PREMIUM ===
+      // === EN-TÊTE STRUCTURÉ ===
       // Barre de couleur violet vive en haut (style SkillShield)
-      doc.rect(margin, currentY, contentWidth, 2)
+      doc.rect(margin, currentY, contentWidth, 3)
          .fillColor('#9333EA')
          .fill();
       
-      currentY += 8;
+      currentY += 10;
       
       // Titre principal avec style SkillShield premium
-      doc.fontSize(20)
+      doc.fontSize(22)
          .fillColor('#9333EA')
+         .font('Helvetica-Bold')
          .text('SkillShield AI', margin, currentY, { 
            width: contentWidth,
            align: 'left',
            lineGap: 0
          });
       
-      currentY += 14;
+      currentY += 16;
       
-      doc.fontSize(12)
+      doc.fontSize(14)
          .fillColor('#000000')
+         .font('Helvetica-Bold')
          .text('Plan d\'Automatisation Personnalisé', margin, currentY, { 
            width: contentWidth,
            align: 'left',
            lineGap: 0
          });
       
-      currentY += 16;
+      currentY += 20;
 
       // === SECTION 1: ANALYSE ===
+      // Vérification d'espace avant d'ajouter la section
+      if (currentY > maxY - 100) {
+        doc.end();
+        return;
+      }
+      
       // Titre de section avec accent cyan vif premium
-      doc.rect(margin, currentY, 3, 10)
+      doc.rect(margin, currentY, 4, 12)
          .fillColor('#06B6D4')
          .fill();
       
-      doc.fontSize(10)
+      doc.fontSize(11)
          .fillColor('#9333EA')
-         .text('ANALYSE DE VOTRE SITUATION', margin + 7, currentY + 1, { 
-           width: contentWidth - 7,
+         .font('Helvetica-Bold')
+         .text('1. ANALYSE DE VOTRE SITUATION', margin + 8, currentY + 2, { 
+           width: contentWidth - 8,
            lineGap: 0
          });
       
-      currentY += 13;
+      currentY += 16;
       
-      const problemText = `Problème identifié : ${userProblem.substring(0, 150)}${userProblem.length > 150 ? '...' : ''}`;
-      doc.fontSize(8.5)
+      // Sous-titre "Problème identifié"
+      doc.fontSize(9)
+         .fillColor('#9333EA')
+         .font('Helvetica-Bold')
+         .text('Problème identifié :', margin, currentY, { 
+           width: contentWidth,
+           align: 'left',
+           lineGap: 0
+         });
+      
+      currentY += 8;
+      
+      const problemText = userProblem.length > 200 ? userProblem.substring(0, 200) + '...' : userProblem;
+      doc.fontSize(9)
          .fillColor('#000000')
+         .font('Helvetica')
          .text(problemText, margin, currentY, { 
            width: contentWidth,
            align: 'left',
-           lineGap: 1
+           lineGap: 1.5
          });
       
-      currentY += calculateTextHeight(problemText, contentWidth, 8.5, 1) + 7;
+      currentY += calculateTextHeight(problemText, contentWidth, 9, 1.5) + 10;
       
-      const analysisText = auditResult.analysis.substring(0, 280) + (auditResult.analysis.length > 280 ? '...' : '');
-      doc.fontSize(8.5)
+      // Sous-titre "Notre analyse"
+      doc.fontSize(9)
+         .fillColor('#9333EA')
+         .font('Helvetica-Bold')
+         .text('Notre analyse :', margin, currentY, { 
+           width: contentWidth,
+           align: 'left',
+           lineGap: 0
+         });
+      
+      currentY += 8;
+      
+      const analysisText = auditResult.analysis.length > 350 ? auditResult.analysis.substring(0, 350) + '...' : auditResult.analysis;
+      doc.fontSize(9)
          .fillColor('#000000')
+         .font('Helvetica')
          .text(analysisText, margin, currentY, { 
            width: contentWidth,
            align: 'justify',
            lineGap: 2
          });
       
-      currentY += calculateTextHeight(analysisText, contentWidth, 8.5, 2) + 12;
+      currentY += calculateTextHeight(analysisText, contentWidth, 9, 2) + SECTION_SPACING;
 
-      // === SECTION 2: SOLUTIONS (2 colonnes premium) ===
-      doc.rect(margin, currentY, 3, 10)
+      // === SECTION 2: SOLUTIONS ===
+      // Vérification d'espace
+      if (currentY > maxY - 150) {
+        doc.end();
+        return;
+      }
+      
+      doc.rect(margin, currentY, 4, 12)
          .fillColor('#06B6D4')
          .fill();
       
-      doc.fontSize(10)
+      doc.fontSize(11)
          .fillColor('#9333EA')
-         .text('SOLUTIONS D\'AUTOMATISATION IA', margin + 7, currentY + 1, { 
-           width: contentWidth - 7,
+         .font('Helvetica-Bold')
+         .text('2. SOLUTIONS D\'AUTOMATISATION IA', margin + 8, currentY + 2, { 
+           width: contentWidth - 8,
            lineGap: 0
          });
       
-      currentY += 13;
+      currentY += 16;
       
-      const colWidth = (contentWidth - 6) / 2;
       const solutions = auditResult.suggestions;
+      const gapBetweenSolutions = 8;
       
-      // Solution 1 et 2 côte à côte avec design premium
-      let maxSolutionHeight = 0;
-      [0, 1].forEach((index) => {
-        if (index < solutions.length) {
-          const colX = index === 0 ? margin : margin + colWidth + 6;
-          const suggestion = solutions[index];
-          
-          const titleText = `${index + 1}. ${suggestion.title}`;
-          const metaText = `${suggestion.difficulty} • ${suggestion.timeSaved}`;
-          const descText = suggestion.description.substring(0, 130) + (suggestion.description.length > 130 ? '...' : '');
-          
-          const titleHeight = calculateTextHeight(titleText, colWidth - 8, 8.5, 1);
-          const metaHeight = calculateTextHeight(metaText, colWidth - 8, 7.5, 0.5);
-          const descHeight = calculateTextHeight(descText, colWidth - 8, 7.5, 1.5);
-          const boxHeight = Math.ceil(titleHeight + metaHeight + descHeight + 10);
-          
-          maxSolutionHeight = Math.max(maxSolutionHeight, boxHeight);
-          
-          // Fond subtil premium pour chaque solution
-          doc.rect(colX, currentY, colWidth, boxHeight)
-             .fillColor('#F8FAFC')
-             .fill();
-          
-          // Bordure subtile
-          doc.rect(colX, currentY, colWidth, boxHeight)
-             .strokeColor('#E5E7EB')
-             .lineWidth(0.5)
-             .stroke();
-          
-          let textY = currentY + 4;
-          doc.fontSize(8.5)
-             .fillColor('#9333EA')
-             .text(titleText, colX + 4, textY, { 
-               width: colWidth - 8,
-               lineGap: 1
-             });
-          
-          textY += titleHeight + 4;
-          doc.fontSize(7.5)
-             .fillColor('#000000')
-             .text(metaText, colX + 4, textY, { 
-               width: colWidth - 8,
-               lineGap: 0.5
-             });
-          
-          textY += metaHeight + 4;
-          doc.fontSize(7.5)
-             .fillColor('#000000')
-             .text(descText, colX + 4, textY, { 
-               width: colWidth - 8,
-               align: 'justify',
-               lineGap: 1.5
-             });
-        }
-      });
-      
-      currentY += maxSolutionHeight + 7;
-      
-      // Solution 3 en pleine largeur premium
-      if (solutions.length > 2 && currentY < maxY - 50) {
-        const suggestion = solutions[2];
-        const titleText = `3. ${suggestion.title}`;
-        const metaText = `${suggestion.difficulty} • ${suggestion.timeSaved}`;
-        const descText = suggestion.description.substring(0, 220) + (suggestion.description.length > 220 ? '...' : '');
+      // Affichage des solutions en pleine largeur pour une meilleure lisibilité
+      solutions.slice(0, 3).forEach((suggestion, index) => {
+        // Vérification d'espace avant chaque solution
+        if (currentY > maxY - 80) return;
         
-        const titleHeight = calculateTextHeight(titleText, contentWidth - 8, 8.5, 1);
-        const metaHeight = calculateTextHeight(metaText, contentWidth - 8, 7.5, 0.5);
-        const descHeight = calculateTextHeight(descText, contentWidth - 8, 7.5, 1.5);
-        const boxHeight = Math.ceil(titleHeight + metaHeight + descHeight + 10);
+        const titleText = `Solution ${index + 1} : ${suggestion.title}`;
+        const metaText = `Difficulté : ${suggestion.difficulty} | Temps économisé : ${suggestion.timeSaved}`;
+        const maxDescLength = index < 2 ? 200 : 250; // Plus d'espace pour la dernière
+        const descText = suggestion.description.length > maxDescLength 
+          ? suggestion.description.substring(0, maxDescLength) + '...' 
+          : suggestion.description;
         
+        const titleHeight = calculateTextHeight(titleText, contentWidth - 12, 9.5, 1);
+        const metaHeight = calculateTextHeight(metaText, contentWidth - 12, 8.5, 0.5);
+        const descHeight = calculateTextHeight(descText, contentWidth - 12, 9, 1.8);
+        const boxHeight = Math.ceil(titleHeight + metaHeight + descHeight + 14);
+        
+        // Vérification finale d'espace
+        if (currentY + boxHeight > maxY - 60) return;
+        
+        // Fond subtil premium pour chaque solution
         doc.rect(margin, currentY, contentWidth, boxHeight)
            .fillColor('#F8FAFC')
            .fill();
         
+        // Bordure avec couleur selon difficulté
+        const borderColor = suggestion.difficulty === 'Facile' ? '#10B981' : 
+                           suggestion.difficulty === 'Moyen' ? '#F59E0B' : '#EF4444';
         doc.rect(margin, currentY, contentWidth, boxHeight)
-           .strokeColor('#E5E7EB')
-           .lineWidth(0.5)
+           .strokeColor(borderColor)
+           .lineWidth(1)
            .stroke();
         
-        let textY = currentY + 4;
-        doc.fontSize(8.5)
+        let textY = currentY + 6;
+        doc.fontSize(9.5)
            .fillColor('#9333EA')
-           .text(titleText, margin + 4, textY, { 
-             width: contentWidth - 8,
+           .font('Helvetica-Bold')
+           .text(titleText, margin + 6, textY, { 
+             width: contentWidth - 12,
              lineGap: 1
            });
         
-        textY += titleHeight + 4;
-        doc.fontSize(7.5)
-           .fillColor('#000000')
-           .text(metaText, margin + 4, textY, { 
-             width: contentWidth - 8,
+        textY += titleHeight + 5;
+        doc.fontSize(8.5)
+           .fillColor('#6B7280')
+           .font('Helvetica')
+           .text(metaText, margin + 6, textY, { 
+             width: contentWidth - 12,
              lineGap: 0.5
            });
         
-        textY += metaHeight + 4;
-        doc.fontSize(7.5)
+        textY += metaHeight + 5;
+        doc.fontSize(9)
            .fillColor('#000000')
-           .text(descText, margin + 4, textY, { 
-             width: contentWidth - 8,
+           .font('Helvetica')
+           .text(descText, margin + 6, textY, { 
+             width: contentWidth - 12,
              align: 'justify',
-             lineGap: 1.5
+             lineGap: 1.8
            });
         
-        currentY += boxHeight + 5;
-      }
+        currentY += boxHeight + gapBetweenSolutions;
+      });
+      
+      currentY += SUBSECTION_SPACING;
 
       // === SECTION 3: BENCHMARK (si disponible) ===
-      if (auditResult.benchmark && currentY < maxY - 50) {
-        doc.rect(margin, currentY, 3, 10)
+      if (auditResult.benchmark && currentY < maxY - 80) {
+        doc.rect(margin, currentY, 4, 12)
            .fillColor('#06B6D4')
            .fill();
         
-        doc.fontSize(10)
+        doc.fontSize(11)
            .fillColor('#9333EA')
-           .text('BENCHMARK SECTEUR', margin + 7, currentY + 1, { 
-             width: contentWidth - 7,
+           .font('Helvetica-Bold')
+           .text('3. BENCHMARK SECTEUR', margin + 8, currentY + 2, { 
+             width: contentWidth - 8,
              lineGap: 0
            });
         
-        currentY += 13;
+        currentY += 16;
         
         // Fond premium vif pour le benchmark
-        const benchHeight = 42;
+        const benchHeight = 50;
+        
+        // Vérification d'espace
+        if (currentY + benchHeight > maxY - 60) {
+          doc.end();
+          return;
+        }
+        
         doc.rect(margin, currentY, contentWidth, benchHeight)
            .fillColor('#ECFEFF')
            .fill();
         
         doc.rect(margin, currentY, contentWidth, benchHeight)
            .strokeColor('#06B6D4')
-           .lineWidth(1)
+           .lineWidth(1.5)
            .stroke();
         
         // Benchmark en 2 colonnes avec espacement harmonieux
-        const benchCol1 = margin + 6;
-        const benchCol2 = margin + contentWidth / 2 + 6;
-        const benchColWidth = contentWidth / 2 - 12;
+        const benchCol1 = margin + 8;
+        const benchCol2 = margin + contentWidth / 2 + 8;
+        const benchColWidth = contentWidth / 2 - 16;
+        const benchRowHeight = 16;
         
-        doc.fontSize(8)
+        let benchY = currentY + 6;
+        
+        // Ligne 1
+        doc.fontSize(8.5)
            .fillColor('#9333EA')
-           .text('Secteur', benchCol1, currentY + 4, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(8)
+           .font('Helvetica-Bold')
+           .text('Secteur', benchCol1, benchY, { width: benchColWidth, lineGap: 0 });
+        doc.fontSize(9)
            .fillColor('#000000')
-           .text(auditResult.benchmark.sectorAverage, benchCol1, currentY + 13, { 
+           .font('Helvetica')
+           .text(auditResult.benchmark.sectorAverage, benchCol1, benchY + 8, { 
              width: benchColWidth,
              lineGap: 1
            });
         
-        doc.fontSize(8)
+        doc.fontSize(8.5)
            .fillColor('#9333EA')
-           .text('Processus automatisés', benchCol2, currentY + 4, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(8)
+           .font('Helvetica-Bold')
+           .text('Processus automatisés', benchCol2, benchY, { width: benchColWidth, lineGap: 0 });
+        doc.fontSize(9)
            .fillColor('#000000')
-           .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, currentY + 13, { 
+           .font('Helvetica')
+           .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, benchY + 8, { 
              width: benchColWidth,
              lineGap: 1
            });
         
-        doc.fontSize(8)
+        benchY += benchRowHeight;
+        
+        // Ligne 2
+        doc.fontSize(8.5)
            .fillColor('#9333EA')
-           .text('Temps économisé', benchCol1, currentY + 23, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(8)
+           .font('Helvetica-Bold')
+           .text('Temps économisé', benchCol1, benchY, { width: benchColWidth, lineGap: 0 });
+        doc.fontSize(9)
            .fillColor('#000000')
-           .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, currentY + 32, { 
+           .font('Helvetica')
+           .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, benchY + 8, { 
              width: benchColWidth,
              lineGap: 1
            });
         
-        doc.fontSize(8)
+        doc.fontSize(8.5)
            .fillColor('#9333EA')
-           .text('ROI moyen', benchCol2, currentY + 23, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(8)
+           .font('Helvetica-Bold')
+           .text('ROI moyen', benchCol2, benchY, { width: benchColWidth, lineGap: 0 });
+        doc.fontSize(9)
            .fillColor('#000000')
-           .text(auditResult.benchmark.averageROI, benchCol2, currentY + 32, { 
+           .font('Helvetica')
+           .text(auditResult.benchmark.averageROI, benchCol2, benchY + 8, { 
              width: benchColWidth,
              lineGap: 1
            });
         
-        doc.fontSize(8)
+        benchY += benchRowHeight;
+        
+        // Ligne 3
+        doc.fontSize(8.5)
            .fillColor('#9333EA')
-           .text('Retour investissement', benchCol1, currentY + 37, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(8)
+           .font('Helvetica-Bold')
+           .text('Retour investissement', benchCol1, benchY, { width: benchColWidth, lineGap: 0 });
+        doc.fontSize(9)
            .fillColor('#000000')
-           .text(auditResult.benchmark.paybackPeriod, benchCol1, currentY + 46, { 
+           .font('Helvetica')
+           .text(auditResult.benchmark.paybackPeriod, benchCol1, benchY + 8, { 
              width: benchColWidth,
              lineGap: 1
            });
         
-        currentY += benchHeight + 5;
+        currentY += benchHeight + SECTION_SPACING;
       }
 
-      // === SECTION 4: PLAN D'ACTION (premium et élégant) ===
-      if (currentY < maxY - 50) {
-        doc.rect(margin, currentY, 3, 10)
+      // === SECTION 4: PLAN D'ACTION ===
+      if (currentY < maxY - 70) {
+        doc.rect(margin, currentY, 4, 12)
            .fillColor('#06B6D4')
            .fill();
         
-        doc.fontSize(10)
+        doc.fontSize(11)
            .fillColor('#9333EA')
-           .text('PLAN D\'ACTION EN 5 ÉTAPES', margin + 7, currentY + 1, { 
-             width: contentWidth - 7,
+           .font('Helvetica-Bold')
+           .text('4. PLAN D\'ACTION EN 5 ÉTAPES', margin + 8, currentY + 2, { 
+             width: contentWidth - 8,
              lineGap: 0
            });
         
-        currentY += 13;
+        currentY += 16;
         
         const steps = [
-          '1. Audit Complet',
-          '2. Développement sur Mesure',
-          '3. Intégration et Tests',
-          '4. Formation et Accompagnement',
-          '5. Suivi et Optimisation'
+          'Audit Complet : Analyse approfondie de vos processus',
+          'Développement sur Mesure : Création de vos agents IA',
+          'Intégration et Tests : Mise en place et validation',
+          'Formation et Accompagnement : Formation de votre équipe',
+          'Suivi et Optimisation : Amélioration continue'
         ];
         
-        steps.forEach((step) => {
-          if (currentY < maxY - 30) {
-            // Point cyan vif premium pour chaque étape
-            doc.circle(margin + 2, currentY + 2, 1.5)
-               .fillColor('#06B6D4')
+        steps.forEach((step, index) => {
+          if (currentY < maxY - 40) {
+            // Numéro dans un cercle
+            doc.circle(margin + 6, currentY + 3, 5)
+               .fillColor('#9333EA')
                .fill();
             
-            doc.fontSize(8)
-               .fillColor('#000000')
-               .text(step, margin + 8, currentY, { 
-                 width: contentWidth - 8,
-                 lineGap: 0
+            doc.fontSize(8.5)
+               .fillColor('#FFFFFF')
+               .font('Helvetica-Bold')
+               .text((index + 1).toString(), margin + 3, currentY + 1, { 
+                 width: 10,
+                 align: 'center'
                });
-            currentY += 8;
+            
+            doc.fontSize(9)
+               .fillColor('#000000')
+               .font('Helvetica')
+               .text(step, margin + 16, currentY, { 
+                 width: contentWidth - 16,
+                 lineGap: 1.2
+               });
+            currentY += 10;
           }
         });
         
-        currentY += 4;
+        currentY += SUBSECTION_SPACING;
       }
 
-      // === SECTION 5: PROCHAINES ÉTAPES (premium) ===
-      if (currentY < maxY - 40) {
-        doc.rect(margin, currentY, 3, 10)
+      // === SECTION 5: PROCHAINES ÉTAPES ===
+      if (currentY < maxY - 60) {
+        doc.rect(margin, currentY, 4, 12)
            .fillColor('#06B6D4')
            .fill();
         
-        doc.fontSize(10)
+        doc.fontSize(11)
            .fillColor('#9333EA')
-           .text('PROCHAINES ÉTAPES', margin + 7, currentY + 1, { 
-             width: contentWidth - 7,
+           .font('Helvetica-Bold')
+           .text('5. PROCHAINES ÉTAPES', margin + 8, currentY + 2, { 
+             width: contentWidth - 8,
              lineGap: 0
            });
         
-        currentY += 13;
+        currentY += 16;
         
         const nextStepsText1 = '✓ Appel de 15 min | ✓ Devis gratuit | ✓ Garantie résultat (90%)';
-        const nextStepsText2 = 'contact@skillshield-ai.com | Réponse sous 24h';
-        const text1Height = calculateTextHeight(nextStepsText1, contentWidth - 8, 8, 1);
-        const text2Height = calculateTextHeight(nextStepsText2, contentWidth - 8, 7.5, 0.5);
-        const boxHeight = Math.ceil(text1Height + text2Height + 10);
+        const nextStepsText2 = 'contact@skillshield-ai.com | Réponse sous 24h | skillshield.app';
+        const text1Height = calculateTextHeight(nextStepsText1, contentWidth - 12, 9, 1);
+        const text2Height = calculateTextHeight(nextStepsText2, contentWidth - 12, 8.5, 0.5);
+        const boxHeight = Math.ceil(text1Height + text2Height + 14);
+        
+        // Vérification d'espace
+        if (currentY + boxHeight > maxY - 60) {
+          doc.end();
+          return;
+        }
         
         // Fond premium avec accent violet-cyan
         doc.rect(margin, currentY, contentWidth, boxHeight)
@@ -376,21 +426,23 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .fill();
         
         doc.rect(margin, currentY, contentWidth, boxHeight)
-           .strokeColor('#E5E7EB')
-           .lineWidth(0.5)
+           .strokeColor('#9333EA')
+           .lineWidth(1)
            .stroke();
         
-        doc.fontSize(8)
+        doc.fontSize(9)
            .fillColor('#10B981')
-           .text(nextStepsText1, margin + 4, currentY + 4, { 
-             width: contentWidth - 8,
+           .font('Helvetica-Bold')
+           .text(nextStepsText1, margin + 6, currentY + 5, { 
+             width: contentWidth - 12,
              lineGap: 1
            });
         
-        doc.fontSize(7.5)
+        doc.fontSize(8.5)
            .fillColor('#000000')
-           .text(nextStepsText2, margin + 4, currentY + text1Height + 5, { 
-             width: contentWidth - 8,
+           .font('Helvetica')
+           .text(nextStepsText2, margin + 6, currentY + text1Height + 6, { 
+             width: contentWidth - 12,
              align: 'center',
              lineGap: 0.5
            });
@@ -399,13 +451,21 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       }
 
       // === FOOTER ET DISCLAIMER EN BAS ===
-      const footerY = pageHeight - 45;
+      const footerY = pageHeight - 55;
       const copyrightText = '© 2025 SkillShield AI. Tous droits réservés.';
       const disclaimerText = 'Ce document est la propriété exclusive de SkillShield AI. Toute reproduction, distribution ou utilisation non autorisée est strictement interdite.';
       
-      // Footer copyright sur chaque page
-      doc.fontSize(7)
-         .fillColor('#000000')
+      // Ligne de séparation avant le footer
+      doc.moveTo(margin, footerY - 8)
+         .lineTo(margin + contentWidth, footerY - 8)
+         .strokeColor('#E5E7EB')
+         .lineWidth(0.5)
+         .stroke();
+      
+      // Footer copyright
+      doc.fontSize(7.5)
+         .fillColor('#6B7280')
+         .font('Helvetica')
          .text(copyrightText, margin, footerY, { 
            width: contentWidth,
            align: 'center',
@@ -413,9 +473,10 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
          });
       
       // Disclaimer en dessous
-      doc.fontSize(6.5)
-         .fillColor('#000000')
-         .text(disclaimerText, margin, footerY + 8, { 
+      doc.fontSize(7)
+         .fillColor('#6B7280')
+         .font('Helvetica')
+         .text(disclaimerText, margin, footerY + 9, { 
            width: contentWidth,
            align: 'center',
            lineGap: 1.5
