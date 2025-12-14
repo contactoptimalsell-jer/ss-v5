@@ -9,7 +9,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
     try {
       const doc = new PDFDocument({
         size: 'A4',
-        margins: { top: 35, bottom: 60, left: 45, right: 45 }
+        margins: { top: 30, bottom: 55, left: 45, right: 45 }
       });
 
       const chunks: Buffer[] = [];
@@ -22,18 +22,18 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       const pageHeight = doc.page?.height || 842;
       const margin = 45;
       const contentWidth = pageWidth - 2 * margin;
-      let currentY = margin;
+      let currentY = 30;
 
       // === EN-TÊTE PREMIUM ===
       // Barre de couleur violet vive en haut (style SkillShield)
-      doc.rect(margin, currentY, contentWidth, 3)
+      doc.rect(margin, currentY, contentWidth, 2)
          .fillColor('#9333EA')
          .fill();
       
-      currentY += 12;
+      currentY += 10;
       
       // Titre principal avec style SkillShield premium
-      doc.fontSize(24)
+      doc.fontSize(22)
          .fillColor('#9333EA')
          .text('SkillShield AI', margin, currentY, { 
            width: contentWidth,
@@ -41,9 +41,9 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 18;
+      currentY += 16;
       
-      doc.fontSize(15)
+      doc.fontSize(13)
          .fillColor('#374151')
          .text('Plan d\'Automatisation Personnalisé', margin, currentY, { 
            width: contentWidth,
@@ -51,243 +51,243 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 24;
+      currentY += 18;
 
       // === SECTION 1: ANALYSE ===
       // Titre de section avec accent cyan vif premium
-      doc.rect(margin, currentY, 4, 14)
+      doc.rect(margin, currentY, 3, 12)
          .fillColor('#06B6D4')
          .fill();
       
-      doc.fontSize(12)
+      doc.fontSize(11)
          .fillColor('#9333EA')
-         .text('ANALYSE DE VOTRE SITUATION', margin + 10, currentY + 3, { 
-           width: contentWidth - 10,
+         .text('ANALYSE DE VOTRE SITUATION', margin + 8, currentY + 2, { 
+           width: contentWidth - 8,
            lineGap: 0
          });
       
-      currentY += 18;
+      currentY += 15;
       
-      doc.fontSize(9.5)
+      doc.fontSize(9)
          .fillColor('#000000')
-         .text(`Problème identifié : ${userProblem.substring(0, 150)}${userProblem.length > 150 ? '...' : ''}`, 
+         .text(`Problème identifié : ${userProblem.substring(0, 140)}${userProblem.length > 140 ? '...' : ''}`, 
                margin, currentY, { 
                  width: contentWidth,
                  align: 'left',
-                 lineGap: 2
+                 lineGap: 1
                });
       
-      currentY += 12;
+      currentY += 10;
       
-      doc.fontSize(9.5)
+      doc.fontSize(9)
          .fillColor('#000000')
-         .text(auditResult.analysis.substring(0, 280) + (auditResult.analysis.length > 280 ? '...' : ''), 
+         .text(auditResult.analysis.substring(0, 260) + (auditResult.analysis.length > 260 ? '...' : ''), 
                margin, currentY, { 
                  width: contentWidth,
                  align: 'justify',
-                 lineGap: 3
+                 lineGap: 2
                });
       
-      currentY += 32;
+      currentY += 26;
 
       // === SECTION 2: SOLUTIONS (2 colonnes premium) ===
-      doc.rect(margin, currentY, 4, 14)
+      doc.rect(margin, currentY, 3, 12)
          .fillColor('#06B6D4')
          .fill();
       
-      doc.fontSize(12)
+      doc.fontSize(11)
          .fillColor('#9333EA')
-         .text('SOLUTIONS D\'AUTOMATISATION IA', margin + 10, currentY + 3, { 
-           width: contentWidth - 10,
+         .text('SOLUTIONS D\'AUTOMATISATION IA', margin + 8, currentY + 2, { 
+           width: contentWidth - 8,
            lineGap: 0
          });
       
-      currentY += 18;
+      currentY += 15;
       
-      const colWidth = (contentWidth - 10) / 2;
+      const colWidth = (contentWidth - 8) / 2;
       const solutions = auditResult.suggestions;
       
       // Solution 1 et 2 côte à côte avec design premium
       [0, 1].forEach((index) => {
         if (index < solutions.length) {
-          const colX = index === 0 ? margin : margin + colWidth + 10;
+          const colX = index === 0 ? margin : margin + colWidth + 8;
           const suggestion = solutions[index];
           
           // Fond subtil premium pour chaque solution
-          doc.rect(colX, currentY, colWidth, 50)
+          doc.rect(colX, currentY, colWidth, 44)
              .fillColor('#F8FAFC')
              .fill();
           
           // Bordure subtile
-          doc.rect(colX, currentY, colWidth, 50)
+          doc.rect(colX, currentY, colWidth, 44)
              .strokeColor('#E5E7EB')
              .lineWidth(0.5)
              .stroke();
           
-          doc.fontSize(9.5)
+          doc.fontSize(9)
              .fillColor('#9333EA')
-             .text(`${index + 1}. ${suggestion.title}`, colX + 6, currentY + 5, { 
-               width: colWidth - 12,
+             .text(`${index + 1}. ${suggestion.title}`, colX + 5, currentY + 4, { 
+               width: colWidth - 10,
                lineGap: 1
              });
           
-          doc.fontSize(8)
+          doc.fontSize(7.5)
              .fillColor('#6b7280')
              .text(`${suggestion.difficulty} • ${suggestion.timeSaved}`, 
-                   colX + 6, currentY + 16, { 
-                     width: colWidth - 12,
+                   colX + 5, currentY + 14, { 
+                     width: colWidth - 10,
                      lineGap: 1
                    });
           
-          doc.fontSize(8.5)
+          doc.fontSize(8)
              .fillColor('#4b5563')
-             .text(suggestion.description.substring(0, 130) + (suggestion.description.length > 130 ? '...' : ''), 
-                   colX + 6, currentY + 26, { 
-                     width: colWidth - 12,
+             .text(suggestion.description.substring(0, 120) + (suggestion.description.length > 120 ? '...' : ''), 
+                   colX + 5, currentY + 23, { 
+                     width: colWidth - 10,
                      align: 'justify',
-                     lineGap: 2
+                     lineGap: 1.5
                    });
         }
       });
       
-      currentY += 58;
+      currentY += 52;
       
       // Solution 3 en pleine largeur premium
       if (solutions.length > 2) {
         const suggestion = solutions[2];
         
-        doc.rect(margin, currentY, contentWidth, 46)
+        doc.rect(margin, currentY, contentWidth, 40)
            .fillColor('#F8FAFC')
            .fill();
         
-        doc.rect(margin, currentY, contentWidth, 46)
+        doc.rect(margin, currentY, contentWidth, 40)
            .strokeColor('#E5E7EB')
            .lineWidth(0.5)
            .stroke();
         
-        doc.fontSize(9.5)
+        doc.fontSize(9)
            .fillColor('#9333EA')
-           .text(`3. ${suggestion.title}`, margin + 6, currentY + 5, { 
-             width: contentWidth - 12,
+           .text(`3. ${suggestion.title}`, margin + 5, currentY + 4, { 
+             width: contentWidth - 10,
              lineGap: 1
            });
         
-        doc.fontSize(8)
+        doc.fontSize(7.5)
            .fillColor('#6b7280')
            .text(`${suggestion.difficulty} • ${suggestion.timeSaved}`, 
-                 margin + 6, currentY + 16, { 
-                   width: contentWidth - 12,
+                 margin + 5, currentY + 14, { 
+                   width: contentWidth - 10,
                    lineGap: 1
                  });
         
-        doc.fontSize(8.5)
+        doc.fontSize(8)
            .fillColor('#4b5563')
-           .text(suggestion.description.substring(0, 220) + (suggestion.description.length > 220 ? '...' : ''), 
-                 margin + 6, currentY + 26, { 
-                   width: contentWidth - 12,
+           .text(suggestion.description.substring(0, 200) + (suggestion.description.length > 200 ? '...' : ''), 
+                 margin + 5, currentY + 23, { 
+                   width: contentWidth - 10,
                    align: 'justify',
-                   lineGap: 2
+                   lineGap: 1.5
                  });
         
-        currentY += 54;
+        currentY += 48;
       }
 
       // === SECTION 3: BENCHMARK (si disponible) ===
       if (auditResult.benchmark) {
-        doc.rect(margin, currentY, 4, 14)
+        doc.rect(margin, currentY, 3, 12)
            .fillColor('#06B6D4')
            .fill();
         
-        doc.fontSize(12)
+        doc.fontSize(11)
            .fillColor('#9333EA')
-           .text('BENCHMARK SECTEUR', margin + 10, currentY + 3, { 
-             width: contentWidth - 10,
+           .text('BENCHMARK SECTEUR', margin + 8, currentY + 2, { 
+             width: contentWidth - 8,
              lineGap: 0
            });
         
-        currentY += 18;
+        currentY += 15;
         
         // Fond premium vif pour le benchmark
-        doc.rect(margin, currentY, contentWidth, 50)
+        doc.rect(margin, currentY, contentWidth, 44)
            .fillColor('#ECFEFF')
            .fill();
         
-        doc.rect(margin, currentY, contentWidth, 50)
+        doc.rect(margin, currentY, contentWidth, 44)
            .strokeColor('#06B6D4')
            .lineWidth(1)
            .stroke();
         
         // Benchmark en 2 colonnes avec espacement harmonieux
-        const benchCol1 = margin + 8;
-        const benchCol2 = margin + contentWidth / 2 + 8;
-        const benchColWidth = contentWidth / 2 - 16;
+        const benchCol1 = margin + 6;
+        const benchCol2 = margin + contentWidth / 2 + 6;
+        const benchColWidth = contentWidth / 2 - 12;
         
-        doc.fontSize(8.5)
+        doc.fontSize(8)
            .fillColor('#9333EA')
-           .text('Secteur', benchCol1, currentY + 5, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(8.5)
+           .text('Secteur', benchCol1, currentY + 4, { width: benchColWidth, lineGap: 0 });
+        doc.fontSize(8)
            .fillColor('#4b5563')
-           .text(auditResult.benchmark.sectorAverage, benchCol1, currentY + 15, { 
+           .text(auditResult.benchmark.sectorAverage, benchCol1, currentY + 13, { 
              width: benchColWidth,
              lineGap: 1
            });
         
-        doc.fontSize(8.5)
+        doc.fontSize(8)
            .fillColor('#9333EA')
-           .text('Processus automatisés', benchCol2, currentY + 5, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(8.5)
+           .text('Processus automatisés', benchCol2, currentY + 4, { width: benchColWidth, lineGap: 0 });
+        doc.fontSize(8)
            .fillColor('#4b5563')
-           .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, currentY + 15, { 
+           .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, currentY + 13, { 
              width: benchColWidth,
              lineGap: 1
            });
         
-        doc.fontSize(8.5)
+        doc.fontSize(8)
            .fillColor('#9333EA')
-           .text('Temps économisé', benchCol1, currentY + 26, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(8.5)
+           .text('Temps économisé', benchCol1, currentY + 23, { width: benchColWidth, lineGap: 0 });
+        doc.fontSize(8)
            .fillColor('#4b5563')
-           .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, currentY + 36, { 
+           .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, currentY + 32, { 
              width: benchColWidth,
              lineGap: 1
            });
         
-        doc.fontSize(8.5)
+        doc.fontSize(8)
            .fillColor('#9333EA')
-           .text('ROI moyen', benchCol2, currentY + 26, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(8.5)
+           .text('ROI moyen', benchCol2, currentY + 23, { width: benchColWidth, lineGap: 0 });
+        doc.fontSize(8)
            .fillColor('#4b5563')
-           .text(auditResult.benchmark.averageROI, benchCol2, currentY + 36, { 
+           .text(auditResult.benchmark.averageROI, benchCol2, currentY + 32, { 
              width: benchColWidth,
              lineGap: 1
            });
         
-        doc.fontSize(8.5)
+        doc.fontSize(8)
            .fillColor('#9333EA')
-           .text('Retour investissement', benchCol1, currentY + 42, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(8.5)
+           .text('Retour investissement', benchCol1, currentY + 37, { width: benchColWidth, lineGap: 0 });
+        doc.fontSize(8)
            .fillColor('#4b5563')
-           .text(auditResult.benchmark.paybackPeriod, benchCol1, currentY + 52, { 
+           .text(auditResult.benchmark.paybackPeriod, benchCol1, currentY + 46, { 
              width: benchColWidth,
              lineGap: 1
            });
         
-        currentY += 60;
+        currentY += 52;
       }
 
       // === SECTION 4: PLAN D'ACTION (premium et élégant) ===
-      doc.rect(margin, currentY, 4, 14)
+      doc.rect(margin, currentY, 3, 12)
          .fillColor('#06B6D4')
          .fill();
       
-      doc.fontSize(12)
+      doc.fontSize(11)
          .fillColor('#9333EA')
-         .text('PLAN D\'ACTION EN 5 ÉTAPES', margin + 10, currentY + 3, { 
-           width: contentWidth - 10,
+         .text('PLAN D\'ACTION EN 5 ÉTAPES', margin + 8, currentY + 2, { 
+           width: contentWidth - 8,
            lineGap: 0
          });
       
-      currentY += 18;
+      currentY += 15;
       
       const steps = [
         '1. Audit Complet',
@@ -299,64 +299,64 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       
       steps.forEach((step) => {
         // Point cyan vif premium pour chaque étape
-        doc.circle(margin + 4, currentY + 4, 2.5)
+        doc.circle(margin + 3, currentY + 3, 2)
            .fillColor('#06B6D4')
            .fill();
         
-        doc.fontSize(8.5)
+        doc.fontSize(8)
            .fillColor('#374151')
-           .text(step, margin + 12, currentY, { 
-             width: contentWidth - 12,
-             lineGap: 1
+           .text(step, margin + 10, currentY, { 
+             width: contentWidth - 10,
+             lineGap: 0
            });
-        currentY += 10;
+        currentY += 9;
       });
       
-      currentY += 8;
+      currentY += 6;
 
       // === SECTION 5: PROCHAINES ÉTAPES (premium) ===
-      doc.rect(margin, currentY, 4, 14)
+      doc.rect(margin, currentY, 3, 12)
          .fillColor('#06B6D4')
          .fill();
       
-      doc.fontSize(12)
+      doc.fontSize(11)
          .fillColor('#9333EA')
-         .text('PROCHAINES ÉTAPES', margin + 10, currentY + 3, { 
-           width: contentWidth - 10,
+         .text('PROCHAINES ÉTAPES', margin + 8, currentY + 2, { 
+           width: contentWidth - 8,
            lineGap: 0
          });
       
-      currentY += 18;
+      currentY += 15;
       
       // Fond premium avec accent violet-cyan
-      doc.rect(margin, currentY, contentWidth, 26)
+      doc.rect(margin, currentY, contentWidth, 22)
          .fillColor('#F8FAFC')
          .fill();
       
-      doc.rect(margin, currentY, contentWidth, 26)
+      doc.rect(margin, currentY, contentWidth, 22)
          .strokeColor('#E5E7EB')
          .lineWidth(0.5)
          .stroke();
       
-      doc.fontSize(8.5)
+      doc.fontSize(8)
          .fillColor('#10B981')
          .text('✓ Appel de 15 min | ✓ Devis gratuit | ✓ Garantie résultat (90%)', 
-               margin + 6, currentY + 5, { 
-                 width: contentWidth - 12,
+               margin + 5, currentY + 4, { 
+                 width: contentWidth - 10,
                  lineGap: 1
                });
       
-      doc.fontSize(8)
+      doc.fontSize(7.5)
          .fillColor('#4b5563')
          .text('contact@skillshield-ai.com | Réponse sous 24h', 
-               margin + 6, currentY + 16, { 
-                 width: contentWidth - 12,
+               margin + 5, currentY + 14, { 
+                 width: contentWidth - 10,
                  align: 'center',
                  lineGap: 1
                });
 
       // === FOOTER ET DISCLAIMER EN BAS ===
-      const footerY = pageHeight - 50;
+      const footerY = pageHeight - 45;
       
       // Footer copyright sur chaque page
       doc.fontSize(7.5)
