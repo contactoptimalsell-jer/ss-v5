@@ -82,3 +82,4 @@ Le PDF généré automatiquement contient :
 - Vérifiez que l'email de destination est valide
 - Vérifiez que le service SMTP est accessible depuis Vercel
 
+

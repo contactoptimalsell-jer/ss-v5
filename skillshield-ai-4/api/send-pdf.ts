@@ -469,6 +469,12 @@ async function sendEmailWithPDF(
             Planifier un appel (15 min)
           </a>
         </p>
+        <p style="margin-top: 20px;">
+          <a href="https://skillshield.app" 
+             style="color: #8B5CF6; text-decoration: none; font-weight: 500;">
+            🌐 Visitez notre site web : skillshield.app
+          </a>
+        </p>
         <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">
           Cordialement,<br/>
           L'équipe SkillShield AI<br/>

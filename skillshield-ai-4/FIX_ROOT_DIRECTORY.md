@@ -67,3 +67,4 @@ ss-v5/                          (Racine du repo Git)
 
 Le Root Directory doit être configuré dans le Dashboard Vercel. Le fichier `vercel.json` ne peut pas définir le Root Directory - c'est une configuration au niveau du projet.
 
+

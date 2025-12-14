@@ -262,3 +262,4 @@ Next.js gère automatiquement le routing SPA et les API routes.
 
 **Leçon** : Toujours être explicite sur ce qui doit être exclu d'un pattern catch-all, surtout dans un projet qui mélange SPA routing et API routes.
 
+
