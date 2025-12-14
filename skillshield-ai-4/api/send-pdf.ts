@@ -17,6 +17,24 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       doc.on('data', (chunk) => chunks.push(chunk));
       doc.on('end', () => resolve(Buffer.concat(chunks)));
       doc.on('error', reject);
+      
+      // Ajouter le footer sur chaque page
+      doc.on('pageAdded', () => {
+        const pageHeight = doc.page.height || 842;
+        const pageWidth = doc.page.width || 595;
+        const margin = 45;
+        const contentWidth = pageWidth - 2 * margin;
+        const footerY = pageHeight - 50;
+        
+        doc.fontSize(7.5)
+           .fillColor('#6b7280')
+           .text('© 2025 SkillShield AI. Tous droits réservés.', 
+                 margin, footerY, { 
+                   width: contentWidth,
+                   align: 'center',
+                   lineGap: 0
+                 });
+      });
 
       const pageWidth = doc.page?.width || 595;
       const pageHeight = doc.page?.height || 842;
@@ -66,7 +84,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       currentY += 20;
       
       doc.fontSize(9.5)
-         .fillColor('#4b5563')
+         .fillColor('#000000')
          .text(`Problème identifié : ${userProblem.substring(0, 150)}${userProblem.length > 150 ? '...' : ''}`, 
                margin, currentY, { 
                  width: contentWidth,
@@ -77,7 +95,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       currentY += 15;
       
       doc.fontSize(9.5)
-         .fillColor('#374151')
+         .fillColor('#000000')
          .text(auditResult.analysis.substring(0, 280) + (auditResult.analysis.length > 280 ? '...' : ''), 
                margin, currentY, { 
                  width: contentWidth,
@@ -342,22 +360,24 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
                  lineGap: 2
                });
 
-      // === DISCLAIMER EN BAS (deux lignes séparées) ===
-      const disclaimerY = pageHeight - 50;
+      // === FOOTER ET DISCLAIMER EN BAS ===
+      const footerY = pageHeight - 50;
       
+      // Footer copyright sur chaque page
       doc.fontSize(7.5)
          .fillColor('#6b7280')
          .text('© 2025 SkillShield AI. Tous droits réservés.', 
-               margin, disclaimerY, { 
+               margin, footerY, { 
                  width: contentWidth,
                  align: 'center',
                  lineGap: 0
                });
       
+      // Disclaimer en dessous
       doc.fontSize(7)
          .fillColor('#9ca3af')
          .text('Ce document est la propriété exclusive de SkillShield AI. Toute reproduction, distribution ou utilisation non autorisée est strictement interdite.', 
-               margin, disclaimerY + 10, { 
+               margin, footerY + 10, { 
                  width: contentWidth,
                  align: 'center',
                  lineGap: 2
