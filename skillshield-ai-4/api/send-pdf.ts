@@ -3,13 +3,13 @@ import PDFDocument from 'pdfkit';
 import nodemailer from 'nodemailer';
 import { AuditResult } from '../types';
 
-// Fonction pour générer le PDF personnalisé sur une seule page harmonieuse
+// Fonction pour générer le PDF premium personnalisé sur une seule page
 function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     try {
       const doc = new PDFDocument({
         size: 'A4',
-        margins: { top: 30, bottom: 50, left: 40, right: 40 }
+        margins: { top: 35, bottom: 60, left: 45, right: 45 }
       });
 
       const chunks: Buffer[] = [];
@@ -20,232 +20,262 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
 
       const pageWidth = doc.page?.width || 595;
       const pageHeight = doc.page?.height || 842;
-      const margin = 40;
+      const margin = 45;
       const contentWidth = pageWidth - 2 * margin;
       let currentY = margin;
 
-      // === EN-TÊTE AVEC DÉGRADÉ VIOLET-CYAN ===
-      // Barre de couleur en haut (style SkillShield)
-      doc.rect(margin, currentY, contentWidth, 4)
+      // === EN-TÊTE PREMIUM ===
+      // Barre de couleur violet en haut (style SkillShield)
+      doc.rect(margin, currentY, contentWidth, 3)
          .fillColor('#8B5CF6')
          .fill();
       
-      currentY += 12;
+      currentY += 15;
       
-      // Titre principal avec style SkillShield
-      doc.fontSize(22)
+      // Titre principal avec style SkillShield premium
+      doc.fontSize(24)
          .fillColor('#8B5CF6')
          .text('SkillShield AI', margin, currentY, { 
            width: contentWidth,
            align: 'left'
          });
       
-      currentY += 18;
+      currentY += 20;
       
-      doc.fontSize(16)
+      doc.fontSize(15)
          .fillColor('#374151')
          .text('Plan d\'Automatisation Personnalisé', margin, currentY, { 
            width: contentWidth,
            align: 'left'
          });
       
-      currentY += 25;
+      currentY += 28;
 
       // === SECTION 1: ANALYSE ===
-      // Titre de section avec accent cyan
-      doc.rect(margin, currentY, 3, 12)
+      // Titre de section avec accent cyan premium
+      doc.rect(margin, currentY, 4, 14)
          .fillColor('#22D3EE')
          .fill();
       
-      doc.fontSize(11)
+      doc.fontSize(12)
          .fillColor('#8B5CF6')
-         .text('ANALYSE DE VOTRE SITUATION', margin + 8, currentY + 2, { 
-           width: contentWidth - 8
+         .text('ANALYSE DE VOTRE SITUATION', margin + 10, currentY + 3, { 
+           width: contentWidth - 10
          });
       
-      currentY += 18;
+      currentY += 20;
       
-      doc.fontSize(9)
+      doc.fontSize(9.5)
          .fillColor('#4b5563')
-         .text(`Problème identifié : ${userProblem.substring(0, 140)}${userProblem.length > 140 ? '...' : ''}`, 
+         .text(`Problème identifié : ${userProblem.substring(0, 150)}${userProblem.length > 150 ? '...' : ''}`, 
                margin, currentY, { 
                  width: contentWidth,
-                 align: 'left'
+                 align: 'left',
+                 lineGap: 3
                });
       
-      currentY += 12;
+      currentY += 15;
       
-      doc.fontSize(9)
+      doc.fontSize(9.5)
          .fillColor('#374151')
-         .text(auditResult.analysis.substring(0, 250) + (auditResult.analysis.length > 250 ? '...' : ''), 
+         .text(auditResult.analysis.substring(0, 280) + (auditResult.analysis.length > 280 ? '...' : ''), 
                margin, currentY, { 
                  width: contentWidth,
                  align: 'justify',
-                 lineGap: 2
+                 lineGap: 4
                });
       
-      currentY += 35;
+      currentY += 38;
 
-      // === SECTION 2: SOLUTIONS (2 colonnes harmonieuses) ===
-      doc.rect(margin, currentY, 3, 12)
+      // === SECTION 2: SOLUTIONS (2 colonnes premium) ===
+      doc.rect(margin, currentY, 4, 14)
          .fillColor('#22D3EE')
          .fill();
       
-      doc.fontSize(11)
+      doc.fontSize(12)
          .fillColor('#8B5CF6')
-         .text('SOLUTIONS D\'AUTOMATISATION IA', margin + 8, currentY + 2, { 
-           width: contentWidth - 8
+         .text('SOLUTIONS D\'AUTOMATISATION IA', margin + 10, currentY + 3, { 
+           width: contentWidth - 10
          });
       
-      currentY += 18;
+      currentY += 20;
       
-      const colWidth = (contentWidth - 8) / 2;
+      const colWidth = (contentWidth - 10) / 2;
       const solutions = auditResult.suggestions;
       
-      // Solution 1 et 2 côte à côte
+      // Solution 1 et 2 côte à côte avec design premium
       [0, 1].forEach((index) => {
         if (index < solutions.length) {
-          const colX = index === 0 ? margin : margin + colWidth + 8;
+          const colX = index === 0 ? margin : margin + colWidth + 10;
           const suggestion = solutions[index];
           
-          // Fond subtil pour chaque solution
-          doc.rect(colX, currentY, colWidth, 50)
+          // Fond subtil premium pour chaque solution
+          doc.rect(colX, currentY, colWidth, 52)
              .fillColor('#F8FAFC')
              .fill();
           
-          doc.fontSize(9)
+          // Bordure subtile
+          doc.rect(colX, currentY, colWidth, 52)
+             .strokeColor('#E5E7EB')
+             .lineWidth(0.5)
+             .stroke();
+          
+          doc.fontSize(9.5)
              .fillColor('#8B5CF6')
-             .text(`${index + 1}. ${suggestion.title}`, colX + 5, currentY + 5, { 
-               width: colWidth - 10
+             .text(`${index + 1}. ${suggestion.title}`, colX + 6, currentY + 6, { 
+               width: colWidth - 12,
+               lineGap: 2
              });
           
-          doc.fontSize(7.5)
+          doc.fontSize(8)
              .fillColor('#6b7280')
              .text(`${suggestion.difficulty} • ${suggestion.timeSaved}`, 
-                   colX + 5, currentY + 15, { 
-                     width: colWidth - 10
+                   colX + 6, currentY + 18, { 
+                     width: colWidth - 12
                    });
           
-          doc.fontSize(8)
+          doc.fontSize(8.5)
              .fillColor('#4b5563')
-             .text(suggestion.description.substring(0, 120) + (suggestion.description.length > 120 ? '...' : ''), 
-                   colX + 5, currentY + 25, { 
-                     width: colWidth - 10,
+             .text(suggestion.description.substring(0, 130) + (suggestion.description.length > 130 ? '...' : ''), 
+                   colX + 6, currentY + 28, { 
+                     width: colWidth - 12,
                      align: 'justify',
-                     lineGap: 1.5
+                     lineGap: 3
                    });
         }
       });
       
-      currentY += 60;
+      currentY += 62;
       
-      // Solution 3 en pleine largeur
+      // Solution 3 en pleine largeur premium
       if (solutions.length > 2) {
         const suggestion = solutions[2];
         
-        doc.rect(margin, currentY, contentWidth, 45)
+        doc.rect(margin, currentY, contentWidth, 48)
            .fillColor('#F8FAFC')
            .fill();
         
-        doc.fontSize(9)
+        doc.rect(margin, currentY, contentWidth, 48)
+           .strokeColor('#E5E7EB')
+           .lineWidth(0.5)
+           .stroke();
+        
+        doc.fontSize(9.5)
            .fillColor('#8B5CF6')
-           .text(`3. ${suggestion.title}`, margin + 5, currentY + 5, { 
-             width: contentWidth - 10
+           .text(`3. ${suggestion.title}`, margin + 6, currentY + 6, { 
+             width: contentWidth - 12,
+             lineGap: 2
            });
         
-        doc.fontSize(7.5)
+        doc.fontSize(8)
            .fillColor('#6b7280')
            .text(`${suggestion.difficulty} • ${suggestion.timeSaved}`, 
-                 margin + 5, currentY + 15, { 
-                   width: contentWidth - 10
+                 margin + 6, currentY + 18, { 
+                   width: contentWidth - 12
                  });
         
-        doc.fontSize(8)
+        doc.fontSize(8.5)
            .fillColor('#4b5563')
-           .text(suggestion.description.substring(0, 200) + (suggestion.description.length > 200 ? '...' : ''), 
-                 margin + 5, currentY + 25, { 
-                   width: contentWidth - 10,
+           .text(suggestion.description.substring(0, 220) + (suggestion.description.length > 220 ? '...' : ''), 
+                 margin + 6, currentY + 28, { 
+                   width: contentWidth - 12,
                    align: 'justify',
-                   lineGap: 1.5
+                   lineGap: 3
                  });
         
-        currentY += 55;
+        currentY += 58;
       }
 
       // === SECTION 3: BENCHMARK (si disponible) ===
       if (auditResult.benchmark) {
-        doc.rect(margin, currentY, 3, 12)
+        doc.rect(margin, currentY, 4, 14)
            .fillColor('#22D3EE')
            .fill();
         
-        doc.fontSize(11)
+        doc.fontSize(12)
            .fillColor('#8B5CF6')
-           .text('BENCHMARK SECTEUR', margin + 8, currentY + 2, { 
-             width: contentWidth - 8
+           .text('BENCHMARK SECTEUR', margin + 10, currentY + 3, { 
+             width: contentWidth - 10
            });
         
-        currentY += 18;
+        currentY += 20;
         
-        // Fond pour le benchmark
-        doc.rect(margin, currentY, contentWidth, 50)
+        // Fond premium pour le benchmark
+        doc.rect(margin, currentY, contentWidth, 52)
            .fillColor('#F0F9FF')
            .fill();
         
-        // Benchmark en 2 colonnes
-        const benchCol1 = margin + 5;
-        const benchCol2 = margin + contentWidth / 2 + 5;
-        const benchColWidth = contentWidth / 2 - 10;
+        doc.rect(margin, currentY, contentWidth, 52)
+           .strokeColor('#DBEAFE')
+           .lineWidth(0.5)
+           .stroke();
         
-        doc.fontSize(8)
+        // Benchmark en 2 colonnes avec espacement harmonieux
+        const benchCol1 = margin + 8;
+        const benchCol2 = margin + contentWidth / 2 + 8;
+        const benchColWidth = contentWidth / 2 - 16;
+        
+        doc.fontSize(8.5)
            .fillColor('#1e40af')
-           .text('Secteur', benchCol1, currentY + 5, { width: benchColWidth });
-        doc.fontSize(8)
+           .text('Secteur', benchCol1, currentY + 6, { width: benchColWidth });
+        doc.fontSize(8.5)
            .fillColor('#4b5563')
-           .text(auditResult.benchmark.sectorAverage, benchCol1, currentY + 13, { width: benchColWidth });
+           .text(auditResult.benchmark.sectorAverage, benchCol1, currentY + 16, { 
+             width: benchColWidth,
+             lineGap: 2
+           });
         
-        doc.fontSize(8)
+        doc.fontSize(8.5)
            .fillColor('#1e40af')
-           .text('Processus automatisés', benchCol2, currentY + 5, { width: benchColWidth });
-        doc.fontSize(8)
+           .text('Processus automatisés', benchCol2, currentY + 6, { width: benchColWidth });
+        doc.fontSize(8.5)
            .fillColor('#4b5563')
-           .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, currentY + 13, { width: benchColWidth });
+           .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, currentY + 16, { 
+             width: benchColWidth
+           });
         
-        doc.fontSize(8)
+        doc.fontSize(8.5)
            .fillColor('#1e40af')
-           .text('Temps économisé', benchCol1, currentY + 25, { width: benchColWidth });
-        doc.fontSize(8)
+           .text('Temps économisé', benchCol1, currentY + 28, { width: benchColWidth });
+        doc.fontSize(8.5)
            .fillColor('#4b5563')
-           .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, currentY + 33, { width: benchColWidth });
+           .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, currentY + 38, { 
+             width: benchColWidth
+           });
         
-        doc.fontSize(8)
+        doc.fontSize(8.5)
            .fillColor('#1e40af')
-           .text('ROI moyen', benchCol2, currentY + 25, { width: benchColWidth });
-        doc.fontSize(8)
+           .text('ROI moyen', benchCol2, currentY + 28, { width: benchColWidth });
+        doc.fontSize(8.5)
            .fillColor('#4b5563')
-           .text(auditResult.benchmark.averageROI, benchCol2, currentY + 33, { width: benchColWidth });
+           .text(auditResult.benchmark.averageROI, benchCol2, currentY + 38, { 
+             width: benchColWidth
+           });
         
-        doc.fontSize(8)
+        doc.fontSize(8.5)
            .fillColor('#1e40af')
-           .text('Retour investissement', benchCol1, currentY + 40, { width: benchColWidth });
-        doc.fontSize(8)
+           .text('Retour investissement', benchCol1, currentY + 44, { width: benchColWidth });
+        doc.fontSize(8.5)
            .fillColor('#4b5563')
-           .text(auditResult.benchmark.paybackPeriod, benchCol1, currentY + 48, { width: benchColWidth });
+           .text(auditResult.benchmark.paybackPeriod, benchCol1, currentY + 54, { 
+             width: benchColWidth
+           });
         
-        currentY += 60;
+        currentY += 62;
       }
 
-      // === SECTION 4: PLAN D'ACTION (compact et élégant) ===
-      doc.rect(margin, currentY, 3, 12)
+      // === SECTION 4: PLAN D'ACTION (premium et élégant) ===
+      doc.rect(margin, currentY, 4, 14)
          .fillColor('#22D3EE')
          .fill();
       
-      doc.fontSize(11)
+      doc.fontSize(12)
          .fillColor('#8B5CF6')
-         .text('PLAN D\'ACTION EN 5 ÉTAPES', margin + 8, currentY + 2, { 
-           width: contentWidth - 8
+         .text('PLAN D\'ACTION EN 5 ÉTAPES', margin + 10, currentY + 3, { 
+           width: contentWidth - 10
          });
       
-      currentY += 18;
+      currentY += 20;
       
       const steps = [
         '1. Audit Complet',
@@ -255,71 +285,82 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         '5. Suivi et Optimisation'
       ];
       
-      steps.forEach((step, index) => {
-        // Point cyan pour chaque étape
-        doc.circle(margin + 3, currentY + 3, 2)
+      steps.forEach((step) => {
+        // Point cyan premium pour chaque étape
+        doc.circle(margin + 4, currentY + 4, 2.5)
            .fillColor('#22D3EE')
            .fill();
         
-        doc.fontSize(8)
+        doc.fontSize(8.5)
            .fillColor('#374151')
-           .text(step, margin + 10, currentY, { 
-             width: contentWidth - 10
+           .text(step, margin + 12, currentY, { 
+             width: contentWidth - 12,
+             lineGap: 2
            });
-        currentY += 9;
+        currentY += 11;
       });
       
-      currentY += 8;
+      currentY += 10;
 
-      // === SECTION 5: PROCHAINES ÉTAPES ===
-      doc.rect(margin, currentY, 3, 12)
+      // === SECTION 5: PROCHAINES ÉTAPES (premium) ===
+      doc.rect(margin, currentY, 4, 14)
          .fillColor('#22D3EE')
          .fill();
       
-      doc.fontSize(11)
+      doc.fontSize(12)
          .fillColor('#8B5CF6')
-         .text('PROCHAINES ÉTAPES', margin + 8, currentY + 2, { 
-           width: contentWidth - 8
+         .text('PROCHAINES ÉTAPES', margin + 10, currentY + 3, { 
+           width: contentWidth - 10
          });
       
-      currentY += 15;
+      currentY += 18;
       
-      // Fond avec accent violet-cyan
-      doc.rect(margin, currentY, contentWidth, 25)
+      // Fond premium avec accent violet-cyan
+      doc.rect(margin, currentY, contentWidth, 28)
          .fillColor('#F8FAFC')
          .fill();
       
-      doc.fontSize(8)
+      doc.rect(margin, currentY, contentWidth, 28)
+         .strokeColor('#E5E7EB')
+         .lineWidth(0.5)
+         .stroke();
+      
+      doc.fontSize(8.5)
          .fillColor('#059669')
          .text('✓ Appel de 15 min | ✓ Devis gratuit | ✓ Garantie résultat (90%)', 
-               margin + 5, currentY + 5, { 
-                 width: contentWidth - 10
+               margin + 6, currentY + 6, { 
+                 width: contentWidth - 12,
+                 lineGap: 2
                });
       
-      doc.fontSize(7.5)
+      doc.fontSize(8)
          .fillColor('#4b5563')
          .text('contact@skillshield-ai.com | Réponse sous 24h', 
-               margin + 5, currentY + 15, { 
-                 width: contentWidth - 10,
-                 align: 'center'
+               margin + 6, currentY + 18, { 
+                 width: contentWidth - 12,
+                 align: 'center',
+                 lineGap: 2
                });
 
-      // === DISCLAIMER EN BAS ===
-      const disclaimerY = pageHeight - 45;
-      doc.fontSize(7)
+      // === DISCLAIMER EN BAS (deux lignes séparées) ===
+      const disclaimerY = pageHeight - 50;
+      
+      doc.fontSize(7.5)
          .fillColor('#6b7280')
-         .text(`© ${new Date().getFullYear()} SkillShield AI. Tous droits réservés.`, 
+         .text('© 2025 SkillShield AI. Tous droits réservés.', 
                margin, disclaimerY, { 
                  width: contentWidth,
-                 align: 'center'
+                 align: 'center',
+                 lineGap: 0
                });
       
-      doc.fontSize(6.5)
+      doc.fontSize(7)
          .fillColor('#9ca3af')
          .text('Ce document est la propriété exclusive de SkillShield AI. Toute reproduction, distribution ou utilisation non autorisée est strictement interdite.', 
-               margin, disclaimerY + 8, { 
+               margin, disclaimerY + 10, { 
                  width: contentWidth,
-                 align: 'center'
+                 align: 'center',
+                 lineGap: 2
                });
 
       doc.end();
