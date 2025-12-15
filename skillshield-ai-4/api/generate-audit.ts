@@ -468,6 +468,16 @@ Réponds UNIQUEMENT en JSON, sans texte avant ou après.
         // Ajouter les données de benchmark basées sur des données réelles
         const benchmark = generateBenchmarkData(userProblem);
         
+        // Log pour déboguer la détection de secteur
+        console.log(`🔍 User problem: "${userProblem.substring(0, 100)}..."`);
+        console.log(`📊 Detected sector benchmark:`, {
+          sectorAverage: benchmark.sectorAverage,
+          automatedProcessesPercentage: benchmark.automatedProcessesPercentage,
+          averageTimeSavedPerTask: benchmark.averageTimeSavedPerTask,
+          averageROI: benchmark.averageROI,
+          paybackPeriod: benchmark.paybackPeriod
+        });
+        
         // Générer les données de visualisation basées sur les suggestions réelles
         const visualization = generateVisualizationData(
           result.suggestions,
