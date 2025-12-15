@@ -33,8 +33,8 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       let currentY = 30;
       
       // Constantes pour une structure cohérente
-      const SECTION_SPACING = 12; // Espacement entre sections
-      const SUBSECTION_SPACING = 8; // Espacement dans les sous-sections
+      const SECTION_SPACING = 8; // Espacement entre sections (réduit)
+      const SUBSECTION_SPACING = 5; // Espacement dans les sous-sections (réduit)
 
       // === EN-TÊTE STRUCTURÉ ===
       // Barre de couleur violet vive en haut (style SkillShield)
@@ -42,10 +42,10 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
          .fillColor('#9333EA')
          .fill();
       
-      currentY += 10;
+      currentY += 8;
       
       // Titre principal avec style SkillShield premium
-      doc.fontSize(22)
+      doc.fontSize(18)
          .fillColor('#9333EA')
          .font('Helvetica-Bold')
          .text('SkillShield AI', margin, currentY, { 
@@ -54,9 +54,9 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 16;
+      currentY += 12;
       
-      doc.fontSize(14)
+      doc.fontSize(11)
          .fillColor('#000000')
          .font('Helvetica-Bold')
          .text('Plan d\'Automatisation Personnalisé', margin, currentY, { 
@@ -65,7 +65,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 20;
+      currentY += 14;
 
       // === SECTION 1: ANALYSE ===
       // Vérification d'espace avant d'ajouter la section
@@ -75,11 +75,11 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       }
       
       // Titre de section avec accent cyan vif premium
-      doc.rect(margin, currentY, 4, 12)
+      doc.rect(margin, currentY, 4, 10)
          .fillColor('#06B6D4')
          .fill();
       
-      doc.fontSize(11)
+      doc.fontSize(9)
          .fillColor('#9333EA')
          .font('Helvetica-Bold')
          .text('1. ANALYSE DE VOTRE SITUATION', margin + 8, currentY + 2, { 
@@ -87,10 +87,10 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 16;
+      currentY += 12;
       
       // Sous-titre "Problème identifié"
-      doc.fontSize(9)
+      doc.fontSize(7.5)
          .fillColor('#9333EA')
          .font('Helvetica-Bold')
          .text('Problème identifié :', margin, currentY, { 
@@ -99,22 +99,22 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 8;
+      currentY += 6;
       
       const problemText = userProblem.length > 200 ? userProblem.substring(0, 200) + '...' : userProblem;
-      doc.fontSize(9)
+      doc.fontSize(7.5)
          .fillColor('#000000')
          .font('Helvetica')
          .text(problemText, margin, currentY, { 
            width: contentWidth,
            align: 'left',
-           lineGap: 1.5
+           lineGap: 1
          });
       
-      currentY += calculateTextHeight(problemText, contentWidth, 9, 1.5) + 10;
+      currentY += calculateTextHeight(problemText, contentWidth, 7.5, 1) + 6;
       
       // Sous-titre "Notre analyse"
-      doc.fontSize(9)
+      doc.fontSize(7.5)
          .fillColor('#9333EA')
          .font('Helvetica-Bold')
          .text('Notre analyse :', margin, currentY, { 
@@ -123,19 +123,19 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 8;
+      currentY += 6;
       
       const analysisText = auditResult.analysis.length > 350 ? auditResult.analysis.substring(0, 350) + '...' : auditResult.analysis;
-      doc.fontSize(9)
+      doc.fontSize(7.5)
          .fillColor('#000000')
          .font('Helvetica')
          .text(analysisText, margin, currentY, { 
            width: contentWidth,
            align: 'justify',
-           lineGap: 2
+           lineGap: 1.2
          });
       
-      currentY += calculateTextHeight(analysisText, contentWidth, 9, 2) + SECTION_SPACING;
+      currentY += calculateTextHeight(analysisText, contentWidth, 7.5, 1.2) + SECTION_SPACING;
 
       // === SECTION 2: SOLUTIONS ===
       // Vérification d'espace
@@ -144,11 +144,11 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         return;
       }
       
-      doc.rect(margin, currentY, 4, 12)
+      doc.rect(margin, currentY, 4, 10)
          .fillColor('#06B6D4')
          .fill();
       
-      doc.fontSize(11)
+      doc.fontSize(9)
          .fillColor('#9333EA')
          .font('Helvetica-Bold')
          .text('2. SOLUTIONS D\'AUTOMATISATION IA', margin + 8, currentY + 2, { 
@@ -156,10 +156,10 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 16;
+      currentY += 12;
       
       const solutions = auditResult.suggestions;
-      const gapBetweenSolutions = 8;
+      const gapBetweenSolutions = 5;
       
       // Affichage des solutions en pleine largeur pour une meilleure lisibilité
       solutions.slice(0, 3).forEach((suggestion, index) => {
@@ -173,10 +173,10 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
           ? suggestion.description.substring(0, maxDescLength) + '...' 
           : suggestion.description;
         
-        const titleHeight = calculateTextHeight(titleText, contentWidth - 12, 9.5, 1);
-        const metaHeight = calculateTextHeight(metaText, contentWidth - 12, 8.5, 0.5);
-        const descHeight = calculateTextHeight(descText, contentWidth - 12, 9, 1.8);
-        const boxHeight = Math.ceil(titleHeight + metaHeight + descHeight + 14);
+        const titleHeight = calculateTextHeight(titleText, contentWidth - 12, 8, 0.8);
+        const metaHeight = calculateTextHeight(metaText, contentWidth - 12, 7, 0.4);
+        const descHeight = calculateTextHeight(descText, contentWidth - 12, 7.5, 1.2);
+        const boxHeight = Math.ceil(titleHeight + metaHeight + descHeight + 10);
         
         // Vérification finale d'espace
         if (currentY + boxHeight > maxY - 60) return;
@@ -194,32 +194,32 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .lineWidth(1)
            .stroke();
         
-        let textY = currentY + 6;
-        doc.fontSize(9.5)
+        let textY = currentY + 4;
+        doc.fontSize(8)
            .fillColor('#9333EA')
            .font('Helvetica-Bold')
            .text(titleText, margin + 6, textY, { 
              width: contentWidth - 12,
-             lineGap: 1
+             lineGap: 0.8
            });
         
-        textY += titleHeight + 5;
-        doc.fontSize(8.5)
+        textY += titleHeight + 3;
+        doc.fontSize(7)
            .fillColor('#6B7280')
            .font('Helvetica')
            .text(metaText, margin + 6, textY, { 
              width: contentWidth - 12,
-             lineGap: 0.5
+             lineGap: 0.4
            });
         
-        textY += metaHeight + 5;
-        doc.fontSize(9)
+        textY += metaHeight + 3;
+        doc.fontSize(7.5)
            .fillColor('#000000')
            .font('Helvetica')
            .text(descText, margin + 6, textY, { 
              width: contentWidth - 12,
              align: 'justify',
-             lineGap: 1.8
+             lineGap: 1.2
            });
         
         currentY += boxHeight + gapBetweenSolutions;
@@ -233,7 +233,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .fillColor('#06B6D4')
            .fill();
         
-        doc.fontSize(11)
+        doc.fontSize(9)
            .fillColor('#9333EA')
            .font('Helvetica-Bold')
            .text('3. BENCHMARK SECTEUR', margin + 8, currentY + 2, { 
@@ -241,10 +241,10 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
              lineGap: 0
            });
         
-        currentY += 16;
+        currentY += 12;
         
         // Fond premium vif pour le benchmark
-        const benchHeight = 50;
+        const benchHeight = 42;
         
         // Vérification d'espace
         if (currentY + benchHeight > maxY - 60) {
@@ -265,75 +265,75 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         const benchCol1 = margin + 8;
         const benchCol2 = margin + contentWidth / 2 + 8;
         const benchColWidth = contentWidth / 2 - 16;
-        const benchRowHeight = 16;
+        const benchRowHeight = 13;
         
-        let benchY = currentY + 6;
+        let benchY = currentY + 5;
         
         // Ligne 1
-        doc.fontSize(8.5)
+        doc.fontSize(7)
            .fillColor('#9333EA')
            .font('Helvetica-Bold')
            .text('Secteur', benchCol1, benchY, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(9)
+        doc.fontSize(7.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(auditResult.benchmark.sectorAverage, benchCol1, benchY + 8, { 
+           .text(auditResult.benchmark.sectorAverage, benchCol1, benchY + 6, { 
              width: benchColWidth,
-             lineGap: 1
+             lineGap: 0.8
            });
         
-        doc.fontSize(8.5)
+        doc.fontSize(7)
            .fillColor('#9333EA')
            .font('Helvetica-Bold')
            .text('Processus automatisés', benchCol2, benchY, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(9)
+        doc.fontSize(7.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, benchY + 8, { 
+           .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, benchY + 6, { 
              width: benchColWidth,
-             lineGap: 1
+             lineGap: 0.8
            });
         
         benchY += benchRowHeight;
         
         // Ligne 2
-        doc.fontSize(8.5)
+        doc.fontSize(7)
            .fillColor('#9333EA')
            .font('Helvetica-Bold')
            .text('Temps économisé', benchCol1, benchY, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(9)
+        doc.fontSize(7.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, benchY + 8, { 
+           .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, benchY + 6, { 
              width: benchColWidth,
-             lineGap: 1
+             lineGap: 0.8
            });
         
-        doc.fontSize(8.5)
+        doc.fontSize(7)
            .fillColor('#9333EA')
            .font('Helvetica-Bold')
            .text('ROI moyen', benchCol2, benchY, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(9)
+        doc.fontSize(7.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(auditResult.benchmark.averageROI, benchCol2, benchY + 8, { 
+           .text(auditResult.benchmark.averageROI, benchCol2, benchY + 6, { 
              width: benchColWidth,
-             lineGap: 1
+             lineGap: 0.8
            });
         
         benchY += benchRowHeight;
         
         // Ligne 3
-        doc.fontSize(8.5)
+        doc.fontSize(7)
            .fillColor('#9333EA')
            .font('Helvetica-Bold')
            .text('Retour investissement', benchCol1, benchY, { width: benchColWidth, lineGap: 0 });
-        doc.fontSize(9)
+        doc.fontSize(7.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(auditResult.benchmark.paybackPeriod, benchCol1, benchY + 8, { 
+           .text(auditResult.benchmark.paybackPeriod, benchCol1, benchY + 6, { 
              width: benchColWidth,
-             lineGap: 1
+             lineGap: 0.8
            });
         
         currentY += benchHeight + SECTION_SPACING;
@@ -345,7 +345,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .fillColor('#06B6D4')
            .fill();
         
-        doc.fontSize(11)
+        doc.fontSize(9)
            .fillColor('#9333EA')
            .font('Helvetica-Bold')
            .text('4. PLAN D\'ACTION EN 5 ÉTAPES', margin + 8, currentY + 2, { 
@@ -353,7 +353,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
              lineGap: 0
            });
         
-        currentY += 16;
+        currentY += 12;
         
         const steps = [
           'Audit Complet : Analyse approfondie de vos processus',
@@ -366,26 +366,26 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         steps.forEach((step, index) => {
           if (currentY < maxY - 40) {
             // Numéro dans un cercle
-            doc.circle(margin + 6, currentY + 3, 5)
+            doc.circle(margin + 6, currentY + 2.5, 4)
                .fillColor('#9333EA')
                .fill();
             
-            doc.fontSize(8.5)
+            doc.fontSize(7)
                .fillColor('#FFFFFF')
                .font('Helvetica-Bold')
-               .text((index + 1).toString(), margin + 3, currentY + 1, { 
-                 width: 10,
+               .text((index + 1).toString(), margin + 2.5, currentY + 0.5, { 
+                 width: 8,
                  align: 'center'
                });
             
-            doc.fontSize(9)
+            doc.fontSize(7.5)
                .fillColor('#000000')
                .font('Helvetica')
-               .text(step, margin + 16, currentY, { 
-                 width: contentWidth - 16,
-                 lineGap: 1.2
+               .text(step, margin + 14, currentY, { 
+                 width: contentWidth - 14,
+                 lineGap: 0.8
                });
-            currentY += 10;
+            currentY += 8;
           }
         });
         
@@ -398,7 +398,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .fillColor('#06B6D4')
            .fill();
         
-        doc.fontSize(11)
+        doc.fontSize(9)
            .fillColor('#9333EA')
            .font('Helvetica-Bold')
            .text('5. PROCHAINES ÉTAPES', margin + 8, currentY + 2, { 
@@ -406,13 +406,13 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
              lineGap: 0
            });
         
-        currentY += 16;
+        currentY += 12;
         
         const nextStepsText1 = '✓ Appel de 15 min | ✓ Devis gratuit | ✓ Garantie résultat (90%)';
         const nextStepsText2 = 'contact@skillshield-ai.com | Réponse sous 24h | skillshield.app';
-        const text1Height = calculateTextHeight(nextStepsText1, contentWidth - 12, 9, 1);
-        const text2Height = calculateTextHeight(nextStepsText2, contentWidth - 12, 8.5, 0.5);
-        const boxHeight = Math.ceil(text1Height + text2Height + 14);
+        const text1Height = calculateTextHeight(nextStepsText1, contentWidth - 12, 7.5, 0.8);
+        const text2Height = calculateTextHeight(nextStepsText2, contentWidth - 12, 7, 0.4);
+        const boxHeight = Math.ceil(text1Height + text2Height + 10);
         
         // Vérification d'espace
         if (currentY + boxHeight > maxY - 60) {
@@ -430,21 +430,21 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .lineWidth(1)
            .stroke();
         
-        doc.fontSize(9)
+        doc.fontSize(7.5)
            .fillColor('#10B981')
            .font('Helvetica-Bold')
-           .text(nextStepsText1, margin + 6, currentY + 5, { 
+           .text(nextStepsText1, margin + 6, currentY + 4, { 
              width: contentWidth - 12,
-             lineGap: 1
+             lineGap: 0.8
            });
         
-        doc.fontSize(8.5)
+        doc.fontSize(7)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(nextStepsText2, margin + 6, currentY + text1Height + 6, { 
+           .text(nextStepsText2, margin + 6, currentY + text1Height + 4, { 
              width: contentWidth - 12,
              align: 'center',
-             lineGap: 0.5
+             lineGap: 0.4
            });
         
         currentY += boxHeight;
@@ -463,7 +463,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
          .stroke();
       
       // Footer copyright
-      doc.fontSize(7.5)
+      doc.fontSize(6.5)
          .fillColor('#6B7280')
          .font('Helvetica')
          .text(copyrightText, margin, footerY, { 
@@ -473,13 +473,13 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
          });
       
       // Disclaimer en dessous
-      doc.fontSize(7)
+      doc.fontSize(6)
          .fillColor('#6B7280')
          .font('Helvetica')
-         .text(disclaimerText, margin, footerY + 9, { 
+         .text(disclaimerText, margin, footerY + 7, { 
            width: contentWidth,
            align: 'center',
-           lineGap: 1.5
+           lineGap: 1
          });
 
       doc.end();
