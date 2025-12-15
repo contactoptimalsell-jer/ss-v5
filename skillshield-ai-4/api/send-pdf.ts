@@ -48,7 +48,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 12;
+      currentY += 14;
       
       doc.fontSize(13)
          .fillColor('#000000')
@@ -59,7 +59,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 13;
+      currentY += 15;
 
       // === SECTION 1: ANALYSE ===
       doc.rect(margin, currentY, 3, 11)
@@ -74,7 +74,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 13;
+      currentY += 15;
       
       doc.fontSize(9.5)
          .fillColor('#9333EA')
@@ -85,7 +85,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 7;
+      currentY += 9;
       
       // Ne pas tronquer le problème - utiliser tout le texte
       const problemText = userProblem;
@@ -109,7 +109,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 7;
+      currentY += 9;
       
       // Ne pas tronquer l'analyse - utiliser tout le texte
       const analysisText = auditResult.analysis;
@@ -238,7 +238,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(9.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(auditResult.benchmark.sectorAverage, benchCol1, benchY + 7, { 
+           .text(auditResult.benchmark.sectorAverage, benchCol1, benchY + 9, { 
              width: benchColWidth,
              lineGap: 0.8
            });
@@ -250,7 +250,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(9.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, benchY + 7, { 
+           .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, benchY + 9, { 
              width: benchColWidth,
              lineGap: 0.8
            });
@@ -264,7 +264,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(9.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, benchY + 7, { 
+           .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, benchY + 9, { 
              width: benchColWidth,
              lineGap: 0.8
            });
@@ -276,7 +276,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(9.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(auditResult.benchmark.averageROI, benchCol2, benchY + 7, { 
+           .text(auditResult.benchmark.averageROI, benchCol2, benchY + 9, { 
              width: benchColWidth,
              lineGap: 0.8
            });
@@ -290,7 +290,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(9.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(auditResult.benchmark.paybackPeriod, benchCol1, benchY + 7, { 
+           .text(auditResult.benchmark.paybackPeriod, benchCol1, benchY + 9, { 
              width: benchColWidth,
              lineGap: 0.8
            });
@@ -363,9 +363,11 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       
       const nextStepsText1 = '✓ Appel de 15 min | ✓ Devis gratuit | ✓ Garantie résultat (90%)';
       const nextStepsText2 = 'contact@skillshield-ai.com | Réponse sous 24h | skillshield.app';
+      const copyrightText = '© 2025 SkillShield AI. Tous droits réservés.';
       const text1Height = calculateTextHeight(nextStepsText1, contentWidth - 16, 9.5, 1);
       const text2Height = calculateTextHeight(nextStepsText2, contentWidth - 16, 9, 0.5);
-      const boxHeight = Math.ceil(text1Height + text2Height + 10);
+      const copyrightHeight = calculateTextHeight(copyrightText, contentWidth - 16, 8, 0.5);
+      const boxHeight = Math.ceil(text1Height + text2Height + copyrightHeight + 14);
       
       doc.rect(margin, currentY, contentWidth, boxHeight)
          .fillColor('#F8FAFC')
@@ -387,32 +389,22 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       doc.fontSize(9)
          .fillColor('#000000')
          .font('Helvetica')
-         .text(nextStepsText2, margin + 8, currentY + text1Height + 5, { 
+         .text(nextStepsText2, margin + 8, currentY + text1Height + 7, { 
+           width: contentWidth - 16,
+           align: 'center',
+           lineGap: 0.5
+         });
+      
+      doc.fontSize(8)
+         .fillColor('#6B7280')
+         .font('Helvetica')
+         .text(copyrightText, margin + 8, currentY + text1Height + text2Height + 9, { 
            width: contentWidth - 16,
            align: 'center',
            lineGap: 0.5
          });
       
       currentY += boxHeight;
-
-      // === FOOTER ===
-      const footerY = pageHeight - 30;
-      const copyrightText = '© 2025 SkillShield AI. Tous droits réservés.';
-      
-      doc.moveTo(margin, footerY - 4)
-         .lineTo(margin + contentWidth, footerY - 4)
-         .strokeColor('#E5E7EB')
-         .lineWidth(0.5)
-         .stroke();
-      
-      doc.fontSize(8)
-         .fillColor('#6B7280')
-         .font('Helvetica')
-         .text(copyrightText, margin, footerY, { 
-           width: contentWidth,
-           align: 'center',
-           lineGap: 0
-         });
 
       doc.end();
     } catch (error) {
