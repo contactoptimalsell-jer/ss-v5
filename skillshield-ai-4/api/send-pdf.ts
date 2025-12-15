@@ -300,7 +300,11 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         
         let benchY = currentY + benchPadding;
         
-        // Ligne 1
+        // Ligne 1 - Calculer les hauteurs réelles
+        const line1LabelH = calculateTextHeight('Secteur', benchColWidth, labelFontSize, 0);
+        const line1ValueH = calculateTextHeight(auditResult.benchmark.sectorAverage, benchColWidth, valueFontSize, 0.8);
+        const line1ActualH = line1LabelH + line1ValueH + lineSpacing;
+        
         doc.fontSize(9)
            .fillColor('#9333EA')
            .font('Helvetica-Bold')
@@ -308,10 +312,13 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(9.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(auditResult.benchmark.sectorAverage, benchCol1, benchY + 11, { 
+           .text(auditResult.benchmark.sectorAverage, benchCol1, benchY + line1LabelH + lineSpacing, { 
              width: benchColWidth,
              lineGap: 0.8
            });
+        
+        const processLabelH = calculateTextHeight('Processus automatisés', benchColWidth, labelFontSize, 0);
+        const processValueH = calculateTextHeight(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchColWidth, valueFontSize, 0.8);
         
         doc.fontSize(9)
            .fillColor('#9333EA')
@@ -320,7 +327,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(9.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, benchY + 11, { 
+           .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, benchY + processLabelH + lineSpacing, { 
              width: benchColWidth,
              lineGap: 0.8
            });
@@ -328,6 +335,9 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         benchY += benchRowHeight;
         
         // Ligne 2
+        const line2LabelH = calculateTextHeight('Temps économisé', benchColWidth, labelFontSize, 0);
+        const line2ValueH = calculateTextHeight(auditResult.benchmark.averageTimeSavedPerTask, benchColWidth, valueFontSize, 0.8);
+        
         doc.fontSize(9)
            .fillColor('#9333EA')
            .font('Helvetica-Bold')
@@ -335,10 +345,13 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(9.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, benchY + 11, { 
+           .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, benchY + line2LabelH + lineSpacing, { 
              width: benchColWidth,
              lineGap: 0.8
            });
+        
+        const roiLabelH = calculateTextHeight('ROI moyen', benchColWidth, labelFontSize, 0);
+        const roiValueH = calculateTextHeight(auditResult.benchmark.averageROI, benchColWidth, valueFontSize, 0.8);
         
         doc.fontSize(9)
            .fillColor('#9333EA')
@@ -347,7 +360,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(9.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(auditResult.benchmark.averageROI, benchCol2, benchY + 11, { 
+           .text(auditResult.benchmark.averageROI, benchCol2, benchY + roiLabelH + lineSpacing, { 
              width: benchColWidth,
              lineGap: 0.8
            });
@@ -355,6 +368,9 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         benchY += benchRowHeight;
         
         // Ligne 3
+        const line3LabelH = calculateTextHeight('Retour investissement', benchColWidth, labelFontSize, 0);
+        const line3ValueH = calculateTextHeight(auditResult.benchmark.paybackPeriod, benchColWidth, valueFontSize, 0.8);
+        
         doc.fontSize(9)
            .fillColor('#9333EA')
            .font('Helvetica-Bold')
@@ -362,7 +378,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(9.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(auditResult.benchmark.paybackPeriod, benchCol1, benchY + 11, { 
+           .text(auditResult.benchmark.paybackPeriod, benchCol1, benchY + line3LabelH + lineSpacing, { 
              width: benchColWidth,
              lineGap: 0.8
            });
