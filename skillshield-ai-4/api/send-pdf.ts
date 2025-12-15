@@ -495,78 +495,93 @@ async function sendEmailWithPDF(
   pdfBuffer: Buffer,
   userProblem: string
 ): Promise<void> {
-  // Nettoyage de l'email
+  // Nettoyage ultra-strict de l'email - ASCII uniquement
   const cleanEmail = (email: string): string => {
-    if (!email || typeof email !== 'string') return '';
+    if (!email || typeof email !== 'string') throw new Error('Email vide');
     let cleaned = email.trim().toLowerCase();
     // Extraire email depuis "Name <email@domain.com>"
     const match = cleaned.match(/<([^>]+)>/);
     if (match) cleaned = match[1].trim();
-    // Supprimer guillemets
-    cleaned = cleaned.replace(/^["']|["']$/g, '').trim();
-    // Validation basique
-    if (!cleaned.includes('@') || !cleaned.includes('.')) return '';
+    // Supprimer guillemets et espaces
+    cleaned = cleaned.replace(/^["'\s]+|["'\s]+$/g, '').trim();
+    // Validation stricte - seulement ASCII
+    if (!/^[a-z0-9._+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(cleaned)) {
+      throw new Error('Format email invalide');
+    }
     return cleaned;
+  };
+
+  // Nettoyage du texte pour éviter problèmes d'encodage
+  const cleanText = (text: string): string => {
+    if (!text) return '';
+    return String(text)
+      .replace(/[^\x20-\x7E\n\r]/g, '') // Garder seulement ASCII imprimable + retours à la ligne
+      .replace(/\s+/g, ' ')
+      .trim()
+      .substring(0, 500); // Limiter la longueur
   };
 
   const fromEmail = cleanEmail(process.env.SMTP_USER || 'contact@skillshield-ai.com');
   const toEmailClean = cleanEmail(toEmail);
+  const problemClean = cleanText(userProblem);
 
-  if (!fromEmail || !toEmailClean) {
-    throw new Error('Email invalide');
+  // Validation SMTP
+  const smtpHost = String(process.env.SMTP_HOST || 'smtp.gmail.com').trim();
+  const smtpPort = parseInt(String(process.env.SMTP_PORT || '587').trim(), 10);
+  const smtpPass = String(process.env.SMTP_PASS || '').trim();
+
+  if (!smtpPass || smtpPass.length === 0) {
+    throw new Error('SMTP_PASS manquant dans les variables d\'environnement');
+  }
+
+  if (isNaN(smtpPort) || smtpPort <= 0) {
+    throw new Error(`Port SMTP invalide: ${smtpPort}`);
   }
 
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
+    host: smtpHost,
+    port: smtpPort,
     secure: false,
     auth: {
       user: fromEmail,
-      pass: process.env.SMTP_PASS || '',
+      pass: smtpPass,
     },
     tls: {
-      rejectUnauthorized: false
+      rejectUnauthorized: false,
+      ciphers: 'SSLv3'
     }
   });
+
+  // Sujet ultra-simple - ASCII uniquement
+  const subject = 'Votre Plan d\'Automatisation Personnalise - SkillShield AI';
+
+  // HTML minimal et sûr
+  const htmlContent = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+<h2 style="color: #8B5CF6;">Bonjour,</h2>
+<p>Comme promis, voici votre <strong>Plan d'Automatisation Personnalise</strong>, base sur votre situation :</p>
+<p style="background: #f3f4f6; padding: 15px; border-radius: 8px; font-style: italic;">${problemClean.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')}</p>
+<p>Ce document contient :</p>
+<ul>
+<li>Notre analyse de votre situation</li>
+<li>Vos solutions d'automatisation IA personnalisees</li>
+<li>Les benchmarks de votre secteur</li>
+<li>Un plan d'action en 5 etapes pret a mettre en œuvre</li>
+</ul>
+<p><strong>Prochaine etape :</strong> Planifiez un appel de 15 minutes avec notre equipe pour discuter de la mise en œuvre.</p>
+<p style="margin-top: 30px;"><a href="https://calendly.com/b00784336-essec" style="background: #8B5CF6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Planifier un appel (15 min)</a></p>
+<p style="margin-top: 20px;"><a href="https://skillshield.app" style="color: #8B5CF6; text-decoration: none; font-weight: 500;">Visitez notre site web : skillshield.app</a></p>
+<p style="color: #6b7280; font-size: 12px; margin-top: 30px;">Cordialement,<br/>L'equipe SkillShield AI<br/>contact@skillshield-ai.com</p>
+</div>`;
+
+  // Version texte simple
+  const textContent = `Bonjour,\n\nComme promis, voici votre Plan d'Automatisation Personnalise, base sur votre situation :\n\n${problemClean}\n\nCe document contient :\n- Notre analyse de votre situation\n- Vos solutions d'automatisation IA personnalisees\n- Les benchmarks de votre secteur\n- Un plan d'action en 5 etapes pret a mettre en œuvre\n\nProchaine etape : Planifiez un appel de 15 minutes avec notre equipe pour discuter de la mise en œuvre.\n\nPlanifier un appel (15 min): https://calendly.com/b00784336-essec\nVisitez notre site web : skillshield.app\n\nCordialement,\nL'equipe SkillShield AI\ncontact@skillshield-ai.com`;
 
   await transporter.sendMail({
     from: fromEmail,
     to: toEmailClean,
-    subject: 'Votre Plan d\'Automatisation Personnalise - SkillShield AI',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #8B5CF6;">Bonjour,</h2>
-        <p>Comme promis, voici votre <strong>Plan d'Automatisation Personnalise</strong>, base sur votre situation :</p>
-        <p style="background: #f3f4f6; padding: 15px; border-radius: 8px; font-style: italic;">
-          "${userProblem.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}"
-        </p>
-        <p>Ce document contient :</p>
-        <ul>
-          <li>Notre analyse de votre situation</li>
-          <li>Vos solutions d'automatisation IA personnalisees</li>
-          <li>Les benchmarks de votre secteur</li>
-          <li>Un plan d'action en 5 etapes pret a mettre en œuvre</li>
-        </ul>
-        <p><strong>Prochaine etape :</strong> Planifiez un appel de 15 minutes avec notre equipe pour discuter de la mise en œuvre.</p>
-        <p style="margin-top: 30px;">
-          <a href="https://calendly.com/b00784336-essec" 
-             style="background: #8B5CF6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-            Planifier un appel (15 min)
-          </a>
-        </p>
-        <p style="margin-top: 20px;">
-          <a href="https://skillshield.app" 
-             style="color: #8B5CF6; text-decoration: none; font-weight: 500;">
-            Visitez notre site web : skillshield.app
-          </a>
-        </p>
-        <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">
-          Cordialement,<br/>
-          L'equipe SkillShield AI<br/>
-          contact@skillshield-ai.com
-        </p>
-      </div>
-    `,
+    subject: subject,
+    text: textContent,
+    html: htmlContent,
     attachments: [
       {
         filename: 'plan-automatisation-skillshield-ai.pdf',
