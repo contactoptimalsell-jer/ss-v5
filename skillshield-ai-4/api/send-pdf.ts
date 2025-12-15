@@ -624,19 +624,38 @@ export default async function handler(
     });
 
   } catch (error: any) {
-    console.error('❌ Erreur complète lors de l\'envoi du PDF:', error);
-    console.error('Stack trace:', error.stack);
+    console.error('ERREUR ENVOI PDF:', error);
+    console.error('Code erreur:', error.code);
+    console.error('Message:', error.message);
+    console.error('Stack:', error.stack);
     
-    if (error.code === 'EAUTH' || error.code === 'ECONNECTION') {
+    // Erreurs SMTP spécifiques
+    if (error.code === 'EAUTH') {
       return res.status(500).json({ 
-        error: 'Erreur de configuration email',
-        message: 'Veuillez configurer les variables d\'environnement SMTP dans Vercel Dashboard → Settings → Environment Variables : SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS'
+        error: 'Erreur authentification SMTP',
+        message: 'Verifiez SMTP_USER et SMTP_PASS dans Vercel'
+      });
+    }
+    
+    if (error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT') {
+      return res.status(500).json({ 
+        error: 'Erreur connexion SMTP',
+        message: 'Verifiez SMTP_HOST et SMTP_PORT dans Vercel'
       });
     }
 
+    // Erreur de validation email
+    if (error.message && (error.message.includes('Email') || error.message.includes('email'))) {
+      return res.status(400).json({ 
+        error: 'Email invalide',
+        message: error.message
+      });
+    }
+
+    // Erreur générique
     return res.status(500).json({ 
-      error: 'Erreur lors de l\'envoi du PDF',
-      message: error.message || 'Une erreur inattendue s\'est produite'
+      error: 'Erreur envoi PDF',
+      message: error.message || 'Erreur inconnue'
     });
   }
 }
