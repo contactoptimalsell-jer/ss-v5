@@ -111,18 +111,6 @@ function getAdaptiveBenchmark(userProblem: string): AuditResult['benchmark'] {
   return benchmarks[sector] || benchmarks['general'];
 }
 
-// Fonction helper pour générer des données de benchmark adaptées au secteur
-function getAdaptiveBenchmark(userProblem: string): AuditResult['benchmark'] {
-  const benchmark = getBenchmarkForProblem(userProblem);
-  return {
-    automatedProcessesPercentage: benchmark.automatedProcessesPercentage,
-    averageTimeSavedPerTask: benchmark.averageTimeSavedPerTask,
-    averageROI: benchmark.averageROI,
-    paybackPeriod: benchmark.paybackPeriod,
-    sectorAverage: benchmark.sectorAverage
-  };
-}
-
 // Fonction helper pour extraire les heures
 function extractHoursFromString(timeString: string): number {
   const match = timeString.match(/(\d+(?:\.\d+)?)\s*h/);
