@@ -10,6 +10,42 @@ function calculateTextHeight(text: string, width: number, fontSize: number, line
   return lines * fontSize + (lines - 1) * lineGap;
 }
 
+// Fonction pour calculer la hauteur d'un cadre avec padding adaptatif
+function calculateAdaptiveBoxHeight(
+  elements: Array<{ text: string; fontSize: number; lineGap: number }>,
+  width: number,
+  minPadding: number = 8,
+  spacing: number = 3
+): number {
+  let totalHeight = 0;
+  elements.forEach((element, index) => {
+    const elementHeight = calculateTextHeight(element.text, width, element.fontSize, element.lineGap);
+    totalHeight += elementHeight;
+    if (index < elements.length - 1) {
+      totalHeight += spacing;
+    }
+  });
+  return Math.ceil(totalHeight + (minPadding * 2));
+}
+
+// Fonction pour calculer la hauteur réelle d'un bloc de texte avec padding
+function calculateBoxHeight(
+  titleText: string,
+  metaText: string | null,
+  descText: string,
+  width: number,
+  titleSize: number,
+  metaSize: number,
+  descSize: number,
+  padding: number = 8
+): number {
+  const titleHeight = calculateTextHeight(titleText, width, titleSize, titleSize * 0.1);
+  const metaHeight = metaText ? calculateTextHeight(metaText, width, metaSize, metaSize * 0.05) : 0;
+  const descHeight = calculateTextHeight(descText, width, descSize, descSize * 0.1);
+  const spacing = metaText ? 3 : 0;
+  return Math.ceil(titleHeight + metaHeight + descHeight + (padding * 2) + spacing);
+}
+
 // Fonction pour générer le PDF premium personnalisé sur UNE SEULE PAGE
 function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -148,10 +184,14 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         // Ne pas tronquer - utiliser toute la description
         const descText = suggestion.description;
         
-        const titleHeight = calculateTextHeight(titleText, contentWidth - 16, 10, 1);
-        const metaHeight = calculateTextHeight(metaText, contentWidth - 16, 8.5, 0.5);
-        const descHeight = calculateTextHeight(descText, contentWidth - 16, 9, 1.1);
-        const boxHeight = Math.ceil(titleHeight + metaHeight + descHeight + 12);
+        const textWidth = contentWidth - 16;
+        const padding = 8;
+        
+        // Calculer la hauteur réelle avec système adaptatif
+        const titleHeight = calculateTextHeight(titleText, textWidth, 10, 1);
+        const metaHeight = calculateTextHeight(metaText, textWidth, 8.5, 0.5);
+        const descHeight = calculateTextHeight(descText, textWidth, 9, 1.1);
+        const boxHeight = Math.ceil(titleHeight + metaHeight + descHeight + (padding * 2) + 6);
         
         doc.rect(margin, currentY, contentWidth, boxHeight)
            .fillColor('#F8FAFC')
@@ -164,12 +204,12 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .lineWidth(1.2)
            .stroke();
         
-        let textY = currentY + 6;
+        let textY = currentY + padding;
         doc.fontSize(10)
            .fillColor('#9333EA')
            .font('Helvetica-Bold')
-           .text(titleText, margin + 8, textY, { 
-             width: contentWidth - 16,
+           .text(titleText, margin + padding, textY, { 
+             width: textWidth,
              lineGap: 1
            });
         
@@ -177,8 +217,8 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(8.5)
            .fillColor('#6B7280')
            .font('Helvetica')
-           .text(metaText, margin + 8, textY, { 
-             width: contentWidth - 16,
+           .text(metaText, margin + padding, textY, { 
+             width: textWidth,
              lineGap: 0.5
            });
         
@@ -186,8 +226,8 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(9)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(descText, margin + 8, textY, { 
-             width: contentWidth - 16,
+           .text(descText, margin + padding, textY, { 
+             width: textWidth,
              align: 'justify',
              lineGap: 1.1
            });
@@ -213,16 +253,41 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         
         currentY += 13;
         
-        // Calculer la hauteur nécessaire pour le benchmark avec tous les sauts de ligne
+        // Calculer la hauteur nécessaire pour le benchmark avec système adaptatif
         const benchCol1 = margin + 10;
         const benchCol2 = margin + contentWidth / 2 + 10;
         const benchColWidth = contentWidth / 2 - 20;
-        const benchRowHeight = 20; // Augmenté pour plus d'espace entre les lignes
-        const benchPadding = 8; // Padding interne du cadre
+        const benchPadding = 10; // Padding interne du cadre adaptatif
         
-        // Calculer la hauteur totale nécessaire
-        const benchContentHeight = (benchRowHeight * 3) + (benchPadding * 2);
-        const benchHeight = benchContentHeight;
+        // Calculer la hauteur réelle de chaque ligne de benchmark
+        const labelFontSize = 9;
+        const valueFontSize = 9.5;
+        const lineSpacing = 11; // Espacement entre label et valeur
+        
+        const line1LabelHeight = calculateTextHeight('Secteur', benchColWidth, labelFontSize, 0);
+        const line1ValueHeight = calculateTextHeight(auditResult.benchmark.sectorAverage, benchColWidth, valueFontSize, 0.8);
+        const line1Height = Math.max(line1LabelHeight + line1ValueHeight + lineSpacing, 20);
+        
+        const line2LabelHeight = calculateTextHeight('Temps économisé', benchColWidth, labelFontSize, 0);
+        const line2ValueHeight = calculateTextHeight(auditResult.benchmark.averageTimeSavedPerTask, benchColWidth, valueFontSize, 0.8);
+        const line2Height = Math.max(line2LabelHeight + line2ValueHeight + lineSpacing, 20);
+        
+        const line3LabelHeight = calculateTextHeight('Retour investissement', benchColWidth, labelFontSize, 0);
+        const line3ValueHeight = calculateTextHeight(auditResult.benchmark.paybackPeriod, benchColWidth, valueFontSize, 0.8);
+        const line3Height = Math.max(line3LabelHeight + line3ValueHeight + lineSpacing, 20);
+        
+        const processLabelHeight = calculateTextHeight('Processus automatisés', benchColWidth, labelFontSize, 0);
+        const processValueHeight = calculateTextHeight(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchColWidth, valueFontSize, 0.8);
+        const processHeight = Math.max(processLabelHeight + processValueHeight + lineSpacing, 20);
+        
+        const roiLabelHeight = calculateTextHeight('ROI moyen', benchColWidth, labelFontSize, 0);
+        const roiValueHeight = calculateTextHeight(auditResult.benchmark.averageROI, benchColWidth, valueFontSize, 0.8);
+        const roiHeight = Math.max(roiLabelHeight + roiValueHeight + lineSpacing, 20);
+        
+        // Hauteur totale = hauteur max de chaque ligne + padding
+        const maxLineHeight = Math.max(line1Height, line2Height, line3Height, processHeight, roiHeight);
+        const benchRowHeight = maxLineHeight;
+        const benchHeight = (benchRowHeight * 3) + (benchPadding * 2);
         
         doc.rect(margin, currentY, contentWidth, benchHeight)
            .fillColor('#ECFEFF')
@@ -371,10 +436,16 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       const nextStepsText1 = '✓ Appel de 15 min | ✓ Devis gratuit | ✓ Garantie résultat (90%)';
       const nextStepsText2 = 'contact@skillshield-ai.com | Réponse sous 24h | skillshield.app';
       const copyrightText = '© 2025 SkillShield AI. Tous droits réservés.';
-      const text1Height = calculateTextHeight(nextStepsText1, contentWidth - 16, 9.5, 1);
-      const text2Height = calculateTextHeight(nextStepsText2, contentWidth - 16, 9, 0.5);
-      const copyrightHeight = calculateTextHeight(copyrightText, contentWidth - 16, 8, 0.5);
-      const boxHeight = Math.ceil(text1Height + text2Height + copyrightHeight + 14);
+      
+      const textWidth = contentWidth - 16;
+      const padding = 8;
+      const spacing = 4;
+      
+      // Calculer la hauteur réelle avec système adaptatif
+      const text1Height = calculateTextHeight(nextStepsText1, textWidth, 9.5, 1);
+      const text2Height = calculateTextHeight(nextStepsText2, textWidth, 9, 0.5);
+      const copyrightHeight = calculateTextHeight(copyrightText, textWidth, 8, 0.5);
+      const boxHeight = Math.ceil(text1Height + text2Height + copyrightHeight + (padding * 2) + (spacing * 2));
       
       doc.rect(margin, currentY, contentWidth, boxHeight)
          .fillColor('#F8FAFC')
@@ -385,28 +456,31 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
          .lineWidth(1.2)
          .stroke();
       
+      let textY = currentY + padding;
       doc.fontSize(9.5)
          .fillColor('#10B981')
          .font('Helvetica-Bold')
-         .text(nextStepsText1, margin + 8, currentY + 5, { 
-           width: contentWidth - 16,
+         .text(nextStepsText1, margin + padding, textY, { 
+           width: textWidth,
            lineGap: 1
          });
       
+      textY += text1Height + spacing;
       doc.fontSize(9)
          .fillColor('#000000')
          .font('Helvetica')
-         .text(nextStepsText2, margin + 8, currentY + text1Height + 7, { 
-           width: contentWidth - 16,
+         .text(nextStepsText2, margin + padding, textY, { 
+           width: textWidth,
            align: 'center',
            lineGap: 0.5
          });
       
+      textY += text2Height + spacing;
       doc.fontSize(8)
          .fillColor('#6B7280')
          .font('Helvetica')
-         .text(copyrightText, margin + 8, currentY + text1Height + text2Height + 9, { 
-           width: contentWidth - 16,
+         .text(copyrightText, margin + padding, textY, { 
+           width: textWidth,
            align: 'center',
            lineGap: 0.5
          });
