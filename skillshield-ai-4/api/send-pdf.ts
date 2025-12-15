@@ -48,7 +48,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 18;
+      currentY += 22;
       
       doc.fontSize(13)
          .fillColor('#000000')
@@ -59,7 +59,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 17;
+      currentY += 19;
 
       // === SECTION 1: ANALYSE ===
       doc.rect(margin, currentY, 3, 11)
