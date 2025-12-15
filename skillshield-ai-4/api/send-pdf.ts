@@ -508,22 +508,22 @@ async function sendEmailWithPDF(
   await transporter.sendMail({
     from: `"SkillShield AI" <${process.env.SMTP_USER || 'contact@skillshield-ai.com'}>`,
     to: toEmail,
-    subject: '📄 Votre Plan d\'Automatisation Personnalisé - SkillShield AI',
+    subject: 'Votre Plan d\'Automatisation Personnalise - SkillShield AI',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #8B5CF6;">Bonjour,</h2>
-        <p>Comme promis, voici votre <strong>Plan d'Automatisation Personnalisé</strong>, basé sur votre situation :</p>
+        <p>Comme promis, voici votre <strong>Plan d'Automatisation Personnalise</strong>, base sur votre situation :</p>
         <p style="background: #f3f4f6; padding: 15px; border-radius: 8px; font-style: italic;">
-          "${userProblem}"
+          "${userProblem.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}"
         </p>
         <p>Ce document contient :</p>
         <ul>
           <li>Notre analyse de votre situation</li>
-          <li>Vos solutions d'automatisation IA personnalisées</li>
+          <li>Vos solutions d'automatisation IA personnalisees</li>
           <li>Les benchmarks de votre secteur</li>
-          <li>Un plan d'action en 5 étapes prêt à mettre en œuvre</li>
+          <li>Un plan d'action en 5 etapes pret a mettre en œuvre</li>
         </ul>
-        <p><strong>Prochaine étape :</strong> Planifiez un appel de 15 minutes avec notre équipe pour discuter de la mise en œuvre.</p>
+        <p><strong>Prochaine etape :</strong> Planifiez un appel de 15 minutes avec notre equipe pour discuter de la mise en œuvre.</p>
         <p style="margin-top: 30px;">
           <a href="https://calendly.com/b00784336-essec" 
              style="background: #8B5CF6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
@@ -533,12 +533,12 @@ async function sendEmailWithPDF(
         <p style="margin-top: 20px;">
           <a href="https://skillshield.app" 
              style="color: #8B5CF6; text-decoration: none; font-weight: 500;">
-            🌐 Visitez notre site web : skillshield.app
+            Visitez notre site web : skillshield.app
           </a>
         </p>
         <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">
           Cordialement,<br/>
-          L'équipe SkillShield AI<br/>
+          L'equipe SkillShield AI<br/>
           contact@skillshield-ai.com
         </p>
       </div>
