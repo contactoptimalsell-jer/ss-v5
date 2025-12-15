@@ -495,19 +495,43 @@ async function sendEmailWithPDF(
   pdfBuffer: Buffer,
   userProblem: string
 ): Promise<void> {
+  // Nettoyage de l'email
+  const cleanEmail = (email: string): string => {
+    if (!email || typeof email !== 'string') return '';
+    let cleaned = email.trim().toLowerCase();
+    // Extraire email depuis "Name <email@domain.com>"
+    const match = cleaned.match(/<([^>]+)>/);
+    if (match) cleaned = match[1].trim();
+    // Supprimer guillemets
+    cleaned = cleaned.replace(/^["']|["']$/g, '').trim();
+    // Validation basique
+    if (!cleaned.includes('@') || !cleaned.includes('.')) return '';
+    return cleaned;
+  };
+
+  const fromEmail = cleanEmail(process.env.SMTP_USER || 'contact@skillshield-ai.com');
+  const toEmailClean = cleanEmail(toEmail);
+
+  if (!fromEmail || !toEmailClean) {
+    throw new Error('Email invalide');
+  }
+
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '587'),
     secure: false,
     auth: {
-      user: process.env.SMTP_USER || 'contact@skillshield-ai.com',
+      user: fromEmail,
       pass: process.env.SMTP_PASS || '',
     },
+    tls: {
+      rejectUnauthorized: false
+    }
   });
 
   await transporter.sendMail({
-    from: `"SkillShield AI" <${process.env.SMTP_USER || 'contact@skillshield-ai.com'}>`,
-    to: toEmail,
+    from: fromEmail,
+    to: toEmailClean,
     subject: 'Votre Plan d\'Automatisation Personnalise - SkillShield AI',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
