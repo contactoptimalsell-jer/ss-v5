@@ -1,7 +1,22 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { VisualizationData } from '../types';
-import { getBenchmarkForProblem } from './sectorBenchmarks';
+
+// Fonction inline pour détecter le secteur (évite les problèmes d'import Vercel)
+function detectSector(userProblem: string): string {
+  const problemLower = userProblem.toLowerCase();
+  if (problemLower.match(/\b(immobilier|bien|appartement|maison|agent.*immobilier|mandat|visite|propriétaire|locataire|bail|agence immobilière|lyon|paris|marseille|toulouse|bordeaux)\b/)) return 'immobilier';
+  if (problemLower.match(/\b(e-commerce|ecommerce|boutique en ligne|shop|marketplace|amazon|shopify|panier|checkout|livraison|expédition|colis|commande en ligne|produit|stock|inventaire)\b/)) return 'ecommerce';
+  if (problemLower.match(/\b(santé|médical|médecin|docteur|hôpital|clinique|patient|consultation|ordonnance|pharmacie)\b/)) return 'sante';
+  if (problemLower.match(/\b(restaurant|restauration|hôtel|hôtellerie|cuisine|chef|menu|réservation|booking)\b/)) return 'restauration';
+  if (problemLower.match(/\b(conseil|consultant|cabinet de conseil|expertise|audit|formation|coaching)\b/)) return 'services';
+  if (problemLower.match(/\b(finance|banque|assurance|courtier|crédit|prêt|investissement)\b/)) return 'finance';
+  if (problemLower.match(/\b(éducation|formation|école|université|professeur|formateur|cpf)\b/)) return 'education';
+  if (problemLower.match(/\b(transport|logistique|livraison|expédition|colis|fret|camion|chauffeur)\b/)) return 'transport';
+  if (problemLower.match(/\b(btp|construction|bâtiment|travaux|maçon|plombier|électricien)\b/)) return 'btp';
+  if (problemLower.match(/\b(industrie|manufacturing|production|usine|atelier|machine|maintenance)\b/)) return 'industrie';
+  return 'general';
+}
 
 // Fonction pour générer des données de benchmark basées sur des données réelles et vérifiées
 // Sources: thunderbit.com, gsst.fr - Statistiques 2024
@@ -13,32 +28,23 @@ function generateBenchmarkData(userProblem: string): {
   paybackPeriod: string;
   sectorAverage: string;
 } {
-  try {
-    // Utiliser le système de détection de secteur partagé
-    const benchmark = getBenchmarkForProblem(userProblem);
-    
-    // Log pour vérifier que le module fonctionne
-    console.log('✅ getBenchmarkForProblem called successfully');
-    console.log('📊 Benchmark result:', JSON.stringify(benchmark, null, 2));
-    
-    return {
-      automatedProcessesPercentage: benchmark.automatedProcessesPercentage,
-      averageTimeSavedPerTask: benchmark.averageTimeSavedPerTask,
-      averageROI: benchmark.averageROI,
-      paybackPeriod: benchmark.paybackPeriod,
-      sectorAverage: benchmark.sectorAverage
-    };
-  } catch (error) {
-    console.error('❌ Error in generateBenchmarkData:', error);
-    // Fallback en cas d'erreur d'import
-    return {
-      automatedProcessesPercentage: 60,
-      averageTimeSavedPerTask: "8-12h / semaine",
-      averageROI: "250-450%",
-      paybackPeriod: "3-10 mois",
-      sectorAverage: "entreprises françaises"
-    };
-  }
+  const sector = detectSector(userProblem);
+  const benchmarks: Record<string, any> = {
+    'immobilier': { automatedProcessesPercentage: 58, averageTimeSavedPerTask: '10-15h / semaine', averageROI: '280-480%', paybackPeriod: '3-8 mois', sectorAverage: 'entreprises immobilières françaises' },
+    'ecommerce': { automatedProcessesPercentage: 72, averageTimeSavedPerTask: '12-18h / semaine', averageROI: '320-550%', paybackPeriod: '2-5 mois', sectorAverage: 'entreprises e-commerce françaises' },
+    'sante': { automatedProcessesPercentage: 52, averageTimeSavedPerTask: '8-14h / semaine', averageROI: '240-420%', paybackPeriod: '4-10 mois', sectorAverage: 'établissements de santé français' },
+    'restauration': { automatedProcessesPercentage: 65, averageTimeSavedPerTask: '10-16h / semaine', averageROI: '270-450%', paybackPeriod: '3-7 mois', sectorAverage: 'établissements de restauration français' },
+    'services': { automatedProcessesPercentage: 68, averageTimeSavedPerTask: '12-18h / semaine', averageROI: '300-520%', paybackPeriod: '2-6 mois', sectorAverage: 'cabinet de conseil français' },
+    'finance': { automatedProcessesPercentage: 75, averageTimeSavedPerTask: '15-22h / semaine', averageROI: '350-600%', paybackPeriod: '2-5 mois', sectorAverage: 'établissements financiers français' },
+    'education': { automatedProcessesPercentage: 55, averageTimeSavedPerTask: '8-12h / semaine', averageROI: '250-400%', paybackPeriod: '4-9 mois', sectorAverage: 'organismes de formation français' },
+    'transport': { automatedProcessesPercentage: 70, averageTimeSavedPerTask: '14-20h / semaine', averageROI: '310-500%', paybackPeriod: '2-6 mois', sectorAverage: 'entreprises de transport françaises' },
+    'btp': { automatedProcessesPercentage: 48, averageTimeSavedPerTask: '6-10h / semaine', averageROI: '220-380%', paybackPeriod: '4-11 mois', sectorAverage: 'entreprises du BTP françaises' },
+    'industrie': { automatedProcessesPercentage: 78, averageTimeSavedPerTask: '16-24h / semaine', averageROI: '380-650%', paybackPeriod: '2-4 mois', sectorAverage: 'entreprises industrielles françaises' },
+    'general': { automatedProcessesPercentage: 60, averageTimeSavedPerTask: '8-12h / semaine', averageROI: '250-450%', paybackPeriod: '3-10 mois', sectorAverage: 'entreprises françaises' }
+  };
+  const benchmark = benchmarks[sector] || benchmarks['general'];
+  console.log(`📊 Sector detected: ${sector}, benchmark:`, benchmark.sectorAverage);
+  return benchmark;
 }
 
 // Fonction pour extraire les heures d'une chaîne "Xh / semaine" ou similaire
