@@ -10,7 +10,7 @@ function calculateTextHeight(text: string, width: number, fontSize: number, line
   return lines * fontSize + (lines - 1) * lineGap;
 }
 
-// Fonction pour générer le PDF premium personnalisé sur une seule page
+// Fonction pour générer le PDF premium personnalisé (1 ou 2 pages max)
 function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     try {
@@ -31,6 +31,67 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       const contentWidth = pageWidth - 2 * margin;
       const maxY = pageHeight - 60; // Zone maximale avant le footer
       let currentY = 30;
+      let isSecondPage = false;
+      
+      // Fonction helper pour ajouter le footer sur la page actuelle
+      const addFooter = () => {
+        const footerY = pageHeight - 55;
+        const copyrightText = '© 2025 SkillShield AI. Tous droits réservés.';
+        const disclaimerText = 'Ce document est la propriété exclusive de SkillShield AI. Toute reproduction, distribution ou utilisation non autorisée est strictement interdite.';
+        
+        // Ligne de séparation avant le footer
+        doc.moveTo(margin, footerY - 8)
+           .lineTo(margin + contentWidth, footerY - 8)
+           .strokeColor('#E5E7EB')
+           .lineWidth(0.5)
+           .stroke();
+        
+        // Footer copyright
+        doc.fontSize(6.5)
+           .fillColor('#6B7280')
+           .font('Helvetica')
+           .text(copyrightText, margin, footerY, { 
+             width: contentWidth,
+             align: 'center',
+             lineGap: 0
+           });
+        
+        // Disclaimer en dessous
+        doc.fontSize(6)
+           .fillColor('#6B7280')
+           .font('Helvetica')
+           .text(disclaimerText, margin, footerY + 7, { 
+             width: contentWidth,
+             align: 'center',
+             lineGap: 1
+           });
+      };
+
+      // Fonction helper pour passer à la page suivante si nécessaire
+      const checkAndAddPage = (requiredHeight: number = 0) => {
+        // Si on dépasse la limite et qu'on n'est pas déjà sur la page 2
+        if ((currentY + requiredHeight > maxY) && !isSecondPage) {
+          // Ajouter le footer sur la page 1 avant de passer à la page 2
+          addFooter();
+          doc.addPage();
+          currentY = 30;
+          isSecondPage = true;
+          // Réafficher l'en-tête sur la page 2
+          doc.rect(margin, currentY, contentWidth, 3)
+             .fillColor('#9333EA')
+             .fill();
+          currentY += 8;
+          doc.fontSize(18)
+             .fillColor('#9333EA')
+             .font('Helvetica-Bold')
+             .text('SkillShield AI', margin, currentY, { 
+               width: contentWidth,
+               align: 'left',
+               lineGap: 0
+             });
+          currentY += 12;
+        }
+      };
       
       // Constantes pour une structure cohérente
       const SECTION_SPACING = 8; // Espacement entre sections (réduit)
@@ -68,11 +129,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       currentY += 14;
 
       // === SECTION 1: ANALYSE ===
-      // Vérification d'espace avant d'ajouter la section
-      if (currentY > maxY - 100) {
-        doc.end();
-        return;
-      }
+      checkAndAddPage();
       
       // Titre de section avec accent cyan vif premium
       doc.rect(margin, currentY, 4, 10)
@@ -138,11 +195,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       currentY += calculateTextHeight(analysisText, contentWidth, 7.5, 1.2) + SECTION_SPACING;
 
       // === SECTION 2: SOLUTIONS ===
-      // Vérification d'espace
-      if (currentY > maxY - 150) {
-        doc.end();
-        return;
-      }
+      checkAndAddPage();
       
       doc.rect(margin, currentY, 4, 10)
          .fillColor('#06B6D4')
@@ -164,7 +217,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       // Affichage des solutions en pleine largeur pour une meilleure lisibilité
       solutions.slice(0, 3).forEach((suggestion, index) => {
         // Vérification d'espace avant chaque solution
-        if (currentY > maxY - 80) return;
+        checkAndAddPage();
         
         const titleText = `Solution ${index + 1} : ${suggestion.title}`;
         const metaText = `Difficulté : ${suggestion.difficulty} | Temps économisé : ${suggestion.timeSaved}`;
@@ -178,8 +231,10 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         const descHeight = calculateTextHeight(descText, contentWidth - 12, 7.5, 1.2);
         const boxHeight = Math.ceil(titleHeight + metaHeight + descHeight + 10);
         
-        // Vérification finale d'espace
-        if (currentY + boxHeight > maxY - 60) return;
+        // Vérification d'espace - passer à la page 2 si nécessaire
+        if (currentY + boxHeight > maxY - 60) {
+          checkAndAddPage();
+        }
         
         // Fond subtil premium pour chaque solution
         doc.rect(margin, currentY, contentWidth, boxHeight)
@@ -228,7 +283,8 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       currentY += SUBSECTION_SPACING;
 
       // === SECTION 3: BENCHMARK (si disponible) ===
-      if (auditResult.benchmark && currentY < maxY - 80) {
+      if (auditResult.benchmark) {
+        checkAndAddPage();
         doc.rect(margin, currentY, 4, 10)
            .fillColor('#06B6D4')
            .fill();
@@ -248,8 +304,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         
         // Vérification d'espace
         if (currentY + benchHeight > maxY - 60) {
-          doc.end();
-          return;
+          checkAndAddPage();
         }
         
         doc.rect(margin, currentY, contentWidth, benchHeight)
@@ -340,7 +395,8 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       }
 
       // === SECTION 4: PLAN D'ACTION ===
-      if (currentY < maxY - 70) {
+      checkAndAddPage();
+      {
         doc.rect(margin, currentY, 4, 10)
            .fillColor('#06B6D4')
            .fill();
@@ -364,36 +420,36 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         ];
         
         steps.forEach((step, index) => {
-          if (currentY < maxY - 40) {
-            // Numéro dans un cercle
-            doc.circle(margin + 6, currentY + 2.5, 4)
-               .fillColor('#9333EA')
-               .fill();
-            
-            doc.fontSize(7)
-               .fillColor('#FFFFFF')
-               .font('Helvetica-Bold')
-               .text((index + 1).toString(), margin + 2.5, currentY + 0.5, { 
-                 width: 8,
-                 align: 'center'
-               });
-            
-            doc.fontSize(7.5)
-               .fillColor('#000000')
-               .font('Helvetica')
-               .text(step, margin + 14, currentY, { 
-                 width: contentWidth - 14,
-                 lineGap: 0.8
-               });
-            currentY += 8;
-          }
+          checkAndAddPage();
+          // Numéro dans un cercle
+          doc.circle(margin + 6, currentY + 2.5, 4)
+             .fillColor('#9333EA')
+             .fill();
+          
+          doc.fontSize(7)
+             .fillColor('#FFFFFF')
+             .font('Helvetica-Bold')
+             .text((index + 1).toString(), margin + 2.5, currentY + 0.5, { 
+               width: 8,
+               align: 'center'
+             });
+          
+          doc.fontSize(7.5)
+             .fillColor('#000000')
+             .font('Helvetica')
+             .text(step, margin + 14, currentY, { 
+               width: contentWidth - 14,
+               lineGap: 0.8
+             });
+          currentY += 8;
         });
         
         currentY += SUBSECTION_SPACING;
       }
 
       // === SECTION 5: PROCHAINES ÉTAPES ===
-      if (currentY < maxY - 60) {
+      checkAndAddPage();
+      {
         doc.rect(margin, currentY, 4, 10)
            .fillColor('#06B6D4')
            .fill();
@@ -416,8 +472,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         
         // Vérification d'espace
         if (currentY + boxHeight > maxY - 60) {
-          doc.end();
-          return;
+          checkAndAddPage();
         }
         
         // Fond premium avec accent violet-cyan
@@ -451,36 +506,8 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       }
 
       // === FOOTER ET DISCLAIMER EN BAS ===
-      const footerY = pageHeight - 55;
-      const copyrightText = '© 2025 SkillShield AI. Tous droits réservés.';
-      const disclaimerText = 'Ce document est la propriété exclusive de SkillShield AI. Toute reproduction, distribution ou utilisation non autorisée est strictement interdite.';
-      
-      // Ligne de séparation avant le footer
-      doc.moveTo(margin, footerY - 8)
-         .lineTo(margin + contentWidth, footerY - 8)
-         .strokeColor('#E5E7EB')
-         .lineWidth(0.5)
-         .stroke();
-      
-      // Footer copyright
-      doc.fontSize(6.5)
-         .fillColor('#6B7280')
-         .font('Helvetica')
-         .text(copyrightText, margin, footerY, { 
-           width: contentWidth,
-           align: 'center',
-           lineGap: 0
-         });
-      
-      // Disclaimer en dessous
-      doc.fontSize(6)
-         .fillColor('#6B7280')
-         .font('Helvetica')
-         .text(disclaimerText, margin, footerY + 7, { 
-           width: contentWidth,
-           align: 'center',
-           lineGap: 1
-         });
+      // Ajouter le footer sur la dernière page
+      addFooter();
 
       doc.end();
     } catch (error) {
