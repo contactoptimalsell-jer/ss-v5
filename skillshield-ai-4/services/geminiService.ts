@@ -1,13 +1,15 @@
 import { AuditResult, VisualizationData } from '../types';
+import { getBenchmarkForProblem } from '../utils/sectorBenchmarks';
 
-// Fonction helper pour générer des données de benchmark par défaut
-function getDefaultBenchmark(): AuditResult['benchmark'] {
+// Fonction helper pour générer des données de benchmark adaptées au secteur
+function getAdaptiveBenchmark(userProblem: string): AuditResult['benchmark'] {
+  const benchmark = getBenchmarkForProblem(userProblem);
   return {
-    automatedProcessesPercentage: 60,
-    averageTimeSavedPerTask: "8-12h / semaine",
-    averageROI: "250-450%",
-    paybackPeriod: "3-10 mois",
-    sectorAverage: "entreprises françaises"
+    automatedProcessesPercentage: benchmark.automatedProcessesPercentage,
+    averageTimeSavedPerTask: benchmark.averageTimeSavedPerTask,
+    averageROI: benchmark.averageROI,
+    paybackPeriod: benchmark.paybackPeriod,
+    sectorAverage: benchmark.sectorAverage
   };
 }
 
@@ -141,7 +143,7 @@ export const generateAudit = async (userProblem: string): Promise<AuditResult> =
         return {
           analysis: "L'API Gemini est temporairement surchargée. Veuillez réessayer dans quelques instants. En attendant, voici des solutions d'automatisation par agent IA adaptées à votre situation.",
           suggestions: fallbackSuggestions,
-          benchmark: getDefaultBenchmark(),
+          benchmark: getAdaptiveBenchmark(userProblem),
           visualization: getDefaultVisualization(fallbackSuggestions)
         };
       }
@@ -171,7 +173,7 @@ export const generateAudit = async (userProblem: string): Promise<AuditResult> =
         return {
           analysis: `⚠️ Configuration requise : La clé API Gemini n'est pas configurée dans Vercel. Pour obtenir des analyses personnalisées adaptées à votre problème spécifique ("${userProblem.substring(0, 50)}..."), veuillez configurer DefaultGeminiAPIKey ou GEMINI_API_KEY dans les paramètres Vercel (Settings → Environment Variables).`,
           suggestions: fallbackSuggestions,
-          benchmark: getDefaultBenchmark(),
+          benchmark: getAdaptiveBenchmark(userProblem),
           visualization: getDefaultVisualization(fallbackSuggestions)
         };
       }
@@ -209,7 +211,7 @@ export const generateAudit = async (userProblem: string): Promise<AuditResult> =
     return {
       analysis: "Nous rencontrons une difficulté technique temporaire. Voici des solutions d'automatisation par agent IA adaptées à votre situation.",
       suggestions: fallbackSuggestions,
-      benchmark: getDefaultBenchmark(),
+      benchmark: getAdaptiveBenchmark(userProblem),
       visualization: getDefaultVisualization(fallbackSuggestions)
     };
   }
