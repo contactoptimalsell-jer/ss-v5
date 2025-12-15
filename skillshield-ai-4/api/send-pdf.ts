@@ -48,7 +48,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 14;
+      currentY += 18;
       
       doc.fontSize(13)
          .fillColor('#000000')
@@ -59,7 +59,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 15;
+      currentY += 17;
 
       // === SECTION 1: ANALYSE ===
       doc.rect(margin, currentY, 3, 11)
@@ -74,7 +74,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            lineGap: 0
          });
       
-      currentY += 15;
+      currentY += 17;
       
       doc.fontSize(9.5)
          .fillColor('#9333EA')
@@ -213,7 +213,16 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         
         currentY += 13;
         
-        const benchHeight = 50;
+        // Calculer la hauteur nécessaire pour le benchmark avec tous les sauts de ligne
+        const benchCol1 = margin + 10;
+        const benchCol2 = margin + contentWidth / 2 + 10;
+        const benchColWidth = contentWidth / 2 - 20;
+        const benchRowHeight = 20; // Augmenté pour plus d'espace entre les lignes
+        const benchPadding = 8; // Padding interne du cadre
+        
+        // Calculer la hauteur totale nécessaire
+        const benchContentHeight = (benchRowHeight * 3) + (benchPadding * 2);
+        const benchHeight = benchContentHeight;
         
         doc.rect(margin, currentY, contentWidth, benchHeight)
            .fillColor('#ECFEFF')
@@ -224,13 +233,9 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
            .lineWidth(1.2)
            .stroke();
         
-        const benchCol1 = margin + 8;
-        const benchCol2 = margin + contentWidth / 2 + 8;
-        const benchColWidth = contentWidth / 2 - 16;
-        const benchRowHeight = 16;
+        let benchY = currentY + benchPadding;
         
-        let benchY = currentY + 6;
-        
+        // Ligne 1
         doc.fontSize(9)
            .fillColor('#9333EA')
            .font('Helvetica-Bold')
@@ -238,7 +243,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(9.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(auditResult.benchmark.sectorAverage, benchCol1, benchY + 9, { 
+           .text(auditResult.benchmark.sectorAverage, benchCol1, benchY + 11, { 
              width: benchColWidth,
              lineGap: 0.8
            });
@@ -250,13 +255,14 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(9.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, benchY + 9, { 
+           .text(`${auditResult.benchmark.automatedProcessesPercentage}%`, benchCol2, benchY + 11, { 
              width: benchColWidth,
              lineGap: 0.8
            });
         
         benchY += benchRowHeight;
         
+        // Ligne 2
         doc.fontSize(9)
            .fillColor('#9333EA')
            .font('Helvetica-Bold')
@@ -264,7 +270,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(9.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, benchY + 9, { 
+           .text(auditResult.benchmark.averageTimeSavedPerTask, benchCol1, benchY + 11, { 
              width: benchColWidth,
              lineGap: 0.8
            });
@@ -276,13 +282,14 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(9.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(auditResult.benchmark.averageROI, benchCol2, benchY + 9, { 
+           .text(auditResult.benchmark.averageROI, benchCol2, benchY + 11, { 
              width: benchColWidth,
              lineGap: 0.8
            });
         
         benchY += benchRowHeight;
         
+        // Ligne 3
         doc.fontSize(9)
            .fillColor('#9333EA')
            .font('Helvetica-Bold')
@@ -290,7 +297,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         doc.fontSize(9.5)
            .fillColor('#000000')
            .font('Helvetica')
-           .text(auditResult.benchmark.paybackPeriod, benchCol1, benchY + 9, { 
+           .text(auditResult.benchmark.paybackPeriod, benchCol1, benchY + 11, { 
              width: benchColWidth,
              lineGap: 0.8
            });
