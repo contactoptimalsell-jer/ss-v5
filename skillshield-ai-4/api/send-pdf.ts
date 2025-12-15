@@ -52,7 +52,22 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
   return new Promise((resolve, reject) => {
     try {
       // Détecter le secteur et obtenir les benchmarks adaptés
-      const sectorBenchmark = getBenchmarkForProblem(userProblem);
+      let sectorBenchmark;
+      try {
+        sectorBenchmark = getBenchmarkForProblem(userProblem);
+        console.log('✅ Benchmark détecté:', sectorBenchmark.sectorAverage);
+      } catch (benchmarkError: any) {
+        console.error('❌ Erreur lors de la détection du benchmark:', benchmarkError);
+        // Fallback en cas d'erreur
+        sectorBenchmark = {
+          sectorName: 'Entreprises Françaises',
+          automatedProcessesPercentage: 60,
+          averageTimeSavedPerTask: '8-12h / semaine',
+          averageROI: '250-450%',
+          paybackPeriod: '3-10 mois',
+          sectorAverage: 'entreprises françaises'
+        };
+      }
       
       // Utiliser les benchmarks du secteur si disponibles, sinon ceux de l'audit
       const benchmark = auditResult.benchmark ? {
