@@ -495,16 +495,18 @@ async function sendEmailWithPDF(
   pdfBuffer: Buffer,
   userProblem: string
 ): Promise<void> {
-  // Nettoyage ultra-strict de l'email - ASCII uniquement
+  // Nettoyage ultra-strict de l'email - ASCII uniquement, format simple
   const cleanEmail = (email: string): string => {
     if (!email || typeof email !== 'string') throw new Error('Email vide');
     let cleaned = email.trim().toLowerCase();
     // Extraire email depuis "Name <email@domain.com>"
     const match = cleaned.match(/<([^>]+)>/);
     if (match) cleaned = match[1].trim();
-    // Supprimer guillemets et espaces
+    // Supprimer guillemets, apostrophes et espaces
     cleaned = cleaned.replace(/^["'\s]+|["'\s]+$/g, '').trim();
-    // Validation stricte - seulement ASCII
+    // Supprimer tous caractères non-ASCII
+    cleaned = cleaned.replace(/[^\x20-\x7E]/g, '');
+    // Validation stricte - seulement ASCII, format email simple
     if (!/^[a-z0-9._+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(cleaned)) {
       throw new Error('Format email invalide');
     }
@@ -538,6 +540,16 @@ async function sendEmailWithPDF(
     throw new Error(`Port SMTP invalide: ${smtpPort}`);
   }
 
+  // Log pour debug
+  console.log('SMTP Config:', {
+    host: smtpHost,
+    port: smtpPort,
+    user: fromEmail,
+    passLength: smtpPass.length
+  });
+  console.log('Email from:', fromEmail);
+  console.log('Email to:', toEmailClean);
+
   const transporter = nodemailer.createTransport({
     host: smtpHost,
     port: smtpPort,
@@ -547,37 +559,37 @@ async function sendEmailWithPDF(
       pass: smtpPass,
     },
     tls: {
-      rejectUnauthorized: false,
-      ciphers: 'SSLv3'
+      rejectUnauthorized: false
     }
   });
 
-  // Sujet ultra-simple - ASCII uniquement
-  const subject = 'Votre Plan d\'Automatisation Personnalise - SkillShield AI';
+  // Sujet ultra-simple - ASCII uniquement, pas d'apostrophe
+  const subject = 'Votre Plan d Automatisation Personnalise - SkillShield AI';
 
-  // HTML minimal et sûr
+  // HTML minimal et sûr - pas d'apostrophes dans le texte
   const htmlContent = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
 <h2 style="color: #8B5CF6;">Bonjour,</h2>
-<p>Comme promis, voici votre <strong>Plan d'Automatisation Personnalise</strong>, base sur votre situation :</p>
-<p style="background: #f3f4f6; padding: 15px; border-radius: 8px; font-style: italic;">${problemClean.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')}</p>
+<p>Comme promis, voici votre <strong>Plan d Automatisation Personnalise</strong>, base sur votre situation :</p>
+<p style="background: #f3f4f6; padding: 15px; border-radius: 8px; font-style: italic;">${problemClean.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')}</p>
 <p>Ce document contient :</p>
 <ul>
 <li>Notre analyse de votre situation</li>
-<li>Vos solutions d'automatisation IA personnalisees</li>
+<li>Vos solutions d automatisation IA personnalisees</li>
 <li>Les benchmarks de votre secteur</li>
-<li>Un plan d'action en 5 etapes pret a mettre en œuvre</li>
+<li>Un plan d action en 5 etapes pret a mettre en œuvre</li>
 </ul>
 <p><strong>Prochaine etape :</strong> Planifiez un appel de 15 minutes avec notre equipe pour discuter de la mise en œuvre.</p>
 <p style="margin-top: 30px;"><a href="https://calendly.com/b00784336-essec" style="background: #8B5CF6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Planifier un appel (15 min)</a></p>
 <p style="margin-top: 20px;"><a href="https://skillshield.app" style="color: #8B5CF6; text-decoration: none; font-weight: 500;">Visitez notre site web : skillshield.app</a></p>
-<p style="color: #6b7280; font-size: 12px; margin-top: 30px;">Cordialement,<br/>L'equipe SkillShield AI<br/>contact@skillshield-ai.com</p>
+<p style="color: #6b7280; font-size: 12px; margin-top: 30px;">Cordialement,<br/>L equipe SkillShield AI<br/>contact@skillshield-ai.com</p>
 </div>`;
 
-  // Version texte simple
-  const textContent = `Bonjour,\n\nComme promis, voici votre Plan d'Automatisation Personnalise, base sur votre situation :\n\n${problemClean}\n\nCe document contient :\n- Notre analyse de votre situation\n- Vos solutions d'automatisation IA personnalisees\n- Les benchmarks de votre secteur\n- Un plan d'action en 5 etapes pret a mettre en œuvre\n\nProchaine etape : Planifiez un appel de 15 minutes avec notre equipe pour discuter de la mise en œuvre.\n\nPlanifier un appel (15 min): https://calendly.com/b00784336-essec\nVisitez notre site web : skillshield.app\n\nCordialement,\nL'equipe SkillShield AI\ncontact@skillshield-ai.com`;
+  // Version texte simple - pas d'apostrophes
+  const textContent = `Bonjour,\n\nComme promis, voici votre Plan d Automatisation Personnalise, base sur votre situation :\n\n${problemClean}\n\nCe document contient :\n- Notre analyse de votre situation\n- Vos solutions d automatisation IA personnalisees\n- Les benchmarks de votre secteur\n- Un plan d action en 5 etapes pret a mettre en œuvre\n\nProchaine etape : Planifiez un appel de 15 minutes avec notre equipe pour discuter de la mise en œuvre.\n\nPlanifier un appel (15 min): https://calendly.com/b00784336-essec\nVisitez notre site web : skillshield.app\n\nCordialement,\nL equipe SkillShield AI\ncontact@skillshield-ai.com`;
 
-  await transporter.sendMail({
-    from: fromEmail,
+  // Format email ultra-simple - pas de guillemets dans "from"
+  const mailOptions = {
+    from: fromEmail, // Juste l'email, pas de format "Name <email>"
     to: toEmailClean,
     subject: subject,
     text: textContent,
@@ -588,7 +600,18 @@ async function sendEmailWithPDF(
         content: pdfBuffer,
       },
     ],
+  };
+
+  console.log('Mail options:', {
+    from: mailOptions.from,
+    to: mailOptions.to,
+    subject: mailOptions.subject,
+    hasHtml: !!mailOptions.html,
+    hasText: !!mailOptions.text,
+    attachmentSize: pdfBuffer.length
   });
+
+  await transporter.sendMail(mailOptions);
 }
 
 export default async function handler(
