@@ -229,7 +229,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
 
       // === SECTION 3: BENCHMARK (si disponible) ===
       if (auditResult.benchmark && currentY < maxY - 80) {
-        doc.rect(margin, currentY, 4, 12)
+        doc.rect(margin, currentY, 4, 10)
            .fillColor('#06B6D4')
            .fill();
         
@@ -341,7 +341,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
 
       // === SECTION 4: PLAN D'ACTION ===
       if (currentY < maxY - 70) {
-        doc.rect(margin, currentY, 4, 12)
+        doc.rect(margin, currentY, 4, 10)
            .fillColor('#06B6D4')
            .fill();
         
@@ -394,7 +394,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
 
       // === SECTION 5: PROCHAINES ÉTAPES ===
       if (currentY < maxY - 60) {
-        doc.rect(margin, currentY, 4, 12)
+        doc.rect(margin, currentY, 4, 10)
            .fillColor('#06B6D4')
            .fill();
         
@@ -495,138 +495,76 @@ async function sendEmailWithPDF(
   pdfBuffer: Buffer,
   userProblem: string
 ): Promise<void> {
-  // Nettoyage ultra-strict de l'email - ASCII uniquement, format simple
-  const cleanEmail = (email: string): string => {
-    if (!email || typeof email !== 'string') throw new Error('Email vide');
-    let cleaned = email.trim().toLowerCase();
-    // Extraire email depuis "Name <email@domain.com>"
-    const match = cleaned.match(/<([^>]+)>/);
-    if (match) cleaned = match[1].trim();
-    // Supprimer guillemets, apostrophes et espaces
-    cleaned = cleaned.replace(/^["'\s]+|["'\s]+$/g, '').trim();
-    // Supprimer tous caractères non-ASCII
-    cleaned = cleaned.replace(/[^\x20-\x7E]/g, '');
-    // Validation stricte - seulement ASCII, format email simple
-    if (!/^[a-z0-9._+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(cleaned)) {
-      throw new Error('Format email invalide');
-    }
-    return cleaned;
-  };
-
-  // Nettoyage du texte pour éviter problèmes d'encodage
-  const cleanText = (text: string): string => {
-    if (!text) return '';
-    return String(text)
-      .replace(/[^\x20-\x7E\n\r]/g, '') // Garder seulement ASCII imprimable + retours à la ligne
-      .replace(/\s+/g, ' ')
-      .trim()
-      .substring(0, 500); // Limiter la longueur
-  };
-
-  const fromEmail = cleanEmail(process.env.SMTP_USER || 'contact@skillshield-ai.com');
-  const toEmailClean = cleanEmail(toEmail);
-  const problemClean = cleanText(userProblem);
-
-  // Validation SMTP
-  const smtpHost = String(process.env.SMTP_HOST || 'smtp.gmail.com').trim();
-  const smtpPort = parseInt(String(process.env.SMTP_PORT || '587').trim(), 10);
-  const smtpPass = String(process.env.SMTP_PASS || '').trim();
-
-  if (!smtpPass || smtpPass.length === 0) {
-    throw new Error('SMTP_PASS manquant dans les variables d\'environnement');
-  }
-
-  if (isNaN(smtpPort) || smtpPort <= 0) {
-    throw new Error(`Port SMTP invalide: ${smtpPort}`);
-  }
-
-  // Log pour debug
-  console.log('SMTP Config:', {
-    host: smtpHost,
-    port: smtpPort,
-    user: fromEmail,
-    passLength: smtpPass.length
-  });
-  console.log('Email from:', fromEmail);
-  console.log('Email to:', toEmailClean);
-
   const transporter = nodemailer.createTransport({
-    host: smtpHost,
-    port: smtpPort,
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '587'),
     secure: false,
     auth: {
-      user: fromEmail,
-      pass: smtpPass,
+      user: process.env.SMTP_USER || 'contact@skillshield-ai.com',
+      pass: process.env.SMTP_PASS || '',
     },
-    tls: {
-      rejectUnauthorized: false
-    }
   });
 
-  // Sujet ultra-simple - ASCII uniquement, pas d'apostrophe
-  const subject = 'Votre Plan d Automatisation Personnalise - SkillShield AI';
-
-  // HTML minimal et sûr - pas d'apostrophes dans le texte
-  const htmlContent = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-<h2 style="color: #8B5CF6;">Bonjour,</h2>
-<p>Comme promis, voici votre <strong>Plan d Automatisation Personnalise</strong>, base sur votre situation :</p>
-<p style="background: #f3f4f6; padding: 15px; border-radius: 8px; font-style: italic;">${problemClean.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')}</p>
-<p>Ce document contient :</p>
-<ul>
-<li>Notre analyse de votre situation</li>
-<li>Vos solutions d automatisation IA personnalisees</li>
-<li>Les benchmarks de votre secteur</li>
-<li>Un plan d action en 5 etapes pret a mettre en œuvre</li>
-</ul>
-<p><strong>Prochaine etape :</strong> Planifiez un appel de 15 minutes avec notre equipe pour discuter de la mise en œuvre.</p>
-<p style="background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%); color: white; padding: 20px; border-radius: 10px; margin: 25px 0; font-weight: 600; line-height: 1.6;">
-<strong style="font-size: 18px;">Le potentiel de transformation est immense :</strong><br/><br/>
-&gt;&gt; <strong>Gains de temps massifs :</strong> Recuperez 15-20 heures par semaine automatiquement, soit l equivalent d un employe a temps plein gratuit<br/><br/>
-&gt;&gt; <strong>ROI explosif :</strong> Nos clients generent en moyenne 250-450% de retour sur investissement en moins de 6 mois<br/><br/>
-&gt;&gt; <strong>Avantage competitif :</strong> Pendant que vos concurrents perdent du temps sur des taches repetitives, vous vous concentrez sur la croissance et l innovation<br/><br/>
-&gt;&gt; <strong>Scalabilite extreme :</strong> Vos agents IA travaillent 24/7 sans fatigue, erreurs ou conges, multipliant votre productivite par 3 a 5x<br/><br/>
-&gt;&gt; <strong>Transformation durable :</strong> Une fois implementes, ces systemes deviennent votre avantage concurrentiel permanent, creant une barriere a l entree pour vos concurrents
-</p>
-<p style="background: #F8FAFC; padding: 15px; border-left: 4px solid #8B5CF6; border-radius: 6px; margin: 20px 0;">
-<strong style="color: #8B5CF6;">En 15 minutes, nous vous montrerons :</strong><br/>
-✓ Comment transformer votre probleme actuel en opportunite de croissance<br/>
-✓ Les gains financiers concrets que vous pouvez realiser des le premier mois<br/>
-✓ La feuille de route precise pour implementer vos agents IA en moins de 30 jours<br/>
-✓ Les resultats reels de nos clients dans votre secteur
-</p>
-<p style="margin-top: 30px;"><a href="https://calendly.com/b00784336-essec" style="background: #8B5CF6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600;">Planifier un appel (15 min)</a></p>
-<p style="margin-top: 20px;"><a href="https://skillshield.app" style="color: #8B5CF6; text-decoration: none; font-weight: 500;">Visitez notre site web : skillshield.app</a></p>
-<p style="color: #6b7280; font-size: 12px; margin-top: 30px;">Cordialement,<br/>L equipe SkillShield AI<br/>contact@skillshield-ai.com</p>
-</div>`;
-
-  // Version texte simple - pas d'apostrophes
-  const textContent = `Bonjour,\n\nComme promis, voici votre Plan d Automatisation Personnalise, base sur votre situation :\n\n${problemClean}\n\nCe document contient :\n- Notre analyse de votre situation\n- Vos solutions d automatisation IA personnalisees\n- Les benchmarks de votre secteur\n- Un plan d action en 5 etapes pret a mettre en œuvre\n\nProchaine etape : Planifiez un appel de 15 minutes avec notre equipe pour discuter de la mise en œuvre.\n\n═══════════════════════════════════════════════════════\nLE POTENTIEL DE TRANSFORMATION EST IMMENSE :\n═══════════════════════════════════════════════════════\n\n&gt;&gt; GAINS DE TEMPS MASSIFS :\nRecuperez 15-20 heures par semaine automatiquement, soit l equivalent d un employe a temps plein gratuit\n\n&gt;&gt; ROI EXPLOSIF :\nNos clients generent en moyenne 250-450% de retour sur investissement en moins de 6 mois\n\n&gt;&gt; AVANTAGE COMPETITIF :\nPendant que vos concurrents perdent du temps sur des taches repetitives, vous vous concentrez sur la croissance et l innovation\n\n&gt;&gt; SCALABILITE EXTREME :\nVos agents IA travaillent 24/7 sans fatigue, erreurs ou conges, multipliant votre productivite par 3 a 5x\n\n&gt;&gt; TRANSFORMATION DURABLE :\nUne fois implementes, ces systemes deviennent votre avantage concurrentiel permanent, creant une barriere a l entree pour vos concurrents\n\n═══════════════════════════════════════════════════════\nEN 15 MINUTES, NOUS VOUS MONTRERONS :\n═══════════════════════════════════════════════════════\n\n✓ Comment transformer votre probleme actuel en opportunite de croissance\n✓ Les gains financiers concrets que vous pouvez realiser des le premier mois\n✓ La feuille de route precise pour implementer vos agents IA en moins de 30 jours\n✓ Les resultats reels de nos clients dans votre secteur\n\nPlanifier un appel (15 min): https://calendly.com/b00784336-essec\nVisitez notre site web : skillshield.app\n\nCordialement,\nL equipe SkillShield AI\ncontact@skillshield-ai.com`;
-
-  // Format email ultra-simple - pas de guillemets dans "from"
-  const mailOptions = {
-    from: fromEmail, // Juste l'email, pas de format "Name <email>"
-    to: toEmailClean,
-    subject: subject,
-    text: textContent,
-    html: htmlContent,
+  await transporter.sendMail({
+    from: `"SkillShield AI" <${process.env.SMTP_USER || 'contact@skillshield-ai.com'}>`,
+    to: toEmail,
+    subject: '📄 Votre Plan d\'Automatisation Personnalisé - SkillShield AI',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #8B5CF6;">Bonjour,</h2>
+        <p>Comme promis, voici votre <strong>Plan d'Automatisation Personnalisé</strong>, basé sur votre situation :</p>
+        <p style="background: #f3f4f6; padding: 15px; border-radius: 8px; font-style: italic;">
+          "${userProblem}"
+        </p>
+        <p>Ce document contient :</p>
+        <ul>
+          <li>Notre analyse de votre situation</li>
+          <li>Vos solutions d'automatisation IA personnalisées</li>
+          <li>Les benchmarks de votre secteur</li>
+          <li>Un plan d'action en 5 étapes prêt à mettre en œuvre</li>
+        </ul>
+        <p><strong>Prochaine étape :</strong> Planifiez un appel de 15 minutes avec notre équipe pour discuter de la mise en œuvre.</p>
+        <p style="background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%); color: white; padding: 20px; border-radius: 10px; margin: 25px 0; font-weight: 600; line-height: 1.6;">
+          <strong style="font-size: 18px;">Le potentiel de transformation est immense :</strong><br/><br/>
+          &gt;&gt; <strong>Gains de temps massifs :</strong> Récupérez 15-20 heures par semaine automatiquement, soit l'équivalent d'un employé à temps plein gratuit<br/><br/>
+          &gt;&gt; <strong>ROI explosif :</strong> Nos clients génèrent en moyenne 250-450% de retour sur investissement en moins de 6 mois<br/><br/>
+          &gt;&gt; <strong>Avantage concurrentiel :</strong> Pendant que vos concurrents perdent du temps sur des tâches répétitives, vous vous concentrez sur la croissance et l'innovation<br/><br/>
+          &gt;&gt; <strong>Scalabilité extrême :</strong> Vos agents IA travaillent 24/7 sans fatigue, erreurs ou congés, multipliant votre productivité par 3 à 5x<br/><br/>
+          &gt;&gt; <strong>Transformation durable :</strong> Une fois implémentés, ces systèmes deviennent votre avantage concurrentiel permanent, créant une barrière à l'entrée pour vos concurrents
+        </p>
+        <p style="background: #F8FAFC; padding: 15px; border-left: 4px solid #8B5CF6; border-radius: 6px; margin: 20px 0;">
+          <strong style="color: #8B5CF6;">En 15 minutes, nous vous montrerons :</strong><br/>
+          ✓ Comment transformer votre problème actuel en opportunité de croissance<br/>
+          ✓ Les gains financiers concrets que vous pouvez réaliser dès le premier mois<br/>
+          ✓ La feuille de route précise pour implémenter vos agents IA en moins de 30 jours<br/>
+          ✓ Les résultats réels de nos clients dans votre secteur
+        </p>
+        <p style="margin-top: 30px;">
+          <a href="https://calendly.com/b00784336-essec" 
+             style="background: #8B5CF6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600;">
+            Planifier un appel (15 min)
+          </a>
+        </p>
+        <p style="margin-top: 20px;">
+          <a href="https://skillshield.app" 
+             style="color: #8B5CF6; text-decoration: none; font-weight: 500;">
+            🌐 Visitez notre site web : skillshield.app
+          </a>
+        </p>
+        <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">
+          Cordialement,<br/>
+          L'équipe SkillShield AI<br/>
+          contact@skillshield-ai.com
+        </p>
+      </div>
+    `,
     attachments: [
       {
         filename: 'plan-automatisation-skillshield-ai.pdf',
         content: pdfBuffer,
       },
     ],
-  };
-
-  console.log('Mail options:', {
-    from: mailOptions.from,
-    to: mailOptions.to,
-    subject: mailOptions.subject,
-    hasHtml: !!mailOptions.html,
-    hasText: !!mailOptions.text,
-    attachmentSize: pdfBuffer.length
   });
-
-  await transporter.sendMail(mailOptions);
 }
 
 export default async function handler(
@@ -662,38 +600,19 @@ export default async function handler(
     });
 
   } catch (error: any) {
-    console.error('ERREUR ENVOI PDF:', error);
-    console.error('Code erreur:', error.code);
-    console.error('Message:', error.message);
-    console.error('Stack:', error.stack);
+    console.error('❌ Erreur complète lors de l\'envoi du PDF:', error);
+    console.error('Stack trace:', error.stack);
     
-    // Erreurs SMTP spécifiques
-    if (error.code === 'EAUTH') {
+    if (error.code === 'EAUTH' || error.code === 'ECONNECTION') {
       return res.status(500).json({ 
-        error: 'Erreur authentification SMTP',
-        message: 'Verifiez SMTP_USER et SMTP_PASS dans Vercel'
-      });
-    }
-    
-    if (error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT') {
-      return res.status(500).json({ 
-        error: 'Erreur connexion SMTP',
-        message: 'Verifiez SMTP_HOST et SMTP_PORT dans Vercel'
+        error: 'Erreur de configuration email',
+        message: 'Veuillez configurer les variables d\'environnement SMTP dans Vercel Dashboard → Settings → Environment Variables : SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS'
       });
     }
 
-    // Erreur de validation email
-    if (error.message && (error.message.includes('Email') || error.message.includes('email'))) {
-      return res.status(400).json({ 
-        error: 'Email invalide',
-        message: error.message
-      });
-    }
-
-    // Erreur générique
     return res.status(500).json({ 
-      error: 'Erreur envoi PDF',
-      message: error.message || 'Erreur inconnue'
+      error: 'Erreur lors de l\'envoi du PDF',
+      message: error.message || 'Une erreur inattendue s\'est produite'
     });
   }
 }
