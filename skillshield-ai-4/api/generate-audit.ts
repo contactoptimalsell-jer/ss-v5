@@ -13,16 +13,32 @@ function generateBenchmarkData(userProblem: string): {
   paybackPeriod: string;
   sectorAverage: string;
 } {
-  // Utiliser le système de détection de secteur partagé
-  const benchmark = getBenchmarkForProblem(userProblem);
-  
-  return {
-    automatedProcessesPercentage: benchmark.automatedProcessesPercentage,
-    averageTimeSavedPerTask: benchmark.averageTimeSavedPerTask,
-    averageROI: benchmark.averageROI,
-    paybackPeriod: benchmark.paybackPeriod,
-    sectorAverage: benchmark.sectorAverage
-  };
+  try {
+    // Utiliser le système de détection de secteur partagé
+    const benchmark = getBenchmarkForProblem(userProblem);
+    
+    // Log pour vérifier que le module fonctionne
+    console.log('✅ getBenchmarkForProblem called successfully');
+    console.log('📊 Benchmark result:', JSON.stringify(benchmark, null, 2));
+    
+    return {
+      automatedProcessesPercentage: benchmark.automatedProcessesPercentage,
+      averageTimeSavedPerTask: benchmark.averageTimeSavedPerTask,
+      averageROI: benchmark.averageROI,
+      paybackPeriod: benchmark.paybackPeriod,
+      sectorAverage: benchmark.sectorAverage
+    };
+  } catch (error) {
+    console.error('❌ Error in generateBenchmarkData:', error);
+    // Fallback en cas d'erreur d'import
+    return {
+      automatedProcessesPercentage: 60,
+      averageTimeSavedPerTask: "8-12h / semaine",
+      averageROI: "250-450%",
+      paybackPeriod: "3-10 mois",
+      sectorAverage: "entreprises françaises"
+    };
+  }
 }
 
 // Fonction pour extraire les heures d'une chaîne "Xh / semaine" ou similaire
@@ -466,17 +482,29 @@ Réponds UNIQUEMENT en JSON, sans texte avant ou après.
         const result = JSON.parse(text);
         
         // Ajouter les données de benchmark basées sur des données réelles
-        const benchmark = generateBenchmarkData(userProblem);
-        
-        // Log pour déboguer la détection de secteur
-        console.log(`🔍 User problem: "${userProblem.substring(0, 100)}..."`);
-        console.log(`📊 Detected sector benchmark:`, {
-          sectorAverage: benchmark.sectorAverage,
-          automatedProcessesPercentage: benchmark.automatedProcessesPercentage,
-          averageTimeSavedPerTask: benchmark.averageTimeSavedPerTask,
-          averageROI: benchmark.averageROI,
-          paybackPeriod: benchmark.paybackPeriod
-        });
+        let benchmark;
+        try {
+          benchmark = generateBenchmarkData(userProblem);
+          // Log pour déboguer la détection de secteur
+          console.log(`🔍 User problem: "${userProblem.substring(0, 100)}..."`);
+          console.log(`📊 Detected sector benchmark:`, {
+            sectorAverage: benchmark.sectorAverage,
+            automatedProcessesPercentage: benchmark.automatedProcessesPercentage,
+            averageTimeSavedPerTask: benchmark.averageTimeSavedPerTask,
+            averageROI: benchmark.averageROI,
+            paybackPeriod: benchmark.paybackPeriod
+          });
+        } catch (error) {
+          console.error('❌ Error generating benchmark:', error);
+          // Fallback en cas d'erreur
+          benchmark = {
+            automatedProcessesPercentage: 60,
+            averageTimeSavedPerTask: "8-12h / semaine",
+            averageROI: "250-450%",
+            paybackPeriod: "3-10 mois",
+            sectorAverage: "entreprises françaises"
+          };
+        }
         
         // Générer les données de visualisation basées sur les suggestions réelles
         const visualization = generateVisualizationData(
