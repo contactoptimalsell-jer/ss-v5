@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, Loader2, CheckCircle2, Clock, ShieldCheck, Zap, TrendingUp, BarChart3, Target } from 'lucide-react';
+import { Sparkles, ArrowRight, Loader2, CheckCircle2, Clock, ShieldCheck, Zap, TrendingUp, BarChart3, Target, FileText, Mail, CheckCircle } from 'lucide-react';
 import { generateAudit } from '../services/geminiService';
 import { AuditResult, SectionId } from '../types';
 import { Button } from './ui/Button';
@@ -11,6 +11,10 @@ export const AuditTool: React.FC = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AuditResult | null>(null);
+  const [email, setEmail] = useState('');
+  const [sendingPDF, setSendingPDF] = useState(false);
+  const [pdfSent, setPdfSent] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   const handleAudit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +29,41 @@ export const AuditTool: React.FC = () => {
 
   const openCalendly = () => {
     window.open('https://calendly.com/b00784336-essec?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app', '_blank');
+  };
+
+  const handleSendPDF = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !email.includes('@') || !result) return;
+
+    setSendingPDF(true);
+    setPdfError(null);
+
+    try {
+      const response = await fetch('/api/send-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          auditResult: result,
+          userProblem: input,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erreur lors de l\'envoi du PDF');
+      }
+
+      setPdfSent(true);
+      setEmail('');
+    } catch (error: any) {
+      setPdfError(error.message || 'Une erreur est survenue. Veuillez réessayer.');
+    } finally {
+      setSendingPDF(false);
+    }
   };
 
 
@@ -191,7 +230,89 @@ export const AuditTool: React.FC = () => {
                       </div>
                     </motion.div>
                   )}
-                  
+
+                  {/* Lead Magnet - PDF Personnalisé */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="mt-10 bg-gradient-to-br from-cyan-900/30 to-violet-900/30 rounded-2xl p-8 border border-cyan-500/30 relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 left-0 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl -z-10" />
+                    <div className="absolute bottom-0 right-0 w-40 h-40 bg-violet-500/10 rounded-full blur-3xl -z-10" />
+                    
+                    <div className="relative z-10">
+                      {!pdfSent ? (
+                        <>
+                          <div className="flex items-center gap-3 mb-4">
+                            <FileText className="w-6 h-6 text-cyan-400" />
+                            <h4 className="text-2xl font-bold text-white">
+                              Recevez votre Plan d'Automatisation en PDF
+                            </h4>
+                          </div>
+                          <p className="text-gray-300 mb-6">
+                            Téléchargez votre <strong className="text-cyan-300">plan d'automatisation personnalisé en 5 étapes</strong>, prêt à mettre en œuvre. 
+                            Inclut notre analyse, vos solutions IA, les benchmarks de votre secteur et un plan d'action détaillé.
+                          </p>
+                          
+                          <form onSubmit={handleSendPDF} className="space-y-4">
+                            <div>
+                              <label htmlFor="email" className="block text-sm font-medium text-cyan-200 mb-2">
+                                Votre email
+                              </label>
+                              <div className="flex gap-3">
+                                <input
+                                  id="email"
+                                  type="email"
+                                  required
+                                  value={email}
+                                  onChange={(e) => setEmail(e.target.value)}
+                                  placeholder="votre@email.com"
+                                  className="flex-1 bg-slate-900/50 border-2 border-cyan-400/30 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all outline-none"
+                                />
+                                <Button 
+                                  type="submit" 
+                                  disabled={sendingPDF || !email || !email.includes('@')}
+                                  icon={sendingPDF ? <Loader2 className="animate-spin" /> : <Mail className="w-5 h-5" />}
+                                  className="shrink-0"
+                                >
+                                  {sendingPDF ? 'Envoi...' : 'Recevoir le PDF'}
+                                </Button>
+                              </div>
+                            </div>
+                            
+                            {pdfError && (
+                              <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3 text-sm text-red-300">
+                                {pdfError}
+                              </div>
+                            )}
+                            
+                            <p className="text-xs text-gray-400 text-center">
+                              🔒 Votre email ne sera jamais partagé. Envoyé depuis contact@skillshield-ai.com
+                            </p>
+                          </form>
+                        </>
+                      ) : (
+                        <div className="text-center py-4">
+                          <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
+                          <h4 className="text-2xl font-bold text-white mb-2">
+                            PDF envoyé avec succès ! 🎉
+                          </h4>
+                          <p className="text-gray-300 mb-4">
+                            Vérifiez votre boîte de réception (et vos spams). 
+                            Le PDF devrait arriver dans quelques instants.
+                          </p>
+                          <Button 
+                            onClick={() => setPdfSent(false)}
+                            variant="secondary"
+                            className="mt-4"
+                          >
+                            Envoyer à un autre email
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
 
                   <div className="mt-10 bg-gradient-to-br from-violet-900/30 to-cyan-900/30 rounded-2xl p-8 border border-violet-500/30 relative overflow-hidden group">
                       <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl -z-10" />
