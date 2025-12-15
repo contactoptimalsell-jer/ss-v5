@@ -8,6 +8,7 @@ import { Footer } from './components/Footer';
 import { AboutPage } from './components/AboutPage';
 import { VirtualEmployeesPage } from './components/VirtualEmployeesPage';
 import { UploadPhotosPage } from './components/UploadPhotosPage';
+import { ProspectionPage } from './components/ProspectionPage';
 import { Menu, ShieldCheck, Home, X, Upload, Mail } from 'lucide-react';
 import { Logo } from './components/ui/Logo';
 import { SectionId, PageView } from './types';
@@ -226,6 +227,12 @@ const App: React.FC = () => {
             <UploadPhotosPage onNavigateHome={() => navigateTo('home')} />
           </motion.div>
         );
+      case 'prospection':
+        return (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <ProspectionPage onNavigateHome={() => navigateTo('home')} />
+          </motion.div>
+        );
       default:
         return null;
     }
@@ -279,6 +286,7 @@ const App: React.FC = () => {
                  <button onClick={() => scrollToSection(SectionId.APPROACH)} className="hover:text-cyan-400 transition-colors">Méthode</button>
                  <button onClick={() => navigateTo('virtual-employees')} className="hover:text-cyan-400 transition-colors">Nos Agents</button>
                  <button onClick={() => navigateTo('about')} className="hover:text-cyan-400 transition-colors">À propos</button>
+                 <button onClick={() => navigateTo('prospection')} className="px-3 py-1.5 bg-violet-500/20 border border-violet-500/30 rounded-full text-violet-300 hover:bg-violet-500/30 transition-colors">Prospection</button>
                </>
              ) : (
                <>
@@ -290,6 +298,9 @@ const App: React.FC = () => {
                  )}
                  {currentPage !== 'about' && (
                      <button onClick={() => navigateTo('about')} className="hover:text-cyan-400 transition-colors">À propos</button>
+                 )}
+                 {currentPage !== 'prospection' && (
+                     <button onClick={() => navigateTo('prospection')} className="px-3 py-1.5 bg-violet-500/20 border border-violet-500/30 rounded-full text-violet-300 hover:bg-violet-500/30 transition-colors">Prospection</button>
                  )}
                </>
              )}

@@ -53,4 +53,4 @@ export enum SectionId {
   FAQ = 'faq'
 }
 
-export type PageView = 'home' | 'about' | 'virtual-employees' | 'upload-photos';
+export type PageView = 'home' | 'about' | 'virtual-employees' | 'upload-photos' | 'prospection';
