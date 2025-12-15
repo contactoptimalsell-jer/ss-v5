@@ -2,15 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import PDFDocument from 'pdfkit';
 import nodemailer from 'nodemailer';
 import { AuditResult } from '../types';
-
-// Import avec gestion d'erreur
-let getBenchmarkForProblem: ((userProblem: string) => any) | null = null;
-try {
-  const sectorBenchmarks = require('./sectorBenchmarks');
-  getBenchmarkForProblem = sectorBenchmarks.getBenchmarkForProblem;
-} catch (error) {
-  console.error('❌ Erreur lors de l\'import de sectorBenchmarks:', error);
-}
+import { getBenchmarkForProblem } from './sectorBenchmarks';
 
 // Fonction helper pour calculer la hauteur approximative du texte
 function calculateTextHeight(text: string, width: number, fontSize: number, lineGap: number = 0): number {
@@ -62,14 +54,11 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       // Détecter le secteur et obtenir les benchmarks adaptés
       let sectorBenchmark;
       try {
-        if (getBenchmarkForProblem) {
-          sectorBenchmark = getBenchmarkForProblem(userProblem);
-          console.log('✅ Benchmark détecté:', sectorBenchmark.sectorAverage);
-        } else {
-          throw new Error('getBenchmarkForProblem n\'est pas disponible');
-        }
+        sectorBenchmark = getBenchmarkForProblem(userProblem);
+        console.log('✅ Benchmark détecté:', sectorBenchmark.sectorAverage);
       } catch (benchmarkError: any) {
         console.error('❌ Erreur lors de la détection du benchmark:', benchmarkError);
+        console.error('Stack:', benchmarkError.stack);
         // Fallback en cas d'erreur
         sectorBenchmark = {
           sectorName: 'Entreprises Françaises',
