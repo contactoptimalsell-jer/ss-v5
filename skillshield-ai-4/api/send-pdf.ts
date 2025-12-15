@@ -579,13 +579,28 @@ async function sendEmailWithPDF(
 <li>Un plan d action en 5 etapes pret a mettre en œuvre</li>
 </ul>
 <p><strong>Prochaine etape :</strong> Planifiez un appel de 15 minutes avec notre equipe pour discuter de la mise en œuvre.</p>
-<p style="margin-top: 30px;"><a href="https://calendly.com/b00784336-essec" style="background: #8B5CF6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Planifier un appel (15 min)</a></p>
+<p style="background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%); color: white; padding: 20px; border-radius: 10px; margin: 25px 0; font-weight: 600; line-height: 1.6;">
+<strong style="font-size: 18px;">Le potentiel de transformation est immense :</strong><br/><br/>
+&gt;&gt; <strong>Gains de temps massifs :</strong> Recuperez 15-20 heures par semaine automatiquement, soit l equivalent d un employe a temps plein gratuit<br/><br/>
+&gt;&gt; <strong>ROI explosif :</strong> Nos clients generent en moyenne 250-450% de retour sur investissement en moins de 6 mois<br/><br/>
+&gt;&gt; <strong>Avantage competitif :</strong> Pendant que vos concurrents perdent du temps sur des taches repetitives, vous vous concentrez sur la croissance et l innovation<br/><br/>
+&gt;&gt; <strong>Scalabilite extreme :</strong> Vos agents IA travaillent 24/7 sans fatigue, erreurs ou conges, multipliant votre productivite par 3 a 5x<br/><br/>
+&gt;&gt; <strong>Transformation durable :</strong> Une fois implementes, ces systemes deviennent votre avantage concurrentiel permanent, creant une barriere a l entree pour vos concurrents
+</p>
+<p style="background: #F8FAFC; padding: 15px; border-left: 4px solid #8B5CF6; border-radius: 6px; margin: 20px 0;">
+<strong style="color: #8B5CF6;">En 15 minutes, nous vous montrerons :</strong><br/>
+✓ Comment transformer votre probleme actuel en opportunite de croissance<br/>
+✓ Les gains financiers concrets que vous pouvez realiser des le premier mois<br/>
+✓ La feuille de route precise pour implementer vos agents IA en moins de 30 jours<br/>
+✓ Les resultats reels de nos clients dans votre secteur
+</p>
+<p style="margin-top: 30px;"><a href="https://calendly.com/b00784336-essec" style="background: #8B5CF6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600;">Planifier un appel (15 min)</a></p>
 <p style="margin-top: 20px;"><a href="https://skillshield.app" style="color: #8B5CF6; text-decoration: none; font-weight: 500;">Visitez notre site web : skillshield.app</a></p>
 <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">Cordialement,<br/>L equipe SkillShield AI<br/>contact@skillshield-ai.com</p>
 </div>`;
 
   // Version texte simple - pas d'apostrophes
-  const textContent = `Bonjour,\n\nComme promis, voici votre Plan d Automatisation Personnalise, base sur votre situation :\n\n${problemClean}\n\nCe document contient :\n- Notre analyse de votre situation\n- Vos solutions d automatisation IA personnalisees\n- Les benchmarks de votre secteur\n- Un plan d action en 5 etapes pret a mettre en œuvre\n\nProchaine etape : Planifiez un appel de 15 minutes avec notre equipe pour discuter de la mise en œuvre.\n\nPlanifier un appel (15 min): https://calendly.com/b00784336-essec\nVisitez notre site web : skillshield.app\n\nCordialement,\nL equipe SkillShield AI\ncontact@skillshield-ai.com`;
+  const textContent = `Bonjour,\n\nComme promis, voici votre Plan d Automatisation Personnalise, base sur votre situation :\n\n${problemClean}\n\nCe document contient :\n- Notre analyse de votre situation\n- Vos solutions d automatisation IA personnalisees\n- Les benchmarks de votre secteur\n- Un plan d action en 5 etapes pret a mettre en œuvre\n\nProchaine etape : Planifiez un appel de 15 minutes avec notre equipe pour discuter de la mise en œuvre.\n\n═══════════════════════════════════════════════════════\nLE POTENTIEL DE TRANSFORMATION EST IMMENSE :\n═══════════════════════════════════════════════════════\n\n&gt;&gt; GAINS DE TEMPS MASSIFS :\nRecuperez 15-20 heures par semaine automatiquement, soit l equivalent d un employe a temps plein gratuit\n\n&gt;&gt; ROI EXPLOSIF :\nNos clients generent en moyenne 250-450% de retour sur investissement en moins de 6 mois\n\n&gt;&gt; AVANTAGE COMPETITIF :\nPendant que vos concurrents perdent du temps sur des taches repetitives, vous vous concentrez sur la croissance et l innovation\n\n&gt;&gt; SCALABILITE EXTREME :\nVos agents IA travaillent 24/7 sans fatigue, erreurs ou conges, multipliant votre productivite par 3 a 5x\n\n&gt;&gt; TRANSFORMATION DURABLE :\nUne fois implementes, ces systemes deviennent votre avantage concurrentiel permanent, creant une barriere a l entree pour vos concurrents\n\n═══════════════════════════════════════════════════════\nEN 15 MINUTES, NOUS VOUS MONTRERONS :\n═══════════════════════════════════════════════════════\n\n✓ Comment transformer votre probleme actuel en opportunite de croissance\n✓ Les gains financiers concrets que vous pouvez realiser des le premier mois\n✓ La feuille de route precise pour implementer vos agents IA en moins de 30 jours\n✓ Les resultats reels de nos clients dans votre secteur\n\nPlanifier un appel (15 min): https://calendly.com/b00784336-essec\nVisitez notre site web : skillshield.app\n\nCordialement,\nL equipe SkillShield AI\ncontact@skillshield-ai.com`;
 
   // Format email ultra-simple - pas de guillemets dans "from"
   const mailOptions = {
