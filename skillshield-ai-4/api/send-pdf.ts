@@ -2,7 +2,15 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import PDFDocument from 'pdfkit';
 import nodemailer from 'nodemailer';
 import { AuditResult } from '../types';
-import { getBenchmarkForProblem } from './sectorBenchmarks';
+
+// Import avec gestion d'erreur
+let getBenchmarkForProblem: ((userProblem: string) => any) | null = null;
+try {
+  const sectorBenchmarks = require('./sectorBenchmarks');
+  getBenchmarkForProblem = sectorBenchmarks.getBenchmarkForProblem;
+} catch (error) {
+  console.error('❌ Erreur lors de l\'import de sectorBenchmarks:', error);
+}
 
 // Fonction helper pour calculer la hauteur approximative du texte
 function calculateTextHeight(text: string, width: number, fontSize: number, lineGap: number = 0): number {
