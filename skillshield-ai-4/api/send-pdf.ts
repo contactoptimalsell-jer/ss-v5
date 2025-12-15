@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import PDFDocument from 'pdfkit';
 import nodemailer from 'nodemailer';
 import { AuditResult } from '../types';
-import { getBenchmarkForProblem } from '../utils/sectorBenchmarks';
+import { getBenchmarkForProblem } from './sectorBenchmarks';
 
 // Fonction helper pour calculer la hauteur approximative du texte
 function calculateTextHeight(text: string, width: number, fontSize: number, lineGap: number = 0): number {

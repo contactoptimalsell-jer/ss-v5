@@ -1,5 +1,29 @@
 import { AuditResult, VisualizationData } from '../types';
-import { getBenchmarkForProblem } from '../utils/sectorBenchmarks';
+// Import depuis l'API pour éviter les problèmes de build Vercel
+// Note: Cette fonction est aussi disponible dans api/sectorBenchmarks.ts
+async function getBenchmarkForProblem(userProblem: string) {
+  try {
+    // Appeler l'API pour obtenir les benchmarks (évite les problèmes d'import)
+    const response = await fetch('/api/get-benchmark', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userProblem })
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+  } catch (error) {
+    console.error('Error fetching benchmark:', error);
+  }
+  // Fallback
+  return {
+    automatedProcessesPercentage: 60,
+    averageTimeSavedPerTask: "8-12h / semaine",
+    averageROI: "250-450%",
+    paybackPeriod: "3-10 mois",
+    sectorAverage: "entreprises françaises"
+  };
+}
 
 // Fonction helper pour générer des données de benchmark adaptées au secteur
 function getAdaptiveBenchmark(userProblem: string): AuditResult['benchmark'] {

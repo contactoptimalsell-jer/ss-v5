@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { VisualizationData } from '../types';
-import { getBenchmarkForProblem } from '../utils/sectorBenchmarks';
+import { getBenchmarkForProblem } from './sectorBenchmarks';
 
 // Fonction pour générer des données de benchmark basées sur des données réelles et vérifiées
 // Sources: thunderbit.com, gsst.fr - Statistiques 2024
