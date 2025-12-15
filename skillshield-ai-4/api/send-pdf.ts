@@ -62,8 +62,12 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
       // Détecter le secteur et obtenir les benchmarks adaptés
       let sectorBenchmark;
       try {
-        sectorBenchmark = getBenchmarkForProblem(userProblem);
-        console.log('✅ Benchmark détecté:', sectorBenchmark.sectorAverage);
+        if (getBenchmarkForProblem) {
+          sectorBenchmark = getBenchmarkForProblem(userProblem);
+          console.log('✅ Benchmark détecté:', sectorBenchmark.sectorAverage);
+        } else {
+          throw new Error('getBenchmarkForProblem n\'est pas disponible');
+        }
       } catch (benchmarkError: any) {
         console.error('❌ Erreur lors de la détection du benchmark:', benchmarkError);
         // Fallback en cas d'erreur
