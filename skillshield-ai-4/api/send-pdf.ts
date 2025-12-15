@@ -232,9 +232,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
         const boxHeight = Math.ceil(titleHeight + metaHeight + descHeight + 10);
         
         // Vérification d'espace - passer à la page 2 si nécessaire
-        if (currentY + boxHeight > maxY - 60) {
-          checkAndAddPage();
-        }
+        checkAndAddPage(boxHeight);
         
         // Fond subtil premium pour chaque solution
         doc.rect(margin, currentY, contentWidth, boxHeight)
