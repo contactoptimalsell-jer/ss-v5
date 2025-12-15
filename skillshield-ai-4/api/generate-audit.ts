@@ -1,10 +1,11 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { VisualizationData } from '../types';
+import { getBenchmarkForProblem } from '../utils/sectorBenchmarks';
 
 // Fonction pour générer des données de benchmark basées sur des données réelles et vérifiées
 // Sources: thunderbit.com, gsst.fr - Statistiques 2024
-// Adapte les données en fonction du problème spécifique du prospect
+// Adapte les données en fonction du secteur détecté depuis le problème utilisateur
 function generateBenchmarkData(userProblem: string): {
   automatedProcessesPercentage: number;
   averageTimeSavedPerTask: string;
@@ -12,159 +13,15 @@ function generateBenchmarkData(userProblem: string): {
   paybackPeriod: string;
   sectorAverage: string;
 } {
-  const problemLower = userProblem.toLowerCase();
-  
-  // Détection du TYPE DE PROBLÈME spécifique (priorité sur le secteur)
-  let sectorAverage = "entreprises françaises";
-  let automatedProcessesPercentage = 60;
-  let averageTimeSavedPerTask = "8-12h / semaine";
-  let averageROI = "250-450%";
-  let paybackPeriod = "3-10 mois";
-  
-  // Détection par TYPE DE TÂCHE/PROBLÈME spécifique
-  if (problemLower.match(/\b(email|mail|courrier|messagerie|boîte mail|message|inbox|spam|tri.*email)\b/)) {
-    // Automatisation de la gestion d'emails
-    sectorAverage = "gestion d'emails";
-    automatedProcessesPercentage = 78; // 78% des entreprises automatisent la gestion d'emails
-    averageTimeSavedPerTask = "8-12h / semaine";
-    averageROI = "320-480%";
-    paybackPeriod = "2-4 mois";
-  } else if (problemLower.match(/\b(devis|estimation|proposition|offre|tarif|prix|calcul.*prix)\b/)) {
-    // Automatisation de la génération de devis
-    sectorAverage = "génération de devis";
-    automatedProcessesPercentage = 65;
-    averageTimeSavedPerTask = "6-10h / semaine";
-    averageROI = "280-420%";
-    paybackPeriod = "2-5 mois";
-  } else if (problemLower.match(/\b(facture|facturation|avoir|note|facturer|émission.*facture)\b/)) {
-    // Automatisation de la facturation
-    sectorAverage = "facturation";
-    automatedProcessesPercentage = 72;
-    averageTimeSavedPerTask = "10-15h / semaine";
-    averageROI = "300-500%";
-    paybackPeriod = "2-4 mois";
-  } else if (problemLower.match(/\b(comptabilité|écriture|saisie.*comptable|rapprochement|déclaration.*tva|bilan)\b/)) {
-    // Automatisation comptable
-    sectorAverage = "comptabilité";
-    automatedProcessesPercentage = 75; // L'automatisation des paiements économise 500h/an selon thunderbit.com
-    averageTimeSavedPerTask = "15-20h / semaine";
-    averageROI = "350-600%";
-    paybackPeriod = "2-4 mois";
-  } else if (problemLower.match(/\b(rendez-vous|rdv|meeting|réunion|agenda|planning|calendrier|booking)\b/)) {
-    // Automatisation de la gestion d'agenda
-    sectorAverage = "gestion d'agenda";
-    automatedProcessesPercentage = 68;
-    averageTimeSavedPerTask = "5-8h / semaine";
-    averageROI = "250-380%";
-    paybackPeriod = "2-5 mois";
-  } else if (problemLower.match(/\b(document|papier|fichier|dossier|contrat|formulaire|archive|classement)\b/)) {
-    // Automatisation documentaire
-    sectorAverage = "gestion documentaire";
-    automatedProcessesPercentage = 70;
-    averageTimeSavedPerTask = "8-12h / semaine";
-    averageROI = "290-450%";
-    paybackPeriod = "2-6 mois";
-  } else if (problemLower.match(/\b(client|prospect|lead|qualification|suivi.*client|crm|relation.*client)\b/)) {
-    // Automatisation de la relation client
-    sectorAverage = "relation client";
-    automatedProcessesPercentage = 73;
-    averageTimeSavedPerTask = "10-14h / semaine";
-    averageROI = "300-480%";
-    paybackPeriod = "2-5 mois";
-  } else if (problemLower.match(/\b(commande|panier|expédition|livraison|logistique|stock|inventaire)\b/)) {
-    // Automatisation logistique/commandes
-    sectorAverage = "gestion des commandes";
-    automatedProcessesPercentage = 74;
-    averageTimeSavedPerTask = "12-18h / semaine";
-    averageROI = "320-520%";
-    paybackPeriod = "2-5 mois";
-  } else if (problemLower.match(/\b(recrutement|cv|candidat|entretien|onboarding|paie|congés|rh)\b/)) {
-    // Automatisation RH
-    sectorAverage = "ressources humaines";
-    automatedProcessesPercentage = 68;
-    averageTimeSavedPerTask = "10-14h / semaine";
-    averageROI = "270-480%";
-    paybackPeriod = "2-7 mois";
-  } else if (problemLower.match(/\b(marketing|campagne|réseaux sociaux|contenu|publication|audience|engagement)\b/)) {
-    // Automatisation marketing
-    sectorAverage = "marketing";
-    automatedProcessesPercentage = 72;
-    averageTimeSavedPerTask = "12-16h / semaine";
-    averageROI = "320-520%";
-    paybackPeriod = "2-5 mois";
-  } else if (problemLower.match(/\b(support|ticket|assistance|faq|réclamation|service.*client|helpdesk)\b/)) {
-    // Automatisation du support client
-    sectorAverage = "support client";
-    automatedProcessesPercentage = 76;
-    averageTimeSavedPerTask = "10-15h / semaine";
-    averageROI = "330-500%";
-    paybackPeriod = "2-4 mois";
-  } else if (problemLower.match(/\b(relance|paiement|recouvrement|impayé|facture.*impayée)\b/)) {
-    // Automatisation des relances
-    sectorAverage = "relances clients";
-    automatedProcessesPercentage = 71;
-    averageTimeSavedPerTask = "8-12h / semaine";
-    averageROI = "300-450%";
-    paybackPeriod = "2-5 mois";
-  } else {
-    // Si aucun type spécifique détecté, détection par secteur
-    if (problemLower.match(/\b(boutique|magasin|vente|clientèle|rayon|stock|inventaire|caisse)\b/)) {
-      sectorAverage = "commerce/retail";
-      automatedProcessesPercentage = 65;
-      averageTimeSavedPerTask = "10-15h / semaine";
-      averageROI = "280-500%";
-      paybackPeriod = "2-8 mois";
-    } else if (problemLower.match(/\b(site web|panier|commande en ligne|marketplace|produit|catalogue|e-commerce)\b/)) {
-      sectorAverage = "e-commerce";
-      automatedProcessesPercentage = 70;
-      averageTimeSavedPerTask = "12-18h / semaine";
-      averageROI = "300-550%";
-      paybackPeriod = "2-6 mois";
-    } else if (problemLower.match(/\b(bien|appartement|maison|visite|mandat|bail|locataire|propriétaire)\b/)) {
-      sectorAverage = "immobilier";
-      automatedProcessesPercentage = 55;
-      averageTimeSavedPerTask = "8-12h / semaine";
-      averageROI = "250-400%";
-      paybackPeriod = "3-9 mois";
-    } else if (problemLower.match(/\b(patient|consultation|dossier médical|ordonnance|bilan|soin|cabinet)\b/)) {
-      sectorAverage = "santé/médical";
-      automatedProcessesPercentage = 50;
-      averageTimeSavedPerTask = "6-10h / semaine";
-      averageROI = "200-350%";
-      paybackPeriod = "4-12 mois";
-    } else if (problemLower.match(/\b(contrat|dossier|honoraires|audience|procédure|réglementation|conformité)\b/)) {
-      sectorAverage = "juridique";
-      automatedProcessesPercentage = 45;
-      averageTimeSavedPerTask = "6-10h / semaine";
-      averageROI = "220-380%";
-      paybackPeriod = "4-11 mois";
-    } else if (problemLower.match(/\b(commande|menu|service|table|réservation|cuisine|restaurant)\b/)) {
-      sectorAverage = "restauration";
-      automatedProcessesPercentage = 58;
-      averageTimeSavedPerTask = "8-12h / semaine";
-      averageROI = "260-420%";
-      paybackPeriod = "3-8 mois";
-    } else if (problemLower.match(/\b(transport|expédition|suivi|entrepôt|logistique)\b/)) {
-      sectorAverage = "transport/logistique";
-      automatedProcessesPercentage = 73;
-      averageTimeSavedPerTask = "12-18h / semaine";
-      averageROI = "300-500%";
-      paybackPeriod = "2-6 mois";
-    } else if (problemLower.match(/\b(prestation|intervention|mission|client|facturation|suivi)\b/)) {
-      sectorAverage = "services";
-      automatedProcessesPercentage = 62;
-      averageTimeSavedPerTask = "9-13h / semaine";
-      averageROI = "260-440%";
-      paybackPeriod = "3-9 mois";
-    }
-  }
+  // Utiliser le système de détection de secteur partagé
+  const benchmark = getBenchmarkForProblem(userProblem);
   
   return {
-    automatedProcessesPercentage,
-    averageTimeSavedPerTask,
-    averageROI,
-    paybackPeriod,
-    sectorAverage
+    automatedProcessesPercentage: benchmark.automatedProcessesPercentage,
+    averageTimeSavedPerTask: benchmark.averageTimeSavedPerTask,
+    averageROI: benchmark.averageROI,
+    paybackPeriod: benchmark.paybackPeriod,
+    sectorAverage: benchmark.sectorAverage
   };
 }
 

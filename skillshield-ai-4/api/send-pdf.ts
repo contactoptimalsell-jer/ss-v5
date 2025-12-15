@@ -216,8 +216,7 @@ function generatePDF(auditResult: AuditResult, userProblem: string): Promise<Buf
   return new Promise((resolve, reject) => {
     try {
       // Détecter le secteur et obtenir les benchmarks adaptés
-      const detectedSector = detectSector(userProblem);
-      const sectorBenchmark = getSectorBenchmark(detectedSector);
+      const sectorBenchmark = getBenchmarkForProblem(userProblem);
       
       // Utiliser les benchmarks du secteur si disponibles, sinon ceux de l'audit
       const benchmark = auditResult.benchmark ? {
