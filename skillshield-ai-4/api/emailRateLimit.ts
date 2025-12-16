@@ -24,34 +24,61 @@ const CLEANUP_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours
 
 const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 heures
 
-// Initialiser le client Supabase (importation dynamique pour éviter les problèmes ES modules)
-async function getSupabaseClient() {
+// Vérifier si les variables d'environnement Supabase sont configurées
+function hasSupabaseConfig(): boolean {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  return !!(supabaseUrl && supabaseKey);
+}
+
+// Utiliser l'API REST de Supabase directement (évite les problèmes de modules ES)
+async function supabaseRequest(endpoint: string, method: string = 'GET', body?: any): Promise<{ data: any; error: any }> {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   
   if (!supabaseUrl || !supabaseKey) {
-    return null;
+    return { data: null, error: { message: 'Supabase not configured' } };
   }
   
   try {
-    // Importation dynamique pour éviter les problèmes de modules ES/CommonJS
-    const { createClient } = await import('@supabase/supabase-js');
-    return createClient(supabaseUrl, supabaseKey);
+    const url = `${supabaseUrl}/rest/v1/${endpoint}`;
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      return { 
+        data: null, 
+        error: { 
+          message: `HTTP ${response.status}: ${errorText}`,
+          code: response.status === 404 ? 'PGRST116' : undefined
+        } 
+      };
+    }
+    
+    const data = await response.json();
+    return { data, error: null };
   } catch (error: any) {
-    console.error(`❌ Error importing Supabase client:`, error.message);
-    return null;
+    return { data: null, error: { message: error.message } };
   }
 }
 
 // Vérifier si Supabase est disponible
 async function isSupabaseAvailable(): Promise<boolean> {
+  if (!hasSupabaseConfig()) {
+    return false;
+  }
+  
   try {
-    const supabase = await getSupabaseClient();
-    if (!supabase) {
-      return false;
-    }
-    // Tester une opération simple
-    const { error } = await supabase.from('email_rate_limits').select('count').limit(1);
+    const { error } = await supabaseRequest('email_rate_limits?select=count&limit=1');
     // Si la table n'existe pas, on retourne false mais on pourra la créer
     if (error && error.code !== 'PGRST116') {
       console.log(`⚠️ Supabase connection issue: ${error.message}`);
@@ -167,27 +194,23 @@ async function getEmailRecord(email: string): Promise<EmailSendRecord | null> {
   const supabaseAvailable = await isSupabaseAvailable();
   if (supabaseAvailable) {
     try {
-      const supabase = await getSupabaseClient();
-      if (supabase) {
-        const { data, error } = await supabase
-          .from('email_rate_limits')
-          .select('*')
-          .eq('email', normalizedEmail)
-          .single();
-        
-        if (error && error.code !== 'PGRST116') {
-          console.error(`❌ Error reading from Supabase:`, error.message);
-        } else if (data) {
-          const record: EmailSendRecord = {
-            email: data.email,
-            lastSentAt: data.last_sent_at,
-            count: data.count
-          };
-          console.log(`📦 Found record in Supabase for ${normalizedEmail}:`, record);
-          return record;
-        }
-        console.log(`📦 No record in Supabase for ${normalizedEmail}`);
+      const { data, error } = await supabaseRequest(
+        `email_rate_limits?email=eq.${encodeURIComponent(normalizedEmail)}&select=*`
+      );
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error(`❌ Error reading from Supabase:`, error.message);
+      } else if (data && Array.isArray(data) && data.length > 0) {
+        const recordData = data[0];
+        const record: EmailSendRecord = {
+          email: recordData.email,
+          lastSentAt: recordData.last_sent_at,
+          count: recordData.count
+        };
+        console.log(`📦 Found record in Supabase for ${normalizedEmail}:`, record);
+        return record;
       }
+      console.log(`📦 No record in Supabase for ${normalizedEmail}`);
     } catch (error: any) {
       console.error(`❌ Error reading from Supabase:`, error.message);
       // Continuer avec le fallback
@@ -218,25 +241,49 @@ async function setEmailRecord(email: string, record: EmailSendRecord): Promise<v
   const supabaseAvailable = await isSupabaseAvailable();
   if (supabaseAvailable) {
     try {
-      const supabase = await getSupabaseClient();
-      if (supabase) {
-        // Utiliser upsert pour créer ou mettre à jour
-        const { error } = await supabase
-          .from('email_rate_limits')
-          .upsert({
+      // Vérifier d'abord si l'enregistrement existe
+      const { data: existingData, error: checkError } = await supabaseRequest(
+        `email_rate_limits?email=eq.${encodeURIComponent(normalizedEmail)}&select=email`
+      );
+      
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error(`❌ Error checking Supabase:`, checkError.message);
+      } else if (existingData && Array.isArray(existingData) && existingData.length > 0) {
+        // L'enregistrement existe, faire un PATCH (mise à jour)
+        const { error: patchError } = await supabaseRequest(
+          `email_rate_limits?email=eq.${encodeURIComponent(normalizedEmail)}`,
+          'PATCH',
+          {
+            last_sent_at: record.lastSentAt,
+            count: record.count,
+            updated_at: new Date().toISOString()
+          }
+        );
+        
+        if (patchError) {
+          console.error(`❌ Error updating Supabase:`, patchError.message);
+        } else {
+          console.log(`💾 Updated record in Supabase for ${normalizedEmail}`);
+          return; // Succès
+        }
+      } else {
+        // L'enregistrement n'existe pas, faire un POST (création)
+        const { error: postError } = await supabaseRequest(
+          'email_rate_limits',
+          'POST',
+          {
             email: normalizedEmail,
             last_sent_at: record.lastSentAt,
             count: record.count,
             updated_at: new Date().toISOString()
-          }, {
-            onConflict: 'email'
-          });
+          }
+        );
         
-        if (error) {
-          console.error(`❌ Error saving to Supabase:`, error.message);
+        if (postError) {
+          console.error(`❌ Error creating in Supabase:`, postError.message);
         } else {
-          console.log(`💾 Saved record to Supabase for ${normalizedEmail}`);
-          return; // Succès, on retourne immédiatement
+          console.log(`💾 Created record in Supabase for ${normalizedEmail}`);
+          return; // Succès
         }
       }
     } catch (error: any) {
