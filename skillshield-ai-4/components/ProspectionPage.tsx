@@ -52,9 +52,18 @@ export const ProspectionPage: React.FC<ProspectionPageProps> = ({ onNavigateHome
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(errorData.message || `HTTP ${response.status}`);
+        if (response.status === 429) {
+          // Rate limit atteint
+          const nextAvailableAt = data.nextAvailableAt ? new Date(data.nextAvailableAt) : null;
+          const hoursRemaining = nextAvailableAt 
+            ? Math.ceil((nextAvailableAt.getTime() - Date.now()) / (60 * 60 * 1000))
+            : 24;
+          throw new Error(data.message || `Un PDF a déjà été envoyé à cette adresse. Vous pourrez renvoyer dans ${hoursRemaining} heure${hoursRemaining > 1 ? 's' : ''}.`);
+        }
+        throw new Error(data.message || `HTTP ${response.status}`);
       }
 
       setPdfSent(true);

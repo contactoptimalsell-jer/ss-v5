@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import PDFDocument from 'pdfkit';
 import nodemailer from 'nodemailer';
 import { AuditResult } from '../types';
+import { canSendEmail, recordEmailSend } from './emailRateLimit';
 
 // Fonction inline pour détecter le secteur (évite les problèmes d'import Vercel)
 function detectSector(userProblem: string): string {
@@ -476,6 +477,16 @@ export default async function handler(
     return res.status(400).json({ error: 'auditResult et userProblem sont requis' });
   }
 
+  // Vérifier le rate limiting
+  const rateLimitCheck = canSendEmail(email);
+  if (!rateLimitCheck.canSend) {
+    return res.status(429).json({ 
+      error: 'Limite d\'envoi atteinte',
+      message: rateLimitCheck.message || 'Un PDF a déjà été envoyé à cette adresse récemment.',
+      nextAvailableAt: rateLimitCheck.nextAvailableAt
+    });
+  }
+
   try {
     console.log('Début de la génération du PDF pour prospection...');
     const pdfBuffer = await generatePDF(auditResult as AuditResult, userProblem);
@@ -484,6 +495,9 @@ export default async function handler(
     console.log('Début de l\'envoi de l\'email de prospection...');
     await sendEmailWithPDF(email, prospectName, pdfBuffer, userProblem);
     console.log('Email de prospection envoyé avec succès');
+
+    // Enregistrer l'envoi
+    recordEmailSend(email);
 
     return res.status(200).json({ 
       success: true,

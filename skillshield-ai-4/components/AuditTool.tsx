@@ -54,6 +54,14 @@ export const AuditTool: React.FC = () => {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 429) {
+          // Rate limit atteint
+          const nextAvailableAt = data.nextAvailableAt ? new Date(data.nextAvailableAt) : null;
+          const hoursRemaining = nextAvailableAt 
+            ? Math.ceil((nextAvailableAt.getTime() - Date.now()) / (60 * 60 * 1000))
+            : 24;
+          throw new Error(data.message || `Un PDF a déjà été envoyé à cette adresse. Vous pourrez renvoyer dans ${hoursRemaining} heure${hoursRemaining > 1 ? 's' : ''}.`);
+        }
         throw new Error(data.message || 'Erreur lors de l\'envoi du PDF');
       }
 
