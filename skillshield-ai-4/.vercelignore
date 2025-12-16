@@ -1,4 +1,4 @@
 # Ignore node_modules to force fresh install
 node_modules
-
-// Force rebuild
+# Force rebuild without cache
+.vercel
