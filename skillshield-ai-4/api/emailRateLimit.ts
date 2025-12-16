@@ -1,7 +1,7 @@
 // Système de rate limiting pour les envois d'email
 // Limite : 1 envoi par email, possibilité de renvoyer après 24h
 
-import { kv } from '@vercel/kv';
+import { createClient } from '@supabase/supabase-js';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 
@@ -24,21 +24,36 @@ const CACHE_FILE_PATH = join('/tmp', 'email-rate-limit-cache.json');
 const CLEANUP_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours
 
 const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 heures
-const RECORD_TTL = 7 * 24 * 60 * 60; // 7 jours en secondes (pour Vercel KV)
 
-// Vérifier si Vercel KV est disponible
-// On vérifie la disponibilité au runtime car les variables d'environnement peuvent ne pas être configurées
-async function isKvAvailable(): Promise<boolean> {
+// Initialiser le client Supabase
+function getSupabaseClient() {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    return null;
+  }
+  
+  return createClient(supabaseUrl, supabaseKey);
+}
+
+// Vérifier si Supabase est disponible
+async function isSupabaseAvailable(): Promise<boolean> {
   try {
-    // Vérifier si les variables d'environnement sont définies
-    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+    const supabase = getSupabaseClient();
+    if (!supabase) {
       return false;
     }
-    // Tester une opération simple (ping)
-    await kv.ping();
+    // Tester une opération simple
+    const { error } = await supabase.from('email_rate_limits').select('count').limit(1);
+    // Si la table n'existe pas, on retourne false mais on pourra la créer
+    if (error && error.code !== 'PGRST116') {
+      console.log(`⚠️ Supabase connection issue: ${error.message}`);
+      return false;
+    }
     return true;
   } catch (error: any) {
-    console.log(`⚠️ Vercel KV not available: ${error.message}`);
+    console.log(`⚠️ Supabase not available: ${error.message}`);
     return false;
   }
 }
@@ -138,23 +153,37 @@ async function ensureCacheLoaded() {
   await cacheLoadingPromise;
 }
 
-// Fonction pour obtenir le record depuis Vercel KV, fichier cache ou mémoire
+// Fonction pour obtenir le record depuis Supabase, fichier cache ou mémoire
 async function getEmailRecord(email: string): Promise<EmailSendRecord | null> {
   const normalizedEmail = email.toLowerCase().trim();
-  const key = `email_send:${normalizedEmail}`;
   
-  // PRIORITÉ 1: Vercel KV (persistant et partagé entre toutes les instances)
-  const kvAvailable = await isKvAvailable();
-  if (kvAvailable) {
+  // PRIORITÉ 1: Supabase (persistant et partagé entre toutes les instances)
+  const supabaseAvailable = await isSupabaseAvailable();
+  if (supabaseAvailable) {
     try {
-      const record = await kv.get<EmailSendRecord>(key);
-      if (record) {
-        console.log(`📦 Found record in Vercel KV for ${normalizedEmail}:`, record);
-        return record;
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('email_rate_limits')
+          .select('*')
+          .eq('email', normalizedEmail)
+          .single();
+        
+        if (error && error.code !== 'PGRST116') {
+          console.error(`❌ Error reading from Supabase:`, error.message);
+        } else if (data) {
+          const record: EmailSendRecord = {
+            email: data.email,
+            lastSentAt: data.last_sent_at,
+            count: data.count
+          };
+          console.log(`📦 Found record in Supabase for ${normalizedEmail}:`, record);
+          return record;
+        }
+        console.log(`📦 No record in Supabase for ${normalizedEmail}`);
       }
-      console.log(`📦 No record in Vercel KV for ${normalizedEmail}`);
     } catch (error: any) {
-      console.error(`❌ Error reading from Vercel KV:`, error.message);
+      console.error(`❌ Error reading from Supabase:`, error.message);
       // Continuer avec le fallback
     }
   }
@@ -175,20 +204,37 @@ async function getEmailRecord(email: string): Promise<EmailSendRecord | null> {
   return null;
 }
 
-// Fonction pour sauvegarder le record dans Vercel KV, fichier cache ou mémoire
+// Fonction pour sauvegarder le record dans Supabase, fichier cache ou mémoire
 async function setEmailRecord(email: string, record: EmailSendRecord): Promise<void> {
   const normalizedEmail = email.toLowerCase().trim();
-  const key = `email_send:${normalizedEmail}`;
   
-  // PRIORITÉ 1: Vercel KV (persistant et partagé entre toutes les instances)
-  const kvAvailable = await isKvAvailable();
-  if (kvAvailable) {
+  // PRIORITÉ 1: Supabase (persistant et partagé entre toutes les instances)
+  const supabaseAvailable = await isSupabaseAvailable();
+  if (supabaseAvailable) {
     try {
-      await kv.set(key, record, { ex: RECORD_TTL }); // TTL de 7 jours
-      console.log(`💾 Saved record to Vercel KV for ${normalizedEmail} (TTL: ${RECORD_TTL}s)`);
-      return; // Succès, on retourne immédiatement
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        // Utiliser upsert pour créer ou mettre à jour
+        const { error } = await supabase
+          .from('email_rate_limits')
+          .upsert({
+            email: normalizedEmail,
+            last_sent_at: record.lastSentAt,
+            count: record.count,
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'email'
+          });
+        
+        if (error) {
+          console.error(`❌ Error saving to Supabase:`, error.message);
+        } else {
+          console.log(`💾 Saved record to Supabase for ${normalizedEmail}`);
+          return; // Succès, on retourne immédiatement
+        }
+      }
     } catch (error: any) {
-      console.error(`❌ Error saving to Vercel KV:`, error.message);
+      console.error(`❌ Error saving to Supabase:`, error.message);
       // Continuer avec le fallback
     }
   }
