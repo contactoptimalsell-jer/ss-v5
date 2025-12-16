@@ -1,6 +1,7 @@
 // Système de rate limiting pour les envois d'email
 // Limite : 1 envoi par email, possibilité de renvoyer après 24h
 
+import { kv } from '@vercel/kv';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 
@@ -24,79 +25,14 @@ const CLEANUP_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours
 
 const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 heures
 
-// DÉSACTIVÉ TEMPORAIREMENT : Supabase cause des problèmes de modules ES sur Vercel
-// On utilise uniquement le cache fichier pour l'instant
-const USE_SUPABASE = false; // Désactivé pour éviter les erreurs de modules ES
-
-// Vérifier si les variables d'environnement Supabase sont configurées
-function hasSupabaseConfig(): boolean {
-  if (!USE_SUPABASE) return false; // Désactivé
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-  return !!(supabaseUrl && supabaseKey);
-}
-
-// Utiliser l'API REST de Supabase directement (évite les problèmes de modules ES)
-async function supabaseRequest(endpoint: string, method: string = 'GET', body?: any): Promise<{ data: any; error: any }> {
-  if (!USE_SUPABASE) {
-    return { data: null, error: { message: 'Supabase disabled' } };
-  }
-  
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-  
-  if (!supabaseUrl || !supabaseKey) {
-    return { data: null, error: { message: 'Supabase not configured' } };
-  }
-  
+// Vérifier si Vercel KV est disponible
+async function isVercelKVAvailable(): Promise<boolean> {
   try {
-    const url = `${supabaseUrl}/rest/v1/${endpoint}`;
-    const response = await fetch(url, {
-      method,
-      headers: {
-        'apikey': supabaseKey,
-        'Authorization': `Bearer ${supabaseKey}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      },
-      body: body ? JSON.stringify(body) : undefined
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      return { 
-        data: null, 
-        error: { 
-          message: `HTTP ${response.status}: ${errorText}`,
-          code: response.status === 404 ? 'PGRST116' : undefined
-        } 
-      };
-    }
-    
-    const data = await response.json();
-    return { data, error: null };
-  } catch (error: any) {
-    return { data: null, error: { message: error.message } };
-  }
-}
-
-// Vérifier si Supabase est disponible
-async function isSupabaseAvailable(): Promise<boolean> {
-  if (!USE_SUPABASE) return false; // Désactivé
-  if (!hasSupabaseConfig()) {
-    return false;
-  }
-  
-  try {
-    const { error } = await supabaseRequest('email_rate_limits?select=count&limit=1');
-    // Si la table n'existe pas, on retourne false mais on pourra la créer
-    if (error && error.code !== 'PGRST116') {
-      console.log(`⚠️ Supabase connection issue: ${error.message}`);
-      return false;
-    }
+    // Tester une opération simple pour vérifier la disponibilité
+    await kv.ping();
     return true;
   } catch (error: any) {
-    console.log(`⚠️ Supabase not available: ${error.message}`);
+    console.log(`⚠️ Vercel KV not available: ${error.message}`);
     return false;
   }
 }
@@ -196,33 +132,23 @@ async function ensureCacheLoaded() {
   await cacheLoadingPromise;
 }
 
-// Fonction pour obtenir le record depuis Supabase, fichier cache ou mémoire
+// Fonction pour obtenir le record depuis Vercel KV, fichier cache ou mémoire
 async function getEmailRecord(email: string): Promise<EmailSendRecord | null> {
   const normalizedEmail = email.toLowerCase().trim();
   
-  // PRIORITÉ 1: Supabase (persistant et partagé entre toutes les instances)
-  const supabaseAvailable = await isSupabaseAvailable();
-  if (supabaseAvailable) {
+  // PRIORITÉ 1: Vercel KV (persistant et partagé entre toutes les instances)
+  const kvAvailable = await isVercelKVAvailable();
+  if (kvAvailable) {
     try {
-      const { data, error } = await supabaseRequest(
-        `email_rate_limits?email=eq.${encodeURIComponent(normalizedEmail)}&select=*`
-      );
-      
-      if (error && error.code !== 'PGRST116') {
-        console.error(`❌ Error reading from Supabase:`, error.message);
-      } else if (data && Array.isArray(data) && data.length > 0) {
-        const recordData = data[0];
-        const record: EmailSendRecord = {
-          email: recordData.email,
-          lastSentAt: recordData.last_sent_at,
-          count: recordData.count
-        };
-        console.log(`📦 Found record in Supabase for ${normalizedEmail}:`, record);
+      const key = `email_rate_limit:${normalizedEmail}`;
+      const record = await kv.get<EmailSendRecord>(key);
+      if (record) {
+        console.log(`📦 Found record in Vercel KV for ${normalizedEmail}:`, record);
         return record;
       }
-      console.log(`📦 No record in Supabase for ${normalizedEmail}`);
+      console.log(`📦 No record in Vercel KV for ${normalizedEmail}`);
     } catch (error: any) {
-      console.error(`❌ Error reading from Supabase:`, error.message);
+      console.error(`❌ Error reading from Vercel KV:`, error.message);
       // Continuer avec le fallback
     }
   }
@@ -243,61 +169,21 @@ async function getEmailRecord(email: string): Promise<EmailSendRecord | null> {
   return null;
 }
 
-// Fonction pour sauvegarder le record dans Supabase, fichier cache ou mémoire
+// Fonction pour sauvegarder le record dans Vercel KV, fichier cache ou mémoire
 async function setEmailRecord(email: string, record: EmailSendRecord): Promise<void> {
   const normalizedEmail = email.toLowerCase().trim();
   
-  // PRIORITÉ 1: Supabase (persistant et partagé entre toutes les instances)
-  const supabaseAvailable = await isSupabaseAvailable();
-  if (supabaseAvailable) {
+  // PRIORITÉ 1: Vercel KV (persistant et partagé entre toutes les instances)
+  const kvAvailable = await isVercelKVAvailable();
+  if (kvAvailable) {
     try {
-      // Vérifier d'abord si l'enregistrement existe
-      const { data: existingData, error: checkError } = await supabaseRequest(
-        `email_rate_limits?email=eq.${encodeURIComponent(normalizedEmail)}&select=email`
-      );
-      
-      if (checkError && checkError.code !== 'PGRST116') {
-        console.error(`❌ Error checking Supabase:`, checkError.message);
-      } else if (existingData && Array.isArray(existingData) && existingData.length > 0) {
-        // L'enregistrement existe, faire un PATCH (mise à jour)
-        const { error: patchError } = await supabaseRequest(
-          `email_rate_limits?email=eq.${encodeURIComponent(normalizedEmail)}`,
-          'PATCH',
-          {
-            last_sent_at: record.lastSentAt,
-            count: record.count,
-            updated_at: new Date().toISOString()
-          }
-        );
-        
-        if (patchError) {
-          console.error(`❌ Error updating Supabase:`, patchError.message);
-        } else {
-          console.log(`💾 Updated record in Supabase for ${normalizedEmail}`);
-          return; // Succès
-        }
-      } else {
-        // L'enregistrement n'existe pas, faire un POST (création)
-        const { error: postError } = await supabaseRequest(
-          'email_rate_limits',
-          'POST',
-          {
-            email: normalizedEmail,
-            last_sent_at: record.lastSentAt,
-            count: record.count,
-            updated_at: new Date().toISOString()
-          }
-        );
-        
-        if (postError) {
-          console.error(`❌ Error creating in Supabase:`, postError.message);
-        } else {
-          console.log(`💾 Created record in Supabase for ${normalizedEmail}`);
-          return; // Succès
-        }
-      }
+      const key = `email_rate_limit:${normalizedEmail}`;
+      // Stocker avec expiration de 7 jours (même que le cleanup)
+      await kv.set(key, record, { ex: 7 * 24 * 60 * 60 }); // 7 jours en secondes
+      console.log(`💾 Saved record to Vercel KV for ${normalizedEmail}`);
+      return; // Succès, on retourne immédiatement
     } catch (error: any) {
-      console.error(`❌ Error saving to Supabase:`, error.message);
+      console.error(`❌ Error saving to Vercel KV:`, error.message);
       // Continuer avec le fallback
     }
   }
