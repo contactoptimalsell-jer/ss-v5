@@ -31,6 +31,49 @@ if (typeof setInterval !== 'undefined') {
   setInterval(cleanupOldRecords, 10 * 60 * 1000);
 }
 
+// Fonction pour obtenir le record depuis Vercel KV ou mémoire
+async function getEmailRecord(email: string): Promise<EmailSendRecord | null> {
+  const normalizedEmail = email.toLowerCase().trim();
+  
+  // Essayer Vercel KV d'abord (si disponible)
+  try {
+    // @ts-ignore - Vercel KV peut ne pas être installé
+    const { kv } = await import('@vercel/kv');
+    if (kv) {
+      const key = `email_send:${normalizedEmail}`;
+      const record = await kv.get<EmailSendRecord>(key);
+      return record;
+    }
+  } catch (error) {
+    // Vercel KV n'est pas disponible, utiliser la mémoire
+  }
+  
+  // Fallback: stockage en mémoire
+  return emailSendRecords.get(normalizedEmail) || null;
+}
+
+// Fonction pour sauvegarder le record dans Vercel KV ou mémoire
+async function setEmailRecord(email: string, record: EmailSendRecord): Promise<void> {
+  const normalizedEmail = email.toLowerCase().trim();
+  
+  // Essayer Vercel KV d'abord (si disponible)
+  try {
+    // @ts-ignore - Vercel KV peut ne pas être installé
+    const { kv } = await import('@vercel/kv');
+    if (kv) {
+      const key = `email_send:${normalizedEmail}`;
+      const RECORD_TTL = 7 * 24 * 60 * 60; // 7 jours en secondes
+      await kv.set(key, record, { ex: RECORD_TTL }); // TTL de 7 jours
+      return;
+    }
+  } catch (error) {
+    // Vercel KV n'est pas disponible, utiliser la mémoire
+  }
+  
+  // Fallback: stockage en mémoire
+  emailSendRecords.set(normalizedEmail, record);
+}
+
 /**
  * Vérifie si un email peut recevoir un PDF
  * @param email L'adresse email à vérifier
