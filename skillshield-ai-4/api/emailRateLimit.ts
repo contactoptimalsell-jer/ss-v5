@@ -87,19 +87,30 @@ export async function canSendEmail(email: string): Promise<{
   const normalizedEmail = email.toLowerCase().trim();
   const now = Date.now();
   
+  console.log(`🔍 Checking rate limit for: ${normalizedEmail}`);
+  console.log(`📊 Current memory records count: ${emailSendRecords.size}`);
+  console.log(`📋 Memory records:`, Array.from(emailSendRecords.entries()));
+  
   const record = await getEmailRecord(normalizedEmail);
+  
+  console.log(`📧 Record found for ${normalizedEmail}:`, record);
   
   if (!record) {
     // Premier envoi, autorisé
+    console.log(`✅ First send for ${normalizedEmail}, allowing`);
     return { canSend: true };
   }
   
   const timeSinceLastSend = now - record.lastSentAt;
+  console.log(`⏰ Time since last send: ${timeSinceLastSend}ms (${Math.round(timeSinceLastSend / (60 * 60 * 1000))} hours)`);
+  console.log(`⏳ Rate limit window: ${RATE_LIMIT_WINDOW}ms (24 hours)`);
   
   if (timeSinceLastSend < RATE_LIMIT_WINDOW) {
     // Moins de 24h depuis le dernier envoi
     const hoursRemaining = Math.ceil((RATE_LIMIT_WINDOW - timeSinceLastSend) / (60 * 60 * 1000));
     const nextAvailableAt = record.lastSentAt + RATE_LIMIT_WINDOW;
+    
+    console.log(`❌ Rate limit exceeded for ${normalizedEmail}. Hours remaining: ${hoursRemaining}`);
     
     return {
       canSend: false,
@@ -109,6 +120,7 @@ export async function canSendEmail(email: string): Promise<{
   }
   
   // Plus de 24h, autorisé
+  console.log(`✅ More than 24h passed for ${normalizedEmail}, allowing`);
   return { canSend: true };
 }
 
@@ -120,7 +132,12 @@ export async function recordEmailSend(email: string): Promise<void> {
   const normalizedEmail = email.toLowerCase().trim();
   const now = Date.now();
   
+  console.log(`💾 Recording email send for: ${normalizedEmail}`);
+  console.log(`📊 Memory records before: ${emailSendRecords.size}`);
+  
   const existingRecord = await getEmailRecord(normalizedEmail);
+  console.log(`📋 Existing record:`, existingRecord);
+  
   const newRecord: EmailSendRecord = {
     email: normalizedEmail,
     lastSentAt: now,
@@ -128,7 +145,10 @@ export async function recordEmailSend(email: string): Promise<void> {
   };
   
   await setEmailRecord(normalizedEmail, newRecord);
-  console.log(`📧 Email send recorded for: ${normalizedEmail} at ${new Date(now).toISOString()}`);
+  console.log(`✅ Email send recorded for: ${normalizedEmail} at ${new Date(now).toISOString()}`);
+  console.log(`📊 Memory records after: ${emailSendRecords.size}`);
+  console.log(`📋 New record:`, newRecord);
+  console.log(`📋 All records in memory:`, Array.from(emailSendRecords.entries()));
 }
 
 /**

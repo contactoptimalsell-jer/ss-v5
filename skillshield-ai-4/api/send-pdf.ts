@@ -887,14 +887,20 @@ export default async function handler(
   }
 
   // Vérifier le rate limiting
+  console.log(`🔍 [send-pdf] Checking rate limit for email: ${email}`);
   const rateLimitCheck = await canSendEmail(email);
+  console.log(`📊 [send-pdf] Rate limit check result:`, rateLimitCheck);
+  
   if (!rateLimitCheck.canSend) {
+    console.log(`❌ [send-pdf] Rate limit exceeded, returning 429`);
     return res.status(429).json({ 
       error: 'Limite d\'envoi atteinte',
       message: rateLimitCheck.message || 'Un PDF a déjà été envoyé à cette adresse récemment.',
       nextAvailableAt: rateLimitCheck.nextAvailableAt
     });
   }
+  
+  console.log(`✅ [send-pdf] Rate limit check passed, proceeding with PDF generation`);
 
   try {
     console.log('Début de la génération du PDF...');
