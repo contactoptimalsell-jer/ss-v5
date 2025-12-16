@@ -110,3 +110,4 @@ Elle utilise uniquement :
 
 Ces deux variables suffisent pour que l'application se connecte à Supabase automatiquement ! 🎉
 
+

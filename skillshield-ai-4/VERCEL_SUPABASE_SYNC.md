@@ -118,3 +118,4 @@ L'import GitHub dans Supabase est **optionnel** et sert uniquement si vous voule
 
 Pour le rate limiting, vous n'en avez **pas besoin** ! 🎉
 
+

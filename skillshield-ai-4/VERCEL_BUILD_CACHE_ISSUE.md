@@ -68,3 +68,4 @@ Pour activer Vercel KV (recommandé) :
 1. Allez sur Vercel Dashboard → Storage → Create Database → KV
 2. Les variables seront automatiquement ajoutées
 
+
