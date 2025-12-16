@@ -27,14 +27,20 @@ const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 heures
 const RECORD_TTL = 7 * 24 * 60 * 60; // 7 jours en secondes (pour Vercel KV)
 
 // Vérifier si Vercel KV est disponible
-let kvAvailable = false;
-try {
-  // Tester la connexion à Vercel KV
-  kvAvailable = true;
-  console.log('✅ Vercel KV is available');
-} catch (error) {
-  console.log('⚠️ Vercel KV not available, using file cache fallback');
-  kvAvailable = false;
+// On vérifie la disponibilité au runtime car les variables d'environnement peuvent ne pas être configurées
+async function isKvAvailable(): Promise<boolean> {
+  try {
+    // Vérifier si les variables d'environnement sont définies
+    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+      return false;
+    }
+    // Tester une opération simple (ping)
+    await kv.ping();
+    return true;
+  } catch (error: any) {
+    console.log(`⚠️ Vercel KV not available: ${error.message}`);
+    return false;
+  }
 }
 
 // Charger le cache depuis le fichier
@@ -138,6 +144,7 @@ async function getEmailRecord(email: string): Promise<EmailSendRecord | null> {
   const key = `email_send:${normalizedEmail}`;
   
   // PRIORITÉ 1: Vercel KV (persistant et partagé entre toutes les instances)
+  const kvAvailable = await isKvAvailable();
   if (kvAvailable) {
     try {
       const record = await kv.get<EmailSendRecord>(key);
@@ -174,6 +181,7 @@ async function setEmailRecord(email: string, record: EmailSendRecord): Promise<v
   const key = `email_send:${normalizedEmail}`;
   
   // PRIORITÉ 1: Vercel KV (persistant et partagé entre toutes les instances)
+  const kvAvailable = await isKvAvailable();
   if (kvAvailable) {
     try {
       await kv.set(key, record, { ex: RECORD_TTL }); // TTL de 7 jours
