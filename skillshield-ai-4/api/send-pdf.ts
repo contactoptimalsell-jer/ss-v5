@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import PDFDocument from 'pdfkit';
 import nodemailer from 'nodemailer';
 import { AuditResult } from '../types';
-import { canSendEmail, recordEmailSend } from './emailRateLimit';
+import { canSendEmail, recordEmailSend } from './emailRateLimit.js';
 
 // Fonction améliorée pour détecter le secteur avec champ lexical étendu
 // Utilise un système de scoring pour identifier le secteur le plus probable
