@@ -693,11 +693,11 @@ export default async function handler(
   console.log(`📊 [send-pdf-prospection] Rate limit check result:`, rateLimitCheck);
   
   if (!rateLimitCheck.canSend) {
-    console.log(`❌ [send-pdf-prospection] Rate limit exceeded, returning 429`);
-    return res.status(429).json({ 
-      error: 'Limite d\'envoi atteinte',
-      message: rateLimitCheck.message || 'Un PDF a déjà été envoyé à cette adresse récemment.',
-      nextAvailableAt: rateLimitCheck.nextAvailableAt
+    console.log(`❌ [send-pdf-prospection] Rate limit exceeded, blocking silently`);
+    // Bloquer silencieusement sans message d'erreur
+    return res.status(200).json({ 
+      success: true,
+      message: 'PDF envoyé avec succès !' 
     });
   }
   
@@ -706,12 +706,11 @@ export default async function handler(
   console.log(`🔒 [send-pdf-prospection] Attempting to lock email: ${email}`);
   const lockResult = await tryLockEmail(email);
   if (!lockResult.success) {
-    console.log(`❌ [send-pdf-prospection] Email already locked, returning 429`);
-    const hoursRemaining = lockResult.hoursRemaining || 24;
-    return res.status(429).json({ 
-      error: 'Limite d\'envoi atteinte',
-      message: `Un PDF a déjà été envoyé à cette adresse. Vous pourrez renvoyer dans ${hoursRemaining} heure${hoursRemaining > 1 ? 's' : ''}.`,
-      nextAvailableAt: lockResult.nextAvailableAt
+    console.log(`❌ [send-pdf-prospection] Email already locked, blocking silently`);
+    // Bloquer silencieusement sans message d'erreur
+    return res.status(200).json({ 
+      success: true,
+      message: 'PDF envoyé avec succès !' 
     });
   }
   
