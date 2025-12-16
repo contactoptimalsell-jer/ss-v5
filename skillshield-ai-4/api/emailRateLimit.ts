@@ -27,16 +27,22 @@ const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 heures
 // Charger le cache depuis le fichier
 async function loadCache(): Promise<EmailRecordsCache> {
   try {
+    console.log(`📂 Attempting to load cache from: ${CACHE_FILE_PATH}`);
     const data = await fs.readFile(CACHE_FILE_PATH, 'utf-8');
     const cache: EmailRecordsCache = JSON.parse(data);
+    
+    console.log(`📦 Cache file loaded, records count: ${Object.keys(cache.records).length}`);
     
     // Nettoyer les anciens enregistrements
     const now = Date.now();
     const cleanedRecords: Record<string, EmailSendRecord> = {};
     
     for (const [email, record] of Object.entries(cache.records)) {
-      if (now - record.lastSentAt < CLEANUP_INTERVAL_MS) {
+      const age = now - record.lastSentAt;
+      if (age < CLEANUP_INTERVAL_MS) {
         cleanedRecords[email] = record;
+      } else {
+        console.log(`🗑️ Removing old record for ${email} (age: ${Math.round(age / (24 * 60 * 60 * 1000))} days)`);
       }
     }
     
@@ -46,13 +52,15 @@ async function loadCache(): Promise<EmailRecordsCache> {
       emailSendRecords.set(email, record);
     });
     
+    console.log(`✅ Cache loaded into memory: ${emailSendRecords.size} records`);
+    
     return {
       records: cleanedRecords,
       lastCleanup: now
     };
-  } catch (error) {
+  } catch (error: any) {
     // Fichier n'existe pas ou erreur de lecture, retourner un cache vide
-    console.log('📁 Cache file not found or error reading, starting fresh');
+    console.log(`📁 Cache file not found or error reading (${error.message}), starting fresh`);
     return {
       records: {},
       lastCleanup: Date.now()
@@ -123,12 +131,14 @@ async function getEmailRecord(email: string): Promise<EmailSendRecord | null> {
       const key = `email_send:${normalizedEmail}`;
       const record = await kv.get<EmailSendRecord>(key);
       if (record) {
-        console.log(`📦 Found record in Vercel KV for ${normalizedEmail}`);
+        console.log(`📦 Found record in Vercel KV for ${normalizedEmail}:`, record);
         return record;
       }
+      console.log(`📦 No record in Vercel KV for ${normalizedEmail}`);
     }
   } catch (error) {
     // Vercel KV n'est pas disponible, continuer avec le cache fichier
+    console.log(`📦 Vercel KV not available, using file cache`);
   }
   
   // Charger le cache depuis le fichier si nécessaire
@@ -137,7 +147,9 @@ async function getEmailRecord(email: string): Promise<EmailSendRecord | null> {
   // Chercher dans le cache mémoire (qui est synchronisé avec le fichier)
   const record = emailSendRecords.get(normalizedEmail);
   if (record) {
-    console.log(`📁 Found record in file cache for ${normalizedEmail}`);
+    console.log(`📁 Found record in file cache for ${normalizedEmail}:`, record);
+  } else {
+    console.log(`📁 No record in file cache for ${normalizedEmail}`);
   }
   
   return record || null;
