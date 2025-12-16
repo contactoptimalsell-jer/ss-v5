@@ -251,6 +251,12 @@ const App: React.FC = () => {
             <ProspectionPage onNavigateHome={() => navigateTo('home')} />
           </motion.div>
         );
+      case 'terms':
+        return (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <TermsPage onNavigateHome={() => navigateTo('home')} />
+          </motion.div>
+        );
       default:
         return null;
     }
