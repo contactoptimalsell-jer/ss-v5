@@ -24,8 +24,13 @@ const CLEANUP_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours
 
 const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 heures
 
+// DÉSACTIVÉ TEMPORAIREMENT : Supabase cause des problèmes de modules ES sur Vercel
+// On utilise uniquement le cache fichier pour l'instant
+const USE_SUPABASE = false; // Désactivé pour éviter les erreurs de modules ES
+
 // Vérifier si les variables d'environnement Supabase sont configurées
 function hasSupabaseConfig(): boolean {
+  if (!USE_SUPABASE) return false; // Désactivé
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   return !!(supabaseUrl && supabaseKey);
@@ -33,6 +38,10 @@ function hasSupabaseConfig(): boolean {
 
 // Utiliser l'API REST de Supabase directement (évite les problèmes de modules ES)
 async function supabaseRequest(endpoint: string, method: string = 'GET', body?: any): Promise<{ data: any; error: any }> {
+  if (!USE_SUPABASE) {
+    return { data: null, error: { message: 'Supabase disabled' } };
+  }
+  
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   
@@ -73,6 +82,7 @@ async function supabaseRequest(endpoint: string, method: string = 'GET', body?: 
 
 // Vérifier si Supabase est disponible
 async function isSupabaseAvailable(): Promise<boolean> {
+  if (!USE_SUPABASE) return false; // Désactivé
   if (!hasSupabaseConfig()) {
     return false;
   }
