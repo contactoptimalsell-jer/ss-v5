@@ -2,29 +2,226 @@ import { AuditResult, VisualizationData } from '../types';
 // Import inline de la logique de détection pour éviter les problèmes d'import cross-domain
 function getAdaptiveBenchmark(userProblem: string): AuditResult['benchmark'] {
   const problemLower = userProblem.toLowerCase();
+  
+  // Définition du champ lexical complet pour chaque secteur
+  const sectorKeywords: Record<string, string[]> = {
+    'immobilier': [
+      // Métiers et acteurs
+      'immobilier', 'agent immobilier', 'conseiller immobilier', 'négociateur', 'mandataire', 'syndic',
+      'agence immobilière', 'agence immo', 'cabinet immobilier', 'promoteur', 'aménageur',
+      // Biens et types
+      'bien', 'appartement', 'appart', 'maison', 'villa', 'studio', 'f2', 'f3', 'f4', 'f5',
+      'local commercial', 'bureau', 'terrain', 'lotissement', 'copropriété', 'immeuble',
+      // Activités
+      'mandat', 'mandat exclusif', 'mandat simple', 'visite', 'visite immobilière', 'accompagnement',
+      'estimation', 'expertise immobilière', 'diagnostic', 'diagnostics', 'dpe', 'amiante',
+      'transaction', 'vente', 'achat', 'location', 'gestion locative', 'gestion de biens',
+      // Acteurs
+      'propriétaire', 'vendeur', 'acheteur', 'acquéreur', 'locataire', 'bailleur', 'locataire',
+      'copropriétaire', 'syndicat', 'conseil syndical',
+      // Documents et processus
+      'compromis', 'acte de vente', 'acte authentique', 'notaire', 'bail', 'quittance', 'état des lieux',
+      'inventaire', 'caution', 'garantie', 'dépôt de garantie',
+      // Géographie (villes françaises majeures)
+      'lyon', 'paris', 'marseille', 'toulouse', 'nice', 'nantes', 'strasbourg', 'montpellier',
+      'bordeaux', 'lille', 'rennes', 'reims', 'saint-étienne', 'toulon', 'grenoble', 'dijon',
+      'angers', 'villeurbanne', 'nîmes', 'saint-denis', 'le havre', 'aix-en-provence'
+    ],
+    'ecommerce': [
+      // Plateformes et outils
+      'e-commerce', 'ecommerce', 'e-com', 'boutique en ligne', 'shop en ligne', 'site e-commerce',
+      'marketplace', 'amazon', 'shopify', 'woocommerce', 'prestashop', 'magento', 'wix', 'squarespace',
+      'etsy', 'ebay', 'leboncoin', 'vinted', 'fnac', 'darty', 'cdiscount', 'rakuten',
+      // Activités e-commerce
+      'vente en ligne', 'vente online', 'commerce en ligne', 'commerce digital', 'vente digitale',
+      'dropshipping', 'affiliation', 'marketplace', 'place de marché',
+      // Processus
+      'panier', 'checkout', 'paiement en ligne', 'caisse', 'commande en ligne', 'commande online',
+      'expédition', 'livraison', 'colis', 'logistique e-commerce', 'fulfillment', 'stockage',
+      'gestion stock', 'inventaire', 'réassort', 'réapprovisionnement',
+      // Produits et catalogue
+      'produit', 'catalogue', 'fiche produit', 'description produit', 'image produit', 'prix',
+      'tarif', 'promotion', 'réduction', 'code promo', 'bon de réduction', 'remise',
+      // Clients et marketing
+      'client en ligne', 'visiteur', 'trafic', 'conversion', 'taux de conversion', 'panier moyen',
+      'abandon de panier', 'email marketing', 'newsletter', 'seo e-commerce', 'sea', 'publicité en ligne'
+    ],
+    'sante': [
+      // Professionnels
+      'santé', 'médical', 'médecin', 'docteur', 'dr.', 'généraliste', 'spécialiste', 'chirurgien',
+      'dentiste', 'vétérinaire', 'kinésithérapeute', 'ostéopathe', 'pharmacien', 'infirmier',
+      'sage-femme', 'psychologue', 'psychiatre', 'orthophoniste', 'ergothérapeute',
+      // Établissements
+      'hôpital', 'clinique', 'cabinet médical', 'cabinet dentaire', 'laboratoire', 'pharmacie',
+      'centre de santé', 'maison de santé', 'ehpad', 'maison de retraite', 'établissement de santé',
+      // Activités
+      'consultation', 'rendez-vous médical', 'rdv médical', 'consultation médicale', 'examen',
+      'diagnostic', 'soin', 'traitement', 'intervention', 'opération', 'chirurgie',
+      // Documents et processus
+      'ordonnance', 'prescription', 'dossier médical', 'dossier patient', 'fiche patient',
+      'comptabilité médicale', 'facturation médicale', 'tiers payant', 'carte vitale',
+      'feuille de soins', 'remboursement', 'mutuelle', 'sécurité sociale',
+      // Spécialités
+      'cardiologie', 'dermatologie', 'pédiatrie', 'gynécologie', 'ophtalmologie', 'orthopédie',
+      'radiologie', 'anesthésie', 'urgences', 'médecine générale'
+    ],
+    'restauration': [
+      // Types d'établissements
+      'restaurant', 'restauration', 'brasserie', 'bistrot', 'bistro', 'café', 'bar', 'pub',
+      'hôtel', 'hôtellerie', 'hôtel-restaurant', 'relais', 'auberge', 'gîte', 'chambre d\'hôte',
+      'fast-food', 'food truck', 'traiteur', 'catering', 'service traiteur',
+      // Activités
+      'cuisine', 'service', 'salle', 'chef', 'cuisinier', 'serveur', 'serveuse', 'maître d\'hôtel',
+      'sommelier', 'barman', 'barmaid', 'gérant restaurant', 'directeur restaurant',
+      // Processus
+      'menu', 'carte', 'réservation', 'booking', 'planning service', 'gestion table', 'gestion salle',
+      'commande', 'bon de commande', 'ticket', 'encaissement', 'addition', 'pourboire',
+      // Produits
+      'plat', 'entrée', 'dessert', 'boisson', 'vin', 'cocktail', 'apéritif', 'digestif',
+      'ingrédient', 'approvisionnement', 'fournisseur', 'marché', 'livraison produit',
+      // Gestion
+      'gestion stock restaurant', 'inventaire restaurant', 'coût matière', 'marge', 'marge brute',
+      'planning équipe', 'gestion équipe', 'paie serveur', 'planning cuisinier'
+    ],
+    'services': [
+      // Types de services
+      'conseil', 'consultant', 'consulting', 'cabinet de conseil', 'cabinet conseil',
+      'expertise', 'expert', 'audit', 'auditeur', 'formation', 'formateur', 'coaching', 'coach',
+      'accompagnement', 'accompagnateur', 'accompagnement entreprise',
+      // Domaines
+      'conseil stratégique', 'conseil organisationnel', 'conseil digital', 'conseil rrh',
+      'conseil financier', 'conseil juridique', 'conseil marketing', 'conseil commercial',
+      'transformation digitale', 'transformation numérique', 'digitalisation',
+      // Activités
+      'mission', 'projet', 'intervention', 'accompagnement projet', 'pilotage projet',
+      'formation professionnelle', 'formation continue', 'cpf', 'compte personnel formation',
+      'coaching individuel', 'coaching d\'équipe', 'coaching dirigeant',
+      // Clients
+      'client conseil', 'entreprise cliente', 'dirigeant', 'manager', 'équipe',
+      'facturation conseil', 'devis conseil', 'proposition commerciale'
+    ],
+    'finance': [
+      // Acteurs
+      'finance', 'financier', 'banque', 'banquier', 'banquier privé', 'conseiller bancaire',
+      'assurance', 'assureur', 'courtier', 'courtier en assurance', 'courtier crédit',
+      'expert-comptable', 'cabinet comptable', 'comptable', 'fiscaliste', 'avocat fiscaliste',
+      // Activités
+      'crédit', 'prêt', 'emprunt', 'financement', 'investissement', 'épargne', 'placement',
+      'assurance vie', 'assurance habitation', 'assurance auto', 'mutuelle', 'prévoyance',
+      'retraite', 'épargne retraite', 'per', 'perp', 'pea', 'assurance-vie',
+      // Services
+      'conseil en investissement', 'gestion de patrimoine', 'patrimoine', 'succession',
+      'fiscalité', 'optimisation fiscale', 'déclaration fiscale', 'is', 'impôt',
+      'comptabilité', 'tenue de comptabilité', 'liasse fiscale', 'bilan', 'compte de résultat',
+      // Produits
+      'compte courant', 'livret', 'plan épargne', 'assurance', 'contrat d\'assurance',
+      'crédit immobilier', 'crédit consommation', 'crédit auto', 'leasing', 'location longue durée'
+    ],
+    'education': [
+      // Établissements
+      'éducation', 'formation', 'école', 'collège', 'lycée', 'université', 'faculté',
+      'centre de formation', 'organisme de formation', 'of', 'cfp', 'centre formation',
+      'école privée', 'école publique', 'établissement scolaire', 'académie',
+      // Acteurs
+      'professeur', 'enseignant', 'formateur', 'instructeur', 'tuteur', 'coach pédagogique',
+      'directeur école', 'proviseur', 'cpe', 'conseiller pédagogique',
+      // Activités
+      'cours', 'formation', 'enseignement', 'pédagogie', 'apprentissage', 'apprendre',
+      'formation professionnelle', 'formation continue', 'cpf', 'compte personnel formation',
+      'vae', 'validation acquis expérience', 'alternance', 'apprentissage',
+      // Processus
+      'inscription', 'admission', 'scolarité', 'bulletin', 'note', 'évaluation', 'examen',
+      'contrôle', 'devoir', 'devoir maison', 'dm', 'devoir surveillé', 'ds',
+      'planning cours', 'emploi du temps', 'edt', 'cahier de texte', 'cahier texte numérique'
+    ],
+    'transport': [
+      // Types
+      'transport', 'transporteur', 'logistique', 'livraison', 'expédition', 'fret',
+      'transport routier', 'transport de marchandises', 'messagerie', 'coursier',
+      'livreur', 'chauffeur', 'conducteur', 'routier',
+      // Véhicules
+      'camion', 'poids lourd', 'utilitaire', 'fourgon', 'véhicule utilitaire',
+      'flotte', 'gestion flotte', 'parc automobile', 'véhicule entreprise',
+      // Activités
+      'tournée', 'planification tournée', 'optimisation tournée', 'route',
+      'colis', 'envoi', 'expédition colis', 'suivi colis', 'tracking', 'traçabilité',
+      'livraison à domicile', 'livraison express', 'livraison chronopost', 'chronopost',
+      'dhl', 'ups', 'fedex', 'mondial relay', 'relais colis',
+      // Gestion
+      'gestion transport', 'tms', 'transport management system', 'planification transport',
+      'suivi véhicule', 'géolocalisation', 'gps', 'télépéage', 'télésuivi'
+    ],
+    'btp': [
+      // Métiers
+      'btp', 'construction', 'bâtiment', 'travaux', 'travaux publics', 'tp',
+      'maçon', 'maçonnerie', 'plombier', 'plomberie', 'électricien', 'électricité',
+      'charpentier', 'charpente', 'couvreur', 'couverture', 'carreleur', 'carrelage',
+      'peintre', 'peinture', 'menuisier', 'menuiserie', 'serrurier', 'serrurerie',
+      // Types d'entreprises
+      'entreprise btp', 'artisan', 'artisanat', 'artisan du bâtiment',
+      'gros œuvre', 'second œuvre', 'rénovation', 'réhabilitation', 'neuf',
+      // Activités
+      'chantier', 'chantier construction', 'gestion chantier', 'suivi chantier',
+      'devis travaux', 'devis btp', 'facturation travaux', 'facturation btp',
+      'planning travaux', 'planning chantier', 'coordination travaux',
+      // Matériaux et fournitures
+      'matériaux', 'matériau', 'fournitures', 'approvisionnement', 'commande matériaux',
+      'béton', 'ciment', 'parpaing', 'brique', 'tuile', 'isolation', 'laine de verre'
+    ],
+    'industrie': [
+      // Types
+      'industrie', 'industriel', 'manufacturing', 'production', 'fabrication',
+      'usine', 'atelier', 'atelier de production', 'chaîne de production', 'ligne de production',
+      // Activités
+      'production', 'fabrication', 'assemblage', 'montage', 'conditionnement', 'emballage',
+      'qualité', 'contrôle qualité', 'qc', 'qa', 'maintenance', 'maintenance industrielle',
+      'maintenance préventive', 'maintenance corrective',
+      // Équipements
+      'machine', 'équipement', 'équipement industriel', 'robot', 'robotique', 'automatisation',
+      'ligne automatisée', 'chaîne automatisée', 'cobot', 'robot collaboratif',
+      // Gestion
+      'gestion production', 'planification production', 'planning production',
+      'gestion stock industriel', 'inventaire industriel', 'approvisionnement',
+      'logistique industrielle', 'supply chain', 'chaîne logistique',
+      // Secteurs industriels
+      'automobile', 'aéronautique', 'agroalimentaire', 'pharmaceutique', 'chimie',
+      'textile', 'métallurgie', 'sidérurgie', 'plasturgie'
+    ]
+  };
+  
+  // Système de scoring : chaque secteur reçoit un score basé sur le nombre de mots-clés trouvés
+  const sectorScores: Record<string, number> = {};
+  
+  // Initialiser les scores
+  Object.keys(sectorKeywords).forEach(sector => {
+    sectorScores[sector] = 0;
+  });
+  
+  // Calculer les scores pour chaque secteur
+  Object.entries(sectorKeywords).forEach(([sector, keywords]) => {
+    keywords.forEach(keyword => {
+      // Utiliser une regex pour trouver le mot-clé (insensible à la casse, avec word boundaries)
+      const regex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+      if (regex.test(problemLower)) {
+        sectorScores[sector] = (sectorScores[sector] || 0) + 1;
+      }
+    });
+  });
+  
+  // Trouver le secteur avec le score le plus élevé
+  let maxScore = 0;
   let sector = 'general';
   
-  // Détection simplifiée du secteur
-  if (problemLower.match(/\b(immobilier|bien|appartement|maison|agent.*immobilier|mandat|visite|propriétaire|locataire|bail|agence immobilière|lyon|paris|marseille|toulouse|bordeaux)\b/)) {
-    sector = 'immobilier';
-  } else if (problemLower.match(/\b(e-commerce|ecommerce|boutique en ligne|shop|marketplace|amazon|shopify|panier|checkout|livraison|expédition|colis|commande en ligne|produit|stock|inventaire)\b/)) {
-    sector = 'ecommerce';
-  } else if (problemLower.match(/\b(santé|médical|médecin|docteur|hôpital|clinique|patient|consultation|ordonnance|pharmacie)\b/)) {
-    sector = 'sante';
-  } else if (problemLower.match(/\b(restaurant|restauration|hôtel|hôtellerie|cuisine|chef|menu|réservation|booking)\b/)) {
-    sector = 'restauration';
-  } else if (problemLower.match(/\b(conseil|consultant|cabinet de conseil|expertise|audit|formation|coaching)\b/)) {
-    sector = 'services';
-  } else if (problemLower.match(/\b(finance|banque|assurance|courtier|crédit|prêt|investissement)\b/)) {
-    sector = 'finance';
-  } else if (problemLower.match(/\b(éducation|formation|école|université|professeur|formateur|cpf)\b/)) {
-    sector = 'education';
-  } else if (problemLower.match(/\b(transport|logistique|livraison|expédition|colis|fret|camion|chauffeur)\b/)) {
-    sector = 'transport';
-  } else if (problemLower.match(/\b(btp|construction|bâtiment|travaux|maçon|plombier|électricien)\b/)) {
-    sector = 'btp';
-  } else if (problemLower.match(/\b(industrie|manufacturing|production|usine|atelier|machine|maintenance)\b/)) {
-    sector = 'industrie';
+  Object.entries(sectorScores).forEach(([sect, score]) => {
+    if (score > maxScore) {
+      maxScore = score;
+      sector = sect;
+    }
+  });
+  
+  // Si aucun score significatif, retourner 'general'
+  if (maxScore < 1) {
+    sector = 'general';
   }
   
   // Benchmarks par secteur
