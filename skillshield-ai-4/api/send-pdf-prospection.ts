@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import PDFDocument from 'pdfkit';
 import nodemailer from 'nodemailer';
 import { AuditResult } from '../types';
-import { canSendEmail, recordEmailSend } from './emailRateLimit.js';
+import { canSendEmail, recordEmailSend, tryLockEmail } from './emailRateLimit.js';
 
 // Fonction améliorée pour détecter le secteur avec champ lexical étendu
 // Utilise un système de scoring pour identifier le secteur le plus probable
@@ -687,15 +687,35 @@ export default async function handler(
     return res.status(400).json({ error: 'auditResult et userProblem sont requis' });
   }
 
-  // Vérifier le rate limiting
+  // Vérifier le rate limiting AVANT de générer le PDF
+  console.log(`🔍 [send-pdf-prospection] Checking rate limit for email: ${email}`);
   const rateLimitCheck = await canSendEmail(email);
+  console.log(`📊 [send-pdf-prospection] Rate limit check result:`, rateLimitCheck);
+  
   if (!rateLimitCheck.canSend) {
+    console.log(`❌ [send-pdf-prospection] Rate limit exceeded, returning 429`);
     return res.status(429).json({ 
       error: 'Limite d\'envoi atteinte',
       message: rateLimitCheck.message || 'Un PDF a déjà été envoyé à cette adresse récemment.',
       nextAvailableAt: rateLimitCheck.nextAvailableAt
     });
   }
+  
+  // ENREGISTRER IMMÉDIATEMENT pour éviter les race conditions
+  // Si l'enregistrement échoue (email déjà présent), on bloque
+  console.log(`🔒 [send-pdf-prospection] Attempting to lock email: ${email}`);
+  const lockResult = await tryLockEmail(email);
+  if (!lockResult.success) {
+    console.log(`❌ [send-pdf-prospection] Email already locked, returning 429`);
+    const hoursRemaining = lockResult.hoursRemaining || 24;
+    return res.status(429).json({ 
+      error: 'Limite d\'envoi atteinte',
+      message: `Un PDF a déjà été envoyé à cette adresse. Vous pourrez renvoyer dans ${hoursRemaining} heure${hoursRemaining > 1 ? 's' : ''}.`,
+      nextAvailableAt: lockResult.nextAvailableAt
+    });
+  }
+  
+  console.log(`✅ [send-pdf-prospection] Email locked successfully, proceeding with PDF generation`);
 
   try {
     console.log('Début de la génération du PDF pour prospection...');
@@ -706,8 +726,7 @@ export default async function handler(
     await sendEmailWithPDF(email, prospectName, pdfBuffer, userProblem);
     console.log('Email de prospection envoyé avec succès');
 
-    // Enregistrer l'envoi
-    await recordEmailSend(email);
+    // L'envoi est déjà enregistré par tryLockEmail, pas besoin de ré-enregistrer
 
     return res.status(200).json({ 
       success: true,

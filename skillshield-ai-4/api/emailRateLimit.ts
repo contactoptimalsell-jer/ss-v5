@@ -243,7 +243,59 @@ export async function canSendEmail(email: string): Promise<{
 }
 
 /**
- * Enregistre un envoi d'email
+ * Tente de verrouiller un email pour l'envoi (atomique)
+ * Retourne success: false si l'email a déjà été envoyé récemment
+ */
+export async function tryLockEmail(email: string): Promise<{
+  success: boolean;
+  hoursRemaining?: number;
+  nextAvailableAt?: number;
+}> {
+  const normalizedEmail = email.toLowerCase().trim();
+  const now = Date.now();
+  
+  // Charger le cache AVANT la vérification
+  await ensureCacheLoaded();
+  
+  console.log(`🔒 Attempting to lock email: ${normalizedEmail}`);
+  console.log(`📊 Memory records before lock: ${emailSendRecords.size}`);
+  
+  const existingRecord = await getEmailRecord(normalizedEmail);
+  
+  if (existingRecord) {
+    const timeSinceLastSend = now - existingRecord.lastSentAt;
+    console.log(`⏰ Time since last send: ${timeSinceLastSend}ms`);
+    
+    if (timeSinceLastSend < RATE_LIMIT_WINDOW) {
+      // Moins de 24h, refuser le verrouillage
+      const hoursRemaining = Math.ceil((RATE_LIMIT_WINDOW - timeSinceLastSend) / (60 * 60 * 1000));
+      const nextAvailableAt = existingRecord.lastSentAt + RATE_LIMIT_WINDOW;
+      
+      console.log(`❌ Email already sent recently, lock failed. Hours remaining: ${hoursRemaining}`);
+      return {
+        success: false,
+        hoursRemaining,
+        nextAvailableAt
+      };
+    }
+  }
+  
+  // Enregistrer immédiatement (verrouillage atomique)
+  const newRecord: EmailSendRecord = {
+    email: normalizedEmail,
+    lastSentAt: now,
+    count: (existingRecord?.count || 0) + 1
+  };
+  
+  await setEmailRecord(normalizedEmail, newRecord);
+  console.log(`✅ Email locked successfully for: ${normalizedEmail} at ${new Date(now).toISOString()}`);
+  console.log(`📊 Memory records after lock: ${emailSendRecords.size}`);
+  
+  return { success: true };
+}
+
+/**
+ * Enregistre un envoi d'email (déprécié, utiliser tryLockEmail à la place)
  * @param email L'adresse email
  */
 export async function recordEmailSend(email: string): Promise<void> {
