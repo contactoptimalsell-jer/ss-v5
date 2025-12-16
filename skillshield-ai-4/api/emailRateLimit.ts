@@ -28,10 +28,18 @@ const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 heures
 // Vérifier si Vercel KV est disponible
 async function isVercelKVAvailable(): Promise<boolean> {
   try {
-    // Tester une opération simple pour vérifier la disponibilité
-    await kv.ping();
+    // Vérifier si les variables d'environnement KV sont configurées
+    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+      return false;
+    }
+    // Tester une opération simple (get sur une clé qui n'existe probablement pas)
+    await kv.get('__test_connection__');
     return true;
   } catch (error: any) {
+    // Si l'erreur est "not found", c'est OK, KV fonctionne
+    if (error.message?.includes('not found') || error.message?.includes('PGRST116')) {
+      return true;
+    }
     console.log(`⚠️ Vercel KV not available: ${error.message}`);
     return false;
   }
