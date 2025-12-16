@@ -9,6 +9,7 @@ import { AboutPage } from './components/AboutPage';
 import { VirtualEmployeesPage } from './components/VirtualEmployeesPage';
 import { UploadPhotosPage } from './components/UploadPhotosPage';
 import { ProspectionPage } from './components/ProspectionPage';
+import { TermsPage } from './components/TermsPage';
 import { Menu, ShieldCheck, Home, X, Upload, Mail } from 'lucide-react';
 import { Logo } from './components/ui/Logo';
 import { SectionId, PageView } from './types';

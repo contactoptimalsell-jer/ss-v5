@@ -3,12 +3,12 @@ import { Linkedin, Mail } from 'lucide-react';
 import { Logo } from './ui/Logo';
 
 interface FooterProps {
-  onNavigate?: (page: 'home' | 'about' | 'virtual-employees') => void;
+  onNavigate?: (page: 'home' | 'about' | 'virtual-employees' | 'terms') => void;
   customLogo?: string | null;
 }
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate, customLogo }) => {
-  const handleNav = (page: 'home' | 'about' | 'virtual-employees', e: React.MouseEvent) => {
+  const handleNav = (page: 'home' | 'about' | 'virtual-employees' | 'terms', e: React.MouseEvent) => {
     e.preventDefault();
     if (onNavigate) {
       onNavigate(page);
@@ -33,6 +33,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, customLogo }) => {
             <a href="#" onClick={(e) => handleNav('about', e)} className="hover:text-cyan-400 transition-colors">À propos</a>
             <a href="https://calendly.com/b00784336-essec?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">Audit</a>
             <a href="#" onClick={(e) => handleNav('home', e)} className="hover:text-cyan-400 transition-colors">Accueil</a>
+            <a href="#" onClick={(e) => handleNav('terms', e)} className="hover:text-cyan-400 transition-colors">Conditions Générales</a>
             <a href="mailto:contact@skillshield-ai.com" className="hover:text-cyan-400 transition-colors">Contact</a>
           </div>
         </div>
