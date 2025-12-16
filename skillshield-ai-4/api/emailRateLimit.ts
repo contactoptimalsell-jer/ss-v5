@@ -1,7 +1,7 @@
 // Système de rate limiting pour les envois d'email
 // Limite : 1 envoi par email, possibilité de renvoyer après 24h
+// Utilise uniquement le cache fichier pour éviter les problèmes de dépendances
 
-import { kv } from '@vercel/kv';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 
@@ -25,25 +25,8 @@ const CLEANUP_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours
 
 const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 heures
 
-// Vérifier si Vercel KV est disponible
-async function isVercelKVAvailable(): Promise<boolean> {
-  try {
-    // Vérifier si les variables d'environnement KV sont configurées
-    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
-      return false;
-    }
-    // Tester une opération simple (get sur une clé qui n'existe probablement pas)
-    await kv.get('__test_connection__');
-    return true;
-  } catch (error: any) {
-    // Si l'erreur est "not found", c'est OK, KV fonctionne
-    if (error.message?.includes('not found') || error.message?.includes('PGRST116')) {
-      return true;
-    }
-    console.log(`⚠️ Vercel KV not available: ${error.message}`);
-    return false;
-  }
-}
+// SOLUTION RADICALE : Utiliser uniquement le cache fichier
+// Plus de dépendances externes (Vercel KV, Supabase) pour éviter les problèmes de modules ES
 
 // Charger le cache depuis le fichier
 async function loadCache(): Promise<EmailRecordsCache> {
@@ -140,28 +123,11 @@ async function ensureCacheLoaded() {
   await cacheLoadingPromise;
 }
 
-// Fonction pour obtenir le record depuis Vercel KV, fichier cache ou mémoire
+// Fonction pour obtenir le record depuis le cache fichier ou mémoire
 async function getEmailRecord(email: string): Promise<EmailSendRecord | null> {
   const normalizedEmail = email.toLowerCase().trim();
   
-  // PRIORITÉ 1: Vercel KV (persistant et partagé entre toutes les instances)
-  const kvAvailable = await isVercelKVAvailable();
-  if (kvAvailable) {
-    try {
-      const key = `email_rate_limit:${normalizedEmail}`;
-      const record = await kv.get<EmailSendRecord>(key);
-      if (record) {
-        console.log(`📦 Found record in Vercel KV for ${normalizedEmail}:`, record);
-        return record;
-      }
-      console.log(`📦 No record in Vercel KV for ${normalizedEmail}`);
-    } catch (error: any) {
-      console.error(`❌ Error reading from Vercel KV:`, error.message);
-      // Continuer avec le fallback
-    }
-  }
-  
-  // PRIORITÉ 2: Cache fichier (fallback si Vercel KV n'est pas disponible)
+  // Utiliser uniquement le cache fichier (pas de dépendances externes)
   try {
     await ensureCacheLoaded();
     const record = emailSendRecords.get(normalizedEmail);
@@ -177,26 +143,11 @@ async function getEmailRecord(email: string): Promise<EmailSendRecord | null> {
   return null;
 }
 
-// Fonction pour sauvegarder le record dans Vercel KV, fichier cache ou mémoire
+// Fonction pour sauvegarder le record dans le cache fichier ou mémoire
 async function setEmailRecord(email: string, record: EmailSendRecord): Promise<void> {
   const normalizedEmail = email.toLowerCase().trim();
   
-  // PRIORITÉ 1: Vercel KV (persistant et partagé entre toutes les instances)
-  const kvAvailable = await isVercelKVAvailable();
-  if (kvAvailable) {
-    try {
-      const key = `email_rate_limit:${normalizedEmail}`;
-      // Stocker avec expiration de 7 jours (même que le cleanup)
-      await kv.set(key, record, { ex: 7 * 24 * 60 * 60 }); // 7 jours en secondes
-      console.log(`💾 Saved record to Vercel KV for ${normalizedEmail}`);
-      return; // Succès, on retourne immédiatement
-    } catch (error: any) {
-      console.error(`❌ Error saving to Vercel KV:`, error.message);
-      // Continuer avec le fallback
-    }
-  }
-  
-  // PRIORITÉ 2: Cache fichier (fallback si Vercel KV n'est pas disponible)
+  // Utiliser uniquement le cache fichier (pas de dépendances externes)
   try {
     await ensureCacheLoaded();
     emailSendRecords.set(normalizedEmail, record);
