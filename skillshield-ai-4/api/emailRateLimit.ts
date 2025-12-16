@@ -78,11 +78,37 @@ async function saveCache(): Promise<void> {
 
 // Initialiser le cache au chargement du module
 let cacheInitialized = false;
+let cacheLoadingPromise: Promise<void> | null = null;
+
 async function ensureCacheLoaded() {
-  if (!cacheInitialized) {
-    await loadCache();
-    cacheInitialized = true;
+  // Si le cache est déjà initialisé, retourner immédiatement
+  if (cacheInitialized) {
+    return;
   }
+  
+  // Si un chargement est déjà en cours, attendre qu'il se termine
+  if (cacheLoadingPromise) {
+    await cacheLoadingPromise;
+    return;
+  }
+  
+  // Démarrer le chargement du cache
+  cacheLoadingPromise = (async () => {
+    try {
+      console.log('📂 Loading cache from file...');
+      await loadCache();
+      cacheInitialized = true;
+      console.log(`✅ Cache loaded. Records in memory: ${emailSendRecords.size}`);
+    } catch (error) {
+      console.error('❌ Error loading cache:', error);
+      // Même en cas d'erreur, on marque comme initialisé pour éviter les boucles infinies
+      cacheInitialized = true;
+    } finally {
+      cacheLoadingPromise = null;
+    }
+  })();
+  
+  await cacheLoadingPromise;
 }
 
 // Fonction pour obtenir le record depuis Vercel KV, fichier cache ou mémoire
@@ -161,6 +187,9 @@ export async function canSendEmail(email: string): Promise<{
   const normalizedEmail = email.toLowerCase().trim();
   const now = Date.now();
   
+  // IMPORTANT: Charger le cache AVANT la vérification
+  await ensureCacheLoaded();
+  
   console.log(`🔍 Checking rate limit for: ${normalizedEmail}`);
   console.log(`📊 Current memory records count: ${emailSendRecords.size}`);
   console.log(`📋 Memory records:`, Array.from(emailSendRecords.entries()));
@@ -176,8 +205,10 @@ export async function canSendEmail(email: string): Promise<{
   }
   
   const timeSinceLastSend = now - record.lastSentAt;
-  console.log(`⏰ Time since last send: ${timeSinceLastSend}ms (${Math.round(timeSinceLastSend / (60 * 60 * 1000))} hours)`);
+  const hoursSinceLastSend = timeSinceLastSend / (60 * 60 * 1000);
+  console.log(`⏰ Time since last send: ${timeSinceLastSend}ms (${hoursSinceLastSend.toFixed(2)} hours)`);
   console.log(`⏳ Rate limit window: ${RATE_LIMIT_WINDOW}ms (24 hours)`);
+  console.log(`🔢 Comparison: ${timeSinceLastSend} < ${RATE_LIMIT_WINDOW} = ${timeSinceLastSend < RATE_LIMIT_WINDOW}`);
   
   if (timeSinceLastSend < RATE_LIMIT_WINDOW) {
     // Moins de 24h depuis le dernier envoi
@@ -185,6 +216,7 @@ export async function canSendEmail(email: string): Promise<{
     const nextAvailableAt = record.lastSentAt + RATE_LIMIT_WINDOW;
     
     console.log(`❌ Rate limit exceeded for ${normalizedEmail}. Hours remaining: ${hoursRemaining}`);
+    console.log(`🚫 BLOCKING send for ${normalizedEmail}`);
     
     return {
       canSend: false,
