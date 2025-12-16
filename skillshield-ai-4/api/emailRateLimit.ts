@@ -8,7 +8,9 @@ interface EmailSendRecord {
 }
 
 // Stockage en mémoire (pour Vercel serverless)
-// Note: En production, utilisez Vercel KV ou Edge Config pour la persistance
+// ⚠️ LIMITATION: Le stockage en mémoire ne persiste pas entre les redémarrages des fonctions serverless
+// Pour une persistance réelle en production, utilisez Vercel KV (Redis) ou Edge Config
+// Pour l'instant, ce système fonctionne pour limiter les envois multiples dans la même session
 const emailSendRecords = new Map<string, EmailSendRecord>();
 
 // Nettoyer les anciens enregistrements (plus de 7 jours)
