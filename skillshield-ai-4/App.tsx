@@ -79,6 +79,16 @@ const App: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Détecter la route /77230 pour afficher la page de prospection
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/77230') {
+      setCurrentPage('prospection');
+      // Nettoyer l'URL sans recharger la page
+      window.history.replaceState({}, '', '/77230');
+    }
+  }, []);
+
   // Raccourci clavier pour accéder à l'upload (Ctrl/Cmd + Shift + U)
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -100,6 +110,13 @@ const App: React.FC = () => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setIsMobileMenuOpen(false);
+    // Si on navigue vers prospection, mettre à jour l'URL
+    if (page === 'prospection') {
+      window.history.pushState({}, '', '/77230');
+    } else if (window.location.pathname === '/77230') {
+      // Si on quitte la prospection, nettoyer l'URL
+      window.history.pushState({}, '', '/');
+    }
   };
 
   const scrollToSection = (id: string) => {
@@ -286,7 +303,6 @@ const App: React.FC = () => {
                  <button onClick={() => scrollToSection(SectionId.APPROACH)} className="hover:text-cyan-400 transition-colors">Méthode</button>
                  <button onClick={() => navigateTo('virtual-employees')} className="hover:text-cyan-400 transition-colors">Nos Agents</button>
                  <button onClick={() => navigateTo('about')} className="hover:text-cyan-400 transition-colors">À propos</button>
-                 <button onClick={() => navigateTo('prospection')} className="px-3 py-1.5 bg-violet-500/20 border border-violet-500/30 rounded-full text-violet-300 hover:bg-violet-500/30 transition-colors">Prospection</button>
                </>
              ) : (
                <>
@@ -298,9 +314,6 @@ const App: React.FC = () => {
                  )}
                  {currentPage !== 'about' && (
                      <button onClick={() => navigateTo('about')} className="hover:text-cyan-400 transition-colors">À propos</button>
-                 )}
-                 {currentPage !== 'prospection' && (
-                     <button onClick={() => navigateTo('prospection')} className="px-3 py-1.5 bg-violet-500/20 border border-violet-500/30 rounded-full text-violet-300 hover:bg-violet-500/30 transition-colors">Prospection</button>
                  )}
                </>
              )}
