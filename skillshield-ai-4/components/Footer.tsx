@@ -51,7 +51,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, customLogo }) => {
             </a>
         </div>
 
-        <div className="text-center text-gray-600 text-sm border-t border-white/5 pt-8">
+        <div className="text-center text-gray-500 text-xs border-t border-white/5 pt-8 space-y-2">
+          <p className="max-w-3xl mx-auto leading-relaxed">
+            <strong className="text-gray-400">Avertissement :</strong> Les données, statistiques et informations présentées sur ce site peuvent ne pas représenter la réalité exacte, du fait du secteur de l'intelligence artificielle en mouvement perpétuel depuis les années 2022. Les benchmarks, estimations et projections sont fournis à titre indicatif et peuvent varier selon les contextes, secteurs d'activité et évolutions technologiques. SkillShield AI ne garantit pas l'exactitude, la complétude ou l'actualité des informations fournies.
+          </p>
+        </div>
+        
+        <div className="text-center text-gray-600 text-sm border-t border-white/5 pt-6 mt-6">
           <p>© {new Date().getFullYear()} SkillShield AI. Tous droits réservés.</p>
           <p className="mt-2">L'IA au service de l'humain, pas l'inverse.</p>
         </div>
