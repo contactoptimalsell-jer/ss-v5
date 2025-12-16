@@ -1,7 +1,6 @@
 // Système de rate limiting pour les envois d'email
 // Limite : 1 envoi par email, possibilité de renvoyer après 24h
 
-import { createClient } from '@supabase/supabase-js';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 
@@ -25,8 +24,8 @@ const CLEANUP_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours
 
 const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 heures
 
-// Initialiser le client Supabase
-function getSupabaseClient() {
+// Initialiser le client Supabase (importation dynamique pour éviter les problèmes ES modules)
+async function getSupabaseClient() {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   
@@ -34,13 +33,20 @@ function getSupabaseClient() {
     return null;
   }
   
-  return createClient(supabaseUrl, supabaseKey);
+  try {
+    // Importation dynamique pour éviter les problèmes de modules ES/CommonJS
+    const { createClient } = await import('@supabase/supabase-js');
+    return createClient(supabaseUrl, supabaseKey);
+  } catch (error: any) {
+    console.error(`❌ Error importing Supabase client:`, error.message);
+    return null;
+  }
 }
 
 // Vérifier si Supabase est disponible
 async function isSupabaseAvailable(): Promise<boolean> {
   try {
-    const supabase = getSupabaseClient();
+    const supabase = await getSupabaseClient();
     if (!supabase) {
       return false;
     }
@@ -161,7 +167,7 @@ async function getEmailRecord(email: string): Promise<EmailSendRecord | null> {
   const supabaseAvailable = await isSupabaseAvailable();
   if (supabaseAvailable) {
     try {
-      const supabase = getSupabaseClient();
+      const supabase = await getSupabaseClient();
       if (supabase) {
         const { data, error } = await supabase
           .from('email_rate_limits')
@@ -212,7 +218,7 @@ async function setEmailRecord(email: string, record: EmailSendRecord): Promise<v
   const supabaseAvailable = await isSupabaseAvailable();
   if (supabaseAvailable) {
     try {
-      const supabase = getSupabaseClient();
+      const supabase = await getSupabaseClient();
       if (supabase) {
         // Utiliser upsert pour créer ou mettre à jour
         const { error } = await supabase
