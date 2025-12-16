@@ -677,7 +677,7 @@ export default async function handler(
   }
 
   // Vérifier le rate limiting
-  const rateLimitCheck = canSendEmail(email);
+  const rateLimitCheck = await canSendEmail(email);
   if (!rateLimitCheck.canSend) {
     return res.status(429).json({ 
       error: 'Limite d\'envoi atteinte',
@@ -696,7 +696,7 @@ export default async function handler(
     console.log('Email envoyé avec succès');
 
     // Enregistrer l'envoi
-    recordEmailSend(email);
+    await recordEmailSend(email);
 
     return res.status(200).json({ 
       success: true,

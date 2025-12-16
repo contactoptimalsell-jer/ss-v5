@@ -36,15 +36,15 @@ if (typeof setInterval !== 'undefined') {
  * @param email L'adresse email à vérifier
  * @returns { canSend: boolean, message?: string, nextAvailableAt?: number }
  */
-export function canSendEmail(email: string): { 
+export async function canSendEmail(email: string): Promise<{ 
   canSend: boolean; 
   message?: string; 
   nextAvailableAt?: number;
-} {
+}> {
   const normalizedEmail = email.toLowerCase().trim();
   const now = Date.now();
   
-  const record = emailSendRecords.get(normalizedEmail);
+  const record = await getEmailRecord(normalizedEmail);
   
   if (!record) {
     // Premier envoi, autorisé
@@ -73,16 +73,18 @@ export function canSendEmail(email: string): {
  * Enregistre un envoi d'email
  * @param email L'adresse email
  */
-export function recordEmailSend(email: string): void {
+export async function recordEmailSend(email: string): Promise<void> {
   const normalizedEmail = email.toLowerCase().trim();
   const now = Date.now();
   
-  emailSendRecords.set(normalizedEmail, {
+  const existingRecord = await getEmailRecord(normalizedEmail);
+  const newRecord: EmailSendRecord = {
     email: normalizedEmail,
     lastSentAt: now,
-    count: (emailSendRecords.get(normalizedEmail)?.count || 0) + 1
-  });
+    count: (existingRecord?.count || 0) + 1
+  };
   
+  await setEmailRecord(normalizedEmail, newRecord);
   console.log(`📧 Email send recorded for: ${normalizedEmail} at ${new Date(now).toISOString()}`);
 }
 
@@ -90,13 +92,13 @@ export function recordEmailSend(email: string): void {
  * Obtient les statistiques d'envoi pour un email
  * @param email L'adresse email
  */
-export function getEmailStats(email: string): {
+export async function getEmailStats(email: string): Promise<{
   count: number;
   lastSentAt: number | null;
   nextAvailableAt: number | null;
-} {
+}> {
   const normalizedEmail = email.toLowerCase().trim();
-  const record = emailSendRecords.get(normalizedEmail);
+  const record = await getEmailRecord(normalizedEmail);
   
   if (!record) {
     return {
