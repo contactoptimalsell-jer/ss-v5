@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@google/genai": "^1.31.0",
-    "@supabase/supabase-js": "^2.87.3",
     "@types/nodemailer": "^7.0.4",
     "@types/pdfkit": "^0.17.4",
     "@vercel/kv": "^3.0.0",

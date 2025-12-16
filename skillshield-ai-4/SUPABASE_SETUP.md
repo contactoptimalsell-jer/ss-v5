@@ -38,17 +38,25 @@ $$ LANGUAGE plpgsql;
 3. Allez dans **Settings** → **Environment Variables**
 4. Ajoutez les variables suivantes :
 
+   **⚠️ IMPORTANT : Vous devez ajouter AU MOINS une de ces deux clés :**
+   
    - **Name**: `SUPABASE_URL`
      - **Value**: Votre URL Supabase (ex: `https://xxxxx.supabase.co`)
      - **Environments**: Production, Preview, Development
+     - **Où trouver** : Dans Supabase Dashboard → Settings → API → Project URL
 
-   - **Name**: `SUPABASE_ANON_KEY`
-     - **Value**: Votre clé anonyme Supabase (trouvable dans Settings → API)
+   - **Name**: `SUPABASE_ANON_KEY` (recommandé pour commencer)
+     - **Value**: Votre clé anonyme Supabase
      - **Environments**: Production, Preview, Development
+     - **Où trouver** : Dans Supabase Dashboard → Settings → API → Project API keys → `anon` `public`
 
-   - **Name**: `SUPABASE_SERVICE_ROLE_KEY` (optionnel, pour plus de permissions)
-     - **Value**: Votre clé service role Supabase (trouvable dans Settings → API)
+   **OU**
+
+   - **Name**: `SUPABASE_SERVICE_ROLE_KEY` (alternative, plus de permissions)
+     - **Value**: Votre clé service role Supabase
      - **Environments**: Production, Preview, Development
+     - **Où trouver** : Dans Supabase Dashboard → Settings → API → Project API keys → `service_role` `secret`
+     - **⚠️ Attention** : Cette clé a des permissions élevées, gardez-la secrète !
 
 ### 3. Configurer les politiques RLS (Row Level Security)
 
@@ -93,4 +101,5 @@ Supabase propose un plan gratuit avec :
 - Suffisant pour la plupart des cas d'usage
 
 Pour plus d'informations : [https://supabase.com/docs](https://supabase.com/docs)
+
 
