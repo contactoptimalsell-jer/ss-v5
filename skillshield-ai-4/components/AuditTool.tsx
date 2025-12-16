@@ -37,6 +37,7 @@ export const AuditTool: React.FC = () => {
 
     setSendingPDF(true);
     setPdfError(null);
+    setPdfSent(false); // Réinitialiser l'état de succès
 
     try {
       const response = await fetch('/api/send-pdf', {
@@ -65,10 +66,13 @@ export const AuditTool: React.FC = () => {
         throw new Error(data.message || 'Erreur lors de l\'envoi du PDF');
       }
 
+      // Seulement si la réponse est OK, on met pdfSent à true
       setPdfSent(true);
       setEmail('');
+      setPdfError(null); // Effacer toute erreur précédente
     } catch (error: any) {
       setPdfError(error.message || 'Une erreur est survenue. Veuillez réessayer.');
+      setPdfSent(false); // S'assurer que pdfSent est false en cas d'erreur
     } finally {
       setSendingPDF(false);
     }
@@ -274,7 +278,14 @@ export const AuditTool: React.FC = () => {
                                   type="email"
                                   required
                                   value={email}
-                                  onChange={(e) => setEmail(e.target.value)}
+                                  onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    // Réinitialiser l'état de succès et d'erreur quand l'email change
+                                    if (pdfSent || pdfError) {
+                                      setPdfSent(false);
+                                      setPdfError(null);
+                                    }
+                                  }}
                                   placeholder="votre@email.com"
                                   className="flex-1 bg-slate-900/50 border-2 border-cyan-400/30 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all outline-none"
                                 />
@@ -290,9 +301,19 @@ export const AuditTool: React.FC = () => {
                             </div>
                             
                             {pdfError && (
-                              <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3 text-sm text-red-300">
-                                {pdfError}
-                              </div>
+                              <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 text-sm text-red-300"
+                              >
+                                <div className="flex items-start gap-2">
+                                  <span className="text-red-400 font-bold">⚠️</span>
+                                  <div>
+                                    <p className="font-semibold mb-1">Impossible d'envoyer le PDF</p>
+                                    <p>{pdfError}</p>
+                                  </div>
+                                </div>
+                              </motion.div>
                             )}
                             
                             <p className="text-xs text-gray-400 text-center">

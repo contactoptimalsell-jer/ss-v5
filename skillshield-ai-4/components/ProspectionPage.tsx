@@ -37,6 +37,7 @@ export const ProspectionPage: React.FC<ProspectionPageProps> = ({ onNavigateHome
 
     setSendingPDF(true);
     setPdfError(null);
+    setPdfSent(false); // Réinitialiser l'état de succès
 
     try {
       const response = await fetch('/api/send-pdf-prospection', {
@@ -66,10 +67,13 @@ export const ProspectionPage: React.FC<ProspectionPageProps> = ({ onNavigateHome
         throw new Error(data.message || `HTTP ${response.status}`);
       }
 
+      // Seulement si la réponse est OK, on met pdfSent à true
       setPdfSent(true);
+      setPdfError(null); // Effacer toute erreur précédente
     } catch (error: any) {
       console.error('Error sending PDF:', error);
       setPdfError(error.message || 'Erreur lors de l\'envoi du PDF');
+      setPdfSent(false); // S'assurer que pdfSent est false en cas d'erreur
     } finally {
       setSendingPDF(false);
     }
@@ -233,8 +237,14 @@ export const ProspectionPage: React.FC<ProspectionPageProps> = ({ onNavigateHome
               )}
 
               {pdfError && (
-                <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-                  <p className="text-red-400 text-sm">{pdfError}</p>
+                <div className="mt-4 p-4 bg-red-500/20 border border-red-500/30 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <span className="text-red-400 font-bold">⚠️</span>
+                    <div>
+                      <p className="text-red-300 font-semibold mb-1">Impossible d'envoyer le PDF</p>
+                      <p className="text-red-400 text-sm">{pdfError}</p>
+                    </div>
+                  </div>
                 </div>
               )}
             </Card>
