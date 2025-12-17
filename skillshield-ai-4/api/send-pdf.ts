@@ -14,7 +14,6 @@ function getBenchmarkForProblem(userProblem: string) {
 
 // Fonction helper pour calculer la hauteur approximative du texte
 function calculateTextHeight(text: string, width: number, fontSize: number, lineGap: number = 0): number {
-function calculateTextHeight(text: string, width: number, fontSize: number, lineGap: number = 0): number {
   const avgCharsPerLine = Math.floor(width / (fontSize * 0.6));
   const lines = Math.ceil(text.length / avgCharsPerLine);
   return lines * fontSize + (lines - 1) * lineGap;
