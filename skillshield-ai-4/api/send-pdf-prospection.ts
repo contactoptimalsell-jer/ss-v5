@@ -6,10 +6,7 @@ import { canSendEmail, recordEmailSend, tryLockEmail } from './emailRateLimit.js
 import { getBenchmarkForSector } from '../utils/sectorDetection.js';
 
 // Les fonctions detectSector et getBenchmarkForProblem sont maintenant dans utils/sectorDetection.ts
-  // Si aucun score significatif (score < 2), retourner 'general'
-  // Sinon, retourner le secteur détecté
-  return maxScore >= 1 ? detectedSector : 'general';
-}
+// Importées via getBenchmarkForSector
 
 function getBenchmarkForProblem(userProblem: string) {
   return getBenchmarkForSector(userProblem);
