@@ -89,6 +89,9 @@ export const TermsPage: React.FC<TermsPageProps> = ({ onNavigateHome }) => {
                 <p>
                   Les données personnelles collectées via le Site sont traitées conformément à notre politique de confidentialité et à la réglementation applicable (RGPD). En utilisant le Site, vous acceptez le traitement de vos données personnelles dans les conditions décrites.
                 </p>
+                <p>
+                  <strong className="text-white">Utilisation de l'adresse email pour communications commerciales :</strong> En fournissant votre adresse email pour recevoir le PDF d'audit personnalisé, vous acceptez expressément de recevoir des communications commerciales de la part de SkillShield AI concernant nos services, offres promotionnelles et actualités liées à l'automatisation et à l'intelligence artificielle. Vous pouvez à tout moment vous désinscrire de ces communications en cliquant sur le lien de désinscription présent dans chaque email ou en nous contactant à <a href="mailto:contact@skillshield-ai.com" className="text-cyan-400 hover:underline">contact@skillshield-ai.com</a>.
+                </p>
               </section>
 
               <section>
