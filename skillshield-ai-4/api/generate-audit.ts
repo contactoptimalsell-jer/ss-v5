@@ -2,7 +2,6 @@ import { GoogleGenAI, Type } from "@google/genai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { VisualizationData } from '../types';
 import { getBenchmarkForSector } from '../utils/sectorDetection.js';
-import { getBenchmarkForSector } from '../utils/sectorDetection.js';
 
 // La fonction detectSector est maintenant dans utils/sectorDetection.ts
 // Importée via getBenchmarkForSector
