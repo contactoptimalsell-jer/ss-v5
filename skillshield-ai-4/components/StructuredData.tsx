@@ -20,6 +20,9 @@ export const StructuredData: React.FC<StructuredDataProps> = ({ type, data }) =>
           description: "Agence française d'implémentation d'intelligence artificielle pour entreprises. Système de gardien humain, remboursement 90% si non performant.",
           address: {
             '@type': 'PostalAddress',
+            streetAddress: '113 Rue Jean Jaurès',
+            addressLocality: 'Levallois-Perret',
+            postalCode: '92300',
             addressCountry: 'FR'
           },
           contactPoint: {
