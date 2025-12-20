@@ -158,14 +158,14 @@ export const PressPage: React.FC<{ onNavigateHome: () => void }> = ({ onNavigate
                   <h3 className="text-xl font-bold text-white">Communiqué de Presse</h3>
                 </div>
                 <p className="text-gray-300 mb-4">
-                  Communiqué de presse détaillé sur SkillShield AI, son innovation et ses résultats.
+                  Communiqué de presse détaillé sur SkillShield AI, son innovation et ses résultats. <span className="text-cyan-300 font-semibold">Disponible sur demande.</span>
                 </p>
                 <Button
                   onClick={() => window.open('mailto:contact@skillshield-ai.com?subject=Demande%20Kit%20Presse', '_blank')}
                   variant="secondary"
-                  icon={<Download className="w-4 h-4" />}
+                  icon={<Mail className="w-4 h-4" />}
                 >
-                  Télécharger
+                  Demander
                 </Button>
               </div>
               <div className="p-6 bg-slate-700/40 rounded-xl border border-white/5">
@@ -174,14 +174,14 @@ export const PressPage: React.FC<{ onNavigateHome: () => void }> = ({ onNavigate
                   <h3 className="text-xl font-bold text-white">Dossier de Presse</h3>
                 </div>
                 <p className="text-gray-300 mb-4">
-                  Dossier complet avec photos, logos, chiffres clés et témoignages clients.
+                  Dossier complet avec photos, logos, chiffres clés et témoignages clients. <span className="text-cyan-300 font-semibold">Disponible sur demande.</span>
                 </p>
                 <Button
                   onClick={() => window.open('mailto:contact@skillshield-ai.com?subject=Demande%20Dossier%20Presse', '_blank')}
                   variant="secondary"
-                  icon={<Download className="w-4 h-4" />}
+                  icon={<Mail className="w-4 h-4" />}
                 >
-                  Télécharger
+                  Demander
                 </Button>
               </div>
             </div>
