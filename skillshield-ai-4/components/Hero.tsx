@@ -33,12 +33,12 @@ export const Hero: React.FC = () => {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="font-display font-bold text-4xl md:text-6xl lg:text-7xl tracking-tight mb-6"
         >
-          <span className="text-white">Gagnez</span>
+          <span className="text-white">Implémentation IA</span>
           <span className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-300 to-violet-400">
-            10-20h par semaine
+            avec Gardien Humain
           </span>
           <span className="text-2xl md:text-3xl lg:text-4xl font-normal text-gray-300 block mt-3 font-sans">
-            en automatisant vos tâches répétitives
+            Remboursement 90% si non performant • France
           </span>
         </motion.h1>
 
@@ -48,6 +48,7 @@ export const Hero: React.FC = () => {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="max-w-2xl mx-auto text-lg md:text-xl text-gray-300 leading-relaxed mb-8 font-medium"
         >
+          SkillShield AI : l'agence française d'implémentation d'intelligence artificielle pour entreprises. Notre système de gardien humain unique garantit la performance. Diagnostic SaaS gratuit. Restaurez 10-20h/semaine aux dirigeants.
           Nos agents IA travaillent 24/7 pour vous libérer des tâches chronophages.<br/>
           <span className="text-cyan-300">ROI moyen : 250-450% dès la première année.</span> Données vérifiées.
         </motion.p>

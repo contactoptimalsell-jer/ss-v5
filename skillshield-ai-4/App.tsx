@@ -10,6 +10,9 @@ import { VirtualEmployeesPage } from './components/VirtualEmployeesPage';
 import { UploadPhotosPage } from './components/UploadPhotosPage';
 import { ProspectionPage } from './components/ProspectionPage';
 import { TermsPage } from './components/TermsPage';
+import { FAQPage } from './components/FAQPage';
+import { SEOHead } from './components/SEOHead';
+import { StructuredData } from './components/StructuredData';
 import { Menu, ShieldCheck, Home, X, Upload, Mail } from 'lucide-react';
 import { Logo } from './components/ui/Logo';
 import { SectionId, PageView } from './types';
@@ -257,13 +260,71 @@ const App: React.FC = () => {
             <TermsPage onNavigateHome={() => navigateTo('home')} />
           </motion.div>
         );
+      case 'faq':
+        return (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <FAQPage onNavigateHome={() => navigateTo('home')} />
+          </motion.div>
+        );
       default:
         return null;
     }
   };
 
+  // Métadonnées SEO selon la page
+  const getSEOData = () => {
+    switch(currentPage) {
+      case 'home':
+        return {
+          title: "SkillShield AI - Implémentation IA avec Gardien Humain | Remboursement 90% | France",
+          description: "SkillShield AI : Agence française d'implémentation d'intelligence artificielle pour entreprises. Système de gardien humain, remboursement 90% si non performant, diagnostic SaaS unique. Restaurez 10-20h/semaine aux dirigeants.",
+          canonicalUrl: "https://skillshield.app/"
+        };
+      case 'about':
+        return {
+          title: "À propos - SkillShield AI | L'agence française d'implémentation IA",
+          description: "Découvrez SkillShield AI, l'agence française qui révolutionne l'implémentation d'intelligence artificielle pour les entreprises avec son système de gardien humain unique.",
+          canonicalUrl: "https://skillshield.app/about"
+        };
+      case 'virtual-employees':
+        return {
+          title: "Employés Virtuels IA - SkillShield AI | Agents IA sur mesure",
+          description: "Découvrez nos agents IA sur mesure : Assistant Commercial, Gardien Service Client, Officier Administratif. Automatisez vos processus avec notre système de gardien humain.",
+          canonicalUrl: "https://skillshield.app/virtual-employees"
+        };
+      case 'faq':
+        return {
+          title: "FAQ - SkillShield AI | Questions fréquentes sur l'implémentation IA",
+          description: "Réponses aux questions fréquentes sur SkillShield AI : système de gardien humain, garantie remboursement 90%, diagnostic SaaS, automatisation IA pour entreprises françaises.",
+          canonicalUrl: "https://skillshield.app/faq"
+        };
+      case 'prospection':
+        return {
+          title: "Prospection Automatisée - SkillShield AI | Agent IA de prospection",
+          description: "Automatisez votre prospection avec notre agent IA spécialisé. Qualifiez les leads, prenez rendez-vous, suivez vos prospects 24/7 avec notre système de gardien humain.",
+          canonicalUrl: "https://skillshield.app/77230"
+        };
+      default:
+        return {
+          title: "SkillShield AI - Implémentation IA avec Gardien Humain",
+          description: "Agence française d'implémentation d'intelligence artificielle pour entreprises.",
+          canonicalUrl: "https://skillshield.app/"
+        };
+    }
+  };
+
+  const seoData = getSEOData();
+
   return (
     <div className="min-h-screen font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
+      <SEOHead {...seoData} />
+      {currentPage === 'home' && (
+        <>
+          <StructuredData type="Organization" />
+          <StructuredData type="Service" />
+          <StructuredData type="WebSite" />
+        </>
+      )}
       
        {/* Input hidden for logo upload */}
        <input 
@@ -310,6 +371,7 @@ const App: React.FC = () => {
                  <button onClick={() => scrollToSection(SectionId.APPROACH)} className="hover:text-cyan-400 transition-colors">Méthode</button>
                  <button onClick={() => navigateTo('virtual-employees')} className="hover:text-cyan-400 transition-colors">Nos Agents</button>
                  <button onClick={() => navigateTo('about')} className="hover:text-cyan-400 transition-colors">À propos</button>
+                 <button onClick={() => navigateTo('faq')} className="hover:text-cyan-400 transition-colors">FAQ</button>
                </>
              ) : (
                <>
@@ -321,6 +383,9 @@ const App: React.FC = () => {
                  )}
                  {currentPage !== 'about' && (
                      <button onClick={() => navigateTo('about')} className="hover:text-cyan-400 transition-colors">À propos</button>
+                 )}
+                 {currentPage !== 'faq' && (
+                     <button onClick={() => navigateTo('faq')} className="hover:text-cyan-400 transition-colors">FAQ</button>
                  )}
                </>
              )}
@@ -377,6 +442,12 @@ const App: React.FC = () => {
                   >
                     À propos
                   </button>
+                  <button 
+                    onClick={() => navigateTo('faq')} 
+                    className="w-full text-left py-4 px-4 text-lg font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all border-b border-white/5"
+                  >
+                    FAQ
+                  </button>
                 </>
               ) : (
                 <>
@@ -397,6 +468,12 @@ const App: React.FC = () => {
                     className="w-full text-left py-4 px-4 text-lg font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all border-b border-white/5"
                   >
                     À propos
+                  </button>
+                  <button 
+                    onClick={() => navigateTo('faq')} 
+                    className="w-full text-left py-4 px-4 text-lg font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all border-b border-white/5"
+                  >
+                    FAQ
                   </button>
                 </>
               )}
