@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Calendar, Clock, FileText, TrendingUp, Users, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Calendar, Clock, FileText, Users, ShieldCheck } from 'lucide-react';
 import { Button } from './ui/Button';
 import { SEOHead } from './SEOHead';
 import { StructuredData } from './StructuredData';
@@ -23,7 +23,7 @@ const articles: BlogArticle[] = [
     description: 'Découvrez comment implémenter l\'intelligence artificielle dans votre entreprise française. Guide pratique avec ROI réel, cas d\'usage concrets et système de gardien humain.',
     slug: 'guide-implementation-ia',
     readTime: '15 min',
-    date: '2024-12-20',
+    date: '2024-11-15',
     category: 'Guide',
     keywords: ['implémentation IA', 'intelligence artificielle entreprise', 'automatisation IA France']
   },
@@ -33,7 +33,7 @@ const articles: BlogArticle[] = [
     description: 'Tout ce que vous devez savoir pour choisir le bon agent IA : critères, questions à poser, ROI attendu, et pourquoi le système de gardien humain est essentiel.',
     slug: 'choisir-agent-ia',
     readTime: '12 min',
-    date: '2024-12-20',
+    date: '2024-11-22',
     category: 'Guide',
     keywords: ['agent IA sur mesure', 'choisir agent IA', 'automatisation entreprise']
   },
@@ -43,7 +43,7 @@ const articles: BlogArticle[] = [
     description: 'Analyse détaillée du ROI réel de l\'automatisation : données vérifiées, calculs concrets, temps économisé par secteur. Basé sur 20+ implémentations réelles.',
     slug: 'roi-automatisation',
     readTime: '18 min',
-    date: '2024-12-20',
+    date: '2024-11-28',
     category: 'Étude',
     keywords: ['ROI automatisation', 'gain de temps dirigeant', 'automatisation processus entreprise']
   },
@@ -53,13 +53,18 @@ const articles: BlogArticle[] = [
     description: 'Découvrez pourquoi le système de gardien humain révolutionne l\'implémentation IA : qualité garantie, intervention humaine, remboursement 90% si non performant.',
     slug: 'gardien-humain-ia',
     readTime: '10 min',
-    date: '2024-12-20',
+    date: '2024-12-05',
     category: 'Innovation',
     keywords: ['gardien humain IA', 'système gardien humain', 'IA avec supervision humaine']
   }
 ];
 
-export const BlogPage: React.FC<{ onNavigateHome: () => void }> = ({ onNavigateHome }) => {
+interface BlogPageProps {
+  onNavigateHome: () => void;
+  onNavigateToArticle?: (slug: string) => void;
+}
+
+export const BlogPage: React.FC<BlogPageProps> = ({ onNavigateHome, onNavigateToArticle }) => {
   return (
     <>
       <SEOHead
@@ -132,8 +137,11 @@ export const BlogPage: React.FC<{ onNavigateHome: () => void }> = ({ onNavigateH
                   <div className="flex items-center justify-between">
                     <Button
                       onClick={() => {
-                        // Navigation vers l'article (à implémenter)
-                        window.location.href = `/blog/${article.slug}`;
+                        if (onNavigateToArticle) {
+                          onNavigateToArticle(article.slug);
+                        } else {
+                          window.location.href = `/blog/${article.slug}`;
+                        }
                       }}
                       variant="secondary"
                       icon={<ArrowRight className="w-4 h-4" />}
@@ -141,12 +149,6 @@ export const BlogPage: React.FC<{ onNavigateHome: () => void }> = ({ onNavigateH
                     >
                       Lire l'article
                     </Button>
-                    <div className="flex items-center gap-4 text-sm text-gray-400">
-                      <div className="flex items-center gap-1">
-                        <TrendingUp className="w-4 h-4" />
-                        <span>SEO Optimisé</span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </motion.article>

@@ -12,6 +12,7 @@ import { ProspectionPage } from './components/ProspectionPage';
 import { TermsPage } from './components/TermsPage';
 import { FAQPage } from './components/FAQPage';
 import { BlogPage } from './components/BlogPage';
+import { BlogArticlePage } from './components/BlogArticlePage';
 import { CaseStudiesPage } from './components/CaseStudiesPage';
 import { PressPage } from './components/PressPage';
 import { SEOHead } from './components/SEOHead';
@@ -25,6 +26,7 @@ const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<PageView>('home');
   const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [blogArticleSlug, setBlogArticleSlug] = useState<string | null>(null);
   
   // -- GESTION LOGO (MODE ÉDITION RÉACTIVÉ) --
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -86,14 +88,34 @@ const App: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Détecter la route /77230 pour afficher la page de prospection
+  // Détecter les routes pour afficher les bonnes pages
   useEffect(() => {
     const path = window.location.pathname;
+    
+    // Route /77230 pour la prospection
     if (path === '/77230') {
       setCurrentPage('prospection');
-      // Nettoyer l'URL sans recharger la page
+      setBlogArticleSlug(null);
       window.history.replaceState({}, '', '/77230');
+      return;
     }
+    
+    // Routes /blog/:slug pour les articles de blog
+    const blogMatch = path.match(/^\/blog\/(.+)$/);
+    if (blogMatch) {
+      setCurrentPage('blog');
+      setBlogArticleSlug(blogMatch[1]);
+      return;
+    }
+    
+    // Route /blog pour la liste des articles
+    if (path === '/blog') {
+      setCurrentPage('blog');
+      setBlogArticleSlug(null);
+      return;
+    }
+    
+    // Autres routes (gérées par navigateTo)
   }, []);
 
   // Raccourci clavier pour accéder à l'upload (Ctrl/Cmd + Shift + U)
@@ -270,9 +292,29 @@ const App: React.FC = () => {
           </motion.div>
         );
       case 'blog':
+        if (blogArticleSlug) {
+          return (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <BlogArticlePage 
+                slug={blogArticleSlug} 
+                onNavigateBack={() => {
+                  setBlogArticleSlug(null);
+                  setCurrentPage('blog');
+                  window.history.pushState({}, '', '/blog');
+                }} 
+              />
+            </motion.div>
+          );
+        }
         return (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <BlogPage onNavigateHome={() => navigateTo('home')} />
+            <BlogPage 
+              onNavigateHome={() => navigateTo('home')} 
+              onNavigateToArticle={(slug) => {
+                setBlogArticleSlug(slug);
+                window.history.pushState({}, '', `/blog/${slug}`);
+              }}
+            />
           </motion.div>
         );
       case 'case-studies':
