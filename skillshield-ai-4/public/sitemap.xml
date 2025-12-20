@@ -36,6 +36,22 @@
     <priority>0.9</priority>
   </url>
   
+  <!-- Page Études de Cas - Priorité élevée pour SEO -->
+  <url>
+    <loc>https://skillshield.app/case-studies</loc>
+    <lastmod>2024-12-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Page Presse - Priorité élevée pour SEO -->
+  <url>
+    <loc>https://skillshield.app/press</loc>
+    <lastmod>2024-12-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
   <!-- Page FAQ - Priorité élevée pour SEO -->
   <url>
     <loc>https://skillshield.app/faq</loc>

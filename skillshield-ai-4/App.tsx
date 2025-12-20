@@ -12,6 +12,8 @@ import { ProspectionPage } from './components/ProspectionPage';
 import { TermsPage } from './components/TermsPage';
 import { FAQPage } from './components/FAQPage';
 import { BlogPage } from './components/BlogPage';
+import { CaseStudiesPage } from './components/CaseStudiesPage';
+import { PressPage } from './components/PressPage';
 import { SEOHead } from './components/SEOHead';
 import { StructuredData } from './components/StructuredData';
 import { Menu, ShieldCheck, Home, X, Upload, Mail } from 'lucide-react';
@@ -378,6 +380,8 @@ const App: React.FC = () => {
                  <button onClick={() => scrollToSection(SectionId.APPROACH)} className="hover:text-cyan-400 transition-colors">Méthode</button>
                  <button onClick={() => navigateTo('virtual-employees')} className="hover:text-cyan-400 transition-colors">Nos Agents</button>
                  <button onClick={() => navigateTo('blog')} className="hover:text-cyan-400 transition-colors">Blog</button>
+                 <button onClick={() => navigateTo('case-studies')} className="hover:text-cyan-400 transition-colors">Études de Cas</button>
+                 <button onClick={() => navigateTo('press')} className="hover:text-cyan-400 transition-colors">Presse</button>
                  <button onClick={() => navigateTo('about')} className="hover:text-cyan-400 transition-colors">À propos</button>
                  <button onClick={() => navigateTo('faq')} className="hover:text-cyan-400 transition-colors">FAQ</button>
                </>
@@ -391,6 +395,12 @@ const App: React.FC = () => {
                  )}
                  {currentPage !== 'blog' && (
                      <button onClick={() => navigateTo('blog')} className="hover:text-cyan-400 transition-colors">Blog</button>
+                 )}
+                 {currentPage !== 'case-studies' && (
+                     <button onClick={() => navigateTo('case-studies')} className="hover:text-cyan-400 transition-colors">Études de Cas</button>
+                 )}
+                 {currentPage !== 'press' && (
+                     <button onClick={() => navigateTo('press')} className="hover:text-cyan-400 transition-colors">Presse</button>
                  )}
                  {currentPage !== 'about' && (
                      <button onClick={() => navigateTo('about')} className="hover:text-cyan-400 transition-colors">À propos</button>
@@ -479,6 +489,18 @@ const App: React.FC = () => {
                     className="w-full text-left py-4 px-4 text-lg font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all border-b border-white/5"
                   >
                     Blog
+                  </button>
+                  <button 
+                    onClick={() => navigateTo('case-studies')} 
+                    className="w-full text-left py-4 px-4 text-lg font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all border-b border-white/5"
+                  >
+                    Études de Cas
+                  </button>
+                  <button 
+                    onClick={() => navigateTo('press')} 
+                    className="w-full text-left py-4 px-4 text-lg font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all border-b border-white/5"
+                  >
+                    Presse
                   </button>
                   <button 
                     onClick={() => navigateTo('about')} 
