@@ -21,11 +21,11 @@ export const AuditTool: React.FC = () => {
     if (!input.trim()) return;
 
     setLoading(true);
-    setResult(null);
-    // Réinitialiser les états du PDF pour permettre l'envoi à chaque nouvelle analyse
+    // Réinitialiser les états du PDF AVANT de mettre result à null pour permettre l'envoi à chaque nouvelle analyse
     setPdfSent(false);
     setPdfError(null);
     setEmail('');
+    setResult(null);
     const auditData = await generateAudit(input);
     setResult(auditData);
     setLoading(false);
