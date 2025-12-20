@@ -275,6 +275,18 @@ const App: React.FC = () => {
             <BlogPage onNavigateHome={() => navigateTo('home')} />
           </motion.div>
         );
+      case 'case-studies':
+        return (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <CaseStudiesPage onNavigateHome={() => navigateTo('home')} />
+          </motion.div>
+        );
+      case 'press':
+        return (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <PressPage onNavigateHome={() => navigateTo('home')} />
+          </motion.div>
+        );
       default:
         return null;
     }
@@ -312,6 +324,18 @@ const App: React.FC = () => {
           title: "Prospection Automatisée - SkillShield AI | Agent IA de prospection",
           description: "Automatisez votre prospection avec notre agent IA spécialisé. Qualifiez les leads, prenez rendez-vous, suivez vos prospects 24/7 avec notre système de gardien humain.",
           canonicalUrl: "https://skillshield.app/77230"
+        };
+      case 'case-studies':
+        return {
+          title: "Études de Cas - SkillShield AI | Résultats Réels d'Implémentation IA",
+          description: "Découvrez les résultats concrets de nos clients : ROI réel, temps économisé, processus automatisés. Études de cas détaillées par secteur.",
+          canonicalUrl: "https://skillshield.app/case-studies"
+        };
+      case 'press':
+        return {
+          title: "Presse & Médias - SkillShield AI | Articles, Interviews, Podcasts",
+          description: "Découvrez les articles, interviews et podcasts sur SkillShield AI. Presse tech française, témoignages, et actualités sur l'implémentation IA.",
+          canonicalUrl: "https://skillshield.app/press"
         };
       default:
         return {
