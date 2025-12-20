@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Loader2, CheckCircle2, FileText, Mail, User, MessageSquare } from 'lucide-react';
 import { Button } from './ui/Button';
@@ -20,11 +20,23 @@ export const ProspectionPage: React.FC<ProspectionPageProps> = ({ onNavigateHome
   const [pdfSent, setPdfSent] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
 
+  // Réinitialiser les états du PDF à chaque fois qu'une nouvelle analyse est générée
+  useEffect(() => {
+    if (result) {
+      setPdfSent(false);
+      setPdfError(null);
+      // Ne pas réinitialiser prospectEmail et prospectName car ils sont déjà remplis
+    }
+  }, [result]);
+
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prospectProblem.trim()) return;
 
     setLoading(true);
+    // Réinitialiser les états du PDF AVANT de générer la nouvelle analyse
+    setPdfSent(false);
+    setPdfError(null);
     setResult(null);
     const auditData = await generateAudit(prospectProblem);
     setResult(auditData);
