@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, ArrowRight, Loader2, CheckCircle2, Clock, ShieldCheck, Zap, TrendingUp, BarChart3, Target, FileText, Mail, CheckCircle } from 'lucide-react';
 import { generateAudit } from '../services/geminiService';
@@ -16,15 +16,20 @@ export const AuditTool: React.FC = () => {
   const [pdfSent, setPdfSent] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
 
+  // Réinitialiser les états du PDF à chaque fois qu'une nouvelle analyse est générée
+  useEffect(() => {
+    if (result) {
+      setPdfSent(false);
+      setPdfError(null);
+      setEmail('');
+    }
+  }, [result]);
+
   const handleAudit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
     setLoading(true);
-    // Réinitialiser les états du PDF AVANT de mettre result à null pour permettre l'envoi à chaque nouvelle analyse
-    setPdfSent(false);
-    setPdfError(null);
-    setEmail('');
     setResult(null);
     const auditData = await generateAudit(input);
     setResult(auditData);
