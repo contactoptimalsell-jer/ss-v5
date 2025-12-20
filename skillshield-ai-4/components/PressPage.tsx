@@ -74,11 +74,14 @@ export const PressPage: React.FC<{ onNavigateHome: () => void }> = ({ onNavigate
               <span className="text-sm font-bold text-violet-300 uppercase tracking-wide">Kit Presse</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
-              Ressources pour <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">Journalistes & Médias</span>
+              Kit Presse <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">SkillShield AI</span>
             </h1>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Découvrez SkillShield AI : l'agence française qui révolutionne l'implémentation IA avec son système de gardien humain unique.
+              Ressources et informations pour les journalistes et médias. Découvrez notre innovation unique : système de gardien humain et garantie remboursement 90%.
             </p>
+            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20">
+              <span className="text-sm text-cyan-300">📰 Disponible pour interviews et articles</span>
+            </div>
           </motion.div>
 
           {/* About Section */}
