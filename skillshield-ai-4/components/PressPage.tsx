@@ -228,7 +228,7 @@ export const PressPage: React.FC<{ onNavigateHome: () => void }> = ({ onNavigate
               <div className="p-6 bg-slate-800/40 rounded-xl border border-white/5">
                 <div className="flex items-center gap-3 mb-3">
                   <Calendar className="w-5 h-5 text-cyan-400" />
-                  <span className="text-sm text-gray-400">Décembre 2024</span>
+                  <span className="text-sm text-gray-400">Novembre 2025</span>
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">Lancement de SkillShield AI</h3>
                 <p className="text-gray-300">
@@ -238,7 +238,7 @@ export const PressPage: React.FC<{ onNavigateHome: () => void }> = ({ onNavigate
               <div className="p-6 bg-slate-800/40 rounded-xl border border-white/5">
                 <div className="flex items-center gap-3 mb-3">
                   <Users className="w-5 h-5 text-cyan-400" />
-                  <span className="text-sm text-gray-400">Novembre 2024</span>
+                  <span className="text-sm text-gray-400">Octobre 2025</span>
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">Premiers Clients & Résultats</h3>
                 <p className="text-gray-300">
