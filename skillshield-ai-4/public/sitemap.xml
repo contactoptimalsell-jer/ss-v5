@@ -28,6 +28,14 @@
     <priority>0.9</priority>
   </url>
   
+  <!-- Page Blog - Priorité élevée pour SEO -->
+  <url>
+    <loc>https://skillshield.app/blog</loc>
+    <lastmod>2024-12-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
   <!-- Page FAQ - Priorité élevée pour SEO -->
   <url>
     <loc>https://skillshield.app/faq</loc>
