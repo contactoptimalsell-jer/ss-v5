@@ -454,7 +454,7 @@ Choisir un agent IA est une décision stratégique qui impacte votre entreprise 
   'roi-automatisation': {
     id: '3',
     title: 'Automatisation Processus : ROI Réel et Gains de Temps Mesurables',
-    description: 'Analyse détaillée du ROI réel de l'automatisation : données vérifiées, calculs concrets, temps économisé par secteur. Basé sur 20+ implémentations réelles.',
+    description: 'Analyse détaillée du ROI réel de l\'automatisation : données vérifiées, calculs concrets, temps économisé par secteur. Basé sur 20+ implémentations réelles.',
     slug: 'roi-automatisation',
     readTime: '18 min',
     date: '2024-11-28',
