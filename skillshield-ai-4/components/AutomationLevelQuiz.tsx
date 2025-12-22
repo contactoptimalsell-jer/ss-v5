@@ -123,6 +123,17 @@ export const AutomationLevelQuiz: React.FC = () => {
   const [result, setResult] = useState<Result | null>(null);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [isQuizOpen, setIsQuizOpen] = useState(false);
+  const [calculatedScore, setCalculatedScore] = useState<{
+    score: number;
+    color: 'red' | 'orange' | 'green';
+    level: string;
+    potential: string;
+    priority: string;
+    emoji: string;
+    gameMessage: string;
+    insights: any;
+  } | null>(null);
+  const [isCalculatingScore, setIsCalculatingScore] = useState(false);
 
   const CALENDLY_URL = 'https://calendly.com/b00784336-essec?utm_source=quiz&utm_campaign=automation_quiz&utm_medium=button';
 
@@ -159,19 +170,50 @@ export const AutomationLevelQuiz: React.FC = () => {
     }
   };
 
-  const handleAnswer = (value: number) => {
+  const handleAnswer = async (value: number) => {
     const newAnswers = [...answers, value];
     setAnswers(newAnswers);
 
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
-      // Calculer le score final
+      // Calculer le score final (ancien système pour compatibilité)
       const totalScore = newAnswers.reduce((sum, answer) => sum + answer, 0);
       setScore(totalScore);
       const quizResult = getResult(totalScore);
       setResult(quizResult);
       setShowResult(true);
+
+      // Calculer le score intelligent avec l'API
+      setIsCalculatingScore(true);
+      try {
+        const scoreResponse = await fetch('/api/calculate-base-quiz-score', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            answers: {
+              question1: newAnswers[0],
+              question2: newAnswers[1],
+              question3: newAnswers[2],
+              question4: newAnswers[3],
+              question5: newAnswers[4],
+            },
+          }),
+        });
+
+        if (scoreResponse.ok) {
+          const scoreData = await scoreResponse.json();
+          if (scoreData.success && scoreData.result) {
+            setCalculatedScore(scoreData.result);
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors du calcul du score:', error);
+      } finally {
+        setIsCalculatingScore(false);
+      }
     }
   };
 
@@ -181,6 +223,8 @@ export const AutomationLevelQuiz: React.FC = () => {
     setShowResult(false);
     setScore(0);
     setResult(null);
+    setCalculatedScore(null);
+    setIsCalculatingScore(false);
   };
 
   return (
@@ -261,12 +305,88 @@ export const AutomationLevelQuiz: React.FC = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   className="space-y-8"
                 >
-                  {/* Result Header */}
-                  <div className="text-center">
-                    <div className="text-6xl mb-4">{result?.emoji}</div>
-                    <h3 className="text-3xl font-bold text-white mb-2">{result?.title}</h3>
-                    <p className="text-gray-300 text-lg">{result?.description}</p>
-                  </div>
+                  {/* Score Calculé - Affichage Ludique */}
+                  {isCalculatingScore ? (
+                    <div className="text-center py-8">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="inline-block mb-4"
+                      >
+                        <Sparkles className="w-12 h-12 text-violet-400" />
+                      </motion.div>
+                      <p className="text-gray-300 text-lg font-medium">Calcul de votre score en cours...</p>
+                      <p className="text-gray-400 text-sm mt-2">Analyse de vos réponses...</p>
+                    </div>
+                  ) : calculatedScore ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`p-8 rounded-2xl border-2 ${
+                        calculatedScore.color === 'red' ? 'bg-gradient-to-br from-red-900/30 to-orange-900/20 border-red-500/40' :
+                        calculatedScore.color === 'orange' ? 'bg-gradient-to-br from-orange-900/30 to-violet-900/20 border-orange-500/40' :
+                        'bg-gradient-to-br from-green-900/30 to-cyan-900/20 border-green-500/40'
+                      }`}
+                    >
+                      {/* Score Principal - Style Jeu */}
+                      <div className="text-center mb-6">
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                          className="inline-flex items-center gap-4 px-8 py-4 rounded-2xl bg-black/40 border-2 border-white/20 mb-4 shadow-2xl"
+                        >
+                          <span className="text-5xl">{calculatedScore.emoji}</span>
+                          <div className="text-left">
+                            <div className={`text-6xl font-bold ${
+                              calculatedScore.color === 'red' ? 'text-red-300' :
+                              calculatedScore.color === 'orange' ? 'text-orange-300' :
+                              'text-green-300'
+                            }`}>
+                              {calculatedScore.score}
+                            </div>
+                            <div className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Score Final / 100</div>
+                          </div>
+                        </motion.div>
+                        <motion.h3
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.2 }}
+                          className="text-2xl md:text-3xl font-bold text-white mb-3"
+                        >
+                          {calculatedScore.gameMessage}
+                        </motion.h3>
+                        <p className="text-gray-300 text-lg">{result?.title}</p>
+                      </div>
+
+                      {/* Insights par Question - Style Jeu */}
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                        className="grid md:grid-cols-2 gap-4 mb-6"
+                      >
+                        {calculatedScore.insights && Object.entries(calculatedScore.insights).map(([key, value], index) => (
+                          <motion.div
+                            key={key}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.5 + index * 0.1 }}
+                            className="p-4 bg-black/30 rounded-xl border border-white/10 backdrop-blur-sm"
+                          >
+                            <p className="text-gray-200 text-sm leading-relaxed">{value as string}</p>
+                          </motion.div>
+                        ))}
+                      </motion.div>
+                    </motion.div>
+                  ) : (
+                    // Fallback si le calcul échoue
+                    <div className="text-center">
+                      <div className="text-6xl mb-4">{result?.emoji}</div>
+                      <h3 className="text-3xl font-bold text-white mb-2">{result?.title}</h3>
+                      <p className="text-gray-300 text-lg">{result?.description}</p>
+                    </div>
+                  )}
 
                   {/* Result Cards */}
                   <div className="grid md:grid-cols-3 gap-4">
