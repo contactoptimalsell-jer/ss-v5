@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, CheckCircle2, TrendingUp, Target, Zap, Sparkles, Briefcase, MessageCircle, Megaphone, Settings, Users } from 'lucide-react';
+import { ArrowRight, CheckCircle2, TrendingUp, Target, Zap, Sparkles, Briefcase, MessageCircle, Megaphone, Settings, Users, Loader2 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 
@@ -119,6 +119,43 @@ export const AutomationLevelQuiz: React.FC = () => {
   const [answers, setAnswers] = useState<number[]>([]);
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
+  const [result, setResult] = useState<Result | null>(null);
+  const [sendingEmail, setSendingEmail] = useState(false);
+
+  const CALENDLY_URL = 'https://calendly.com/b00784336-essec?utm_source=quiz&utm_campaign=automation_quiz&utm_medium=button';
+
+  const handleProfessionClick = async (profession: string, automation: string) => {
+    if (!result) return;
+
+    setSendingEmail(true);
+    try {
+      // Envoyer l'email avec les données du quiz
+      const response = await fetch('/api/send-quiz-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          score,
+          level: result.level,
+          potential: result.potential,
+          priority: result.priority,
+          selectedProfession: profession,
+          selectedAutomation: automation,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('Erreur lors de l\'envoi de l\'email');
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email:', error);
+    } finally {
+      setSendingEmail(false);
+      // Ouvrir Calendly dans un nouvel onglet
+      window.open(CALENDLY_URL, '_blank');
+    }
+  };
 
   const handleAnswer = (value: number) => {
     const newAnswers = [...answers, value];
@@ -130,6 +167,8 @@ export const AutomationLevelQuiz: React.FC = () => {
       // Calculer le score final
       const totalScore = newAnswers.reduce((sum, answer) => sum + answer, 0);
       setScore(totalScore);
+      const quizResult = getResult(totalScore);
+      setResult(quizResult);
       setShowResult(true);
     }
   };
@@ -139,9 +178,8 @@ export const AutomationLevelQuiz: React.FC = () => {
     setAnswers([]);
     setShowResult(false);
     setScore(0);
+    setResult(null);
   };
-
-  const result = showResult ? getResult(score) : null;
 
   return (
     <section className="py-24 relative overflow-hidden">
@@ -464,9 +502,6 @@ export const AutomationLevelQuiz: React.FC = () => {
                   <motion.div
                     whileHover={{ scale: 1.02, y: -5 }}
                     className="bg-gradient-to-br from-green-900/30 to-emerald-900/20 rounded-xl p-4 md:p-6 border-2 border-green-500/30 cursor-pointer group flex flex-col h-full"
-                    onClick={() => {
-                      document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
-                    }}
                   >
                     <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
                       <div className="p-2 md:p-3 rounded-xl bg-green-500/20 border border-green-500/30 shrink-0">
@@ -480,10 +515,12 @@ export const AutomationLevelQuiz: React.FC = () => {
                     <div className="mt-auto">
                       <Button
                         variant="secondary"
-                        icon={<ArrowRight className="w-4 h-4" />}
+                        icon={sendingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
+                        onClick={() => handleProfessionClick('Commercial', 'Automatiser ma première relance')}
+                        disabled={sendingEmail}
                         className="w-full bg-green-500/10 hover:bg-green-500/20 border-green-500/30 text-green-300 text-sm md:text-base py-2.5 md:py-3"
                       >
-                        Automatiser ma première relance
+                        {sendingEmail ? 'Envoi en cours...' : 'Automatiser ma première relance'}
                       </Button>
                       <p className="text-xs text-gray-400 mt-2 md:mt-3 italic text-center">
                         Aucune compétence technique nécessaire
@@ -495,9 +532,6 @@ export const AutomationLevelQuiz: React.FC = () => {
                   <motion.div
                     whileHover={{ scale: 1.02, y: -5 }}
                     className="bg-gradient-to-br from-blue-900/30 to-cyan-900/20 rounded-xl p-4 md:p-6 border-2 border-blue-500/30 cursor-pointer group flex flex-col h-full"
-                    onClick={() => {
-                      document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
-                    }}
                   >
                     <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
                       <div className="p-2 md:p-3 rounded-xl bg-blue-500/20 border border-blue-500/30 shrink-0">
@@ -511,10 +545,12 @@ export const AutomationLevelQuiz: React.FC = () => {
                     <div className="mt-auto">
                       <Button
                         variant="secondary"
-                        icon={<ArrowRight className="w-4 h-4" />}
+                        icon={sendingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
+                        onClick={() => handleProfessionClick('Support client', 'Créer ma première réponse automatique')}
+                        disabled={sendingEmail}
                         className="w-full bg-blue-500/10 hover:bg-blue-500/20 border-blue-500/30 text-blue-300 text-sm md:text-base py-2.5 md:py-3"
                       >
-                        Créer ma première réponse automatique
+                        {sendingEmail ? 'Envoi en cours...' : 'Créer ma première réponse automatique'}
                       </Button>
                       <p className="text-xs text-gray-400 mt-2 md:mt-3 italic text-center">
                         Aucune compétence technique nécessaire
@@ -526,9 +562,6 @@ export const AutomationLevelQuiz: React.FC = () => {
                   <motion.div
                     whileHover={{ scale: 1.02, y: -5 }}
                     className="bg-gradient-to-br from-purple-900/30 to-pink-900/20 rounded-xl p-4 md:p-6 border-2 border-purple-500/30 cursor-pointer group flex flex-col h-full"
-                    onClick={() => {
-                      document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
-                    }}
                   >
                     <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
                       <div className="p-2 md:p-3 rounded-xl bg-purple-500/20 border border-purple-500/30 shrink-0">
@@ -542,10 +575,12 @@ export const AutomationLevelQuiz: React.FC = () => {
                     <div className="mt-auto">
                       <Button
                         variant="secondary"
-                        icon={<ArrowRight className="w-4 h-4" />}
+                        icon={sendingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
+                        onClick={() => handleProfessionClick('Marketing', 'Automatiser ma première campagne')}
+                        disabled={sendingEmail}
                         className="w-full bg-purple-500/10 hover:bg-purple-500/20 border-purple-500/30 text-purple-300 text-sm md:text-base py-2.5 md:py-3"
                       >
-                        Automatiser ma première campagne
+                        {sendingEmail ? 'Envoi en cours...' : 'Automatiser ma première campagne'}
                       </Button>
                       <p className="text-xs text-gray-400 mt-2 md:mt-3 italic text-center">
                         Aucune compétence technique nécessaire
@@ -557,9 +592,6 @@ export const AutomationLevelQuiz: React.FC = () => {
                   <motion.div
                     whileHover={{ scale: 1.02, y: -5 }}
                     className="bg-gradient-to-br from-orange-900/30 to-amber-900/20 rounded-xl p-4 md:p-6 border-2 border-orange-500/30 cursor-pointer group flex flex-col h-full"
-                    onClick={() => {
-                      document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
-                    }}
                   >
                     <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
                       <div className="p-2 md:p-3 rounded-xl bg-orange-500/20 border border-orange-500/30 shrink-0">
@@ -573,10 +605,12 @@ export const AutomationLevelQuiz: React.FC = () => {
                     <div className="mt-auto">
                       <Button
                         variant="secondary"
-                        icon={<ArrowRight className="w-4 h-4" />}
+                        icon={sendingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
+                        onClick={() => handleProfessionClick('Opérations / Admin', 'Automatiser ma première opération')}
+                        disabled={sendingEmail}
                         className="w-full bg-orange-500/10 hover:bg-orange-500/20 border-orange-500/30 text-orange-300 text-sm md:text-base py-2.5 md:py-3"
                       >
-                        Automatiser ma première opération
+                        {sendingEmail ? 'Envoi en cours...' : 'Automatiser ma première opération'}
                       </Button>
                       <p className="text-xs text-gray-400 mt-2 md:mt-3 italic text-center">
                         Aucune compétence technique nécessaire
@@ -588,9 +622,6 @@ export const AutomationLevelQuiz: React.FC = () => {
                   <motion.div
                     whileHover={{ scale: 1.02, y: -5 }}
                     className="bg-gradient-to-br from-indigo-900/30 to-violet-900/20 rounded-xl p-4 md:p-6 border-2 border-indigo-500/30 cursor-pointer group flex flex-col h-full md:col-span-2 lg:col-span-1"
-                    onClick={() => {
-                      document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
-                    }}
                   >
                     <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
                       <div className="p-2 md:p-3 rounded-xl bg-indigo-500/20 border border-indigo-500/30 shrink-0">
@@ -604,10 +635,12 @@ export const AutomationLevelQuiz: React.FC = () => {
                     <div className="mt-auto">
                       <Button
                         variant="secondary"
-                        icon={<ArrowRight className="w-4 h-4" />}
+                        icon={sendingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
+                        onClick={() => handleProfessionClick('RH', 'Automatiser mon premier process RH')}
+                        disabled={sendingEmail}
                         className="w-full bg-indigo-500/10 hover:bg-indigo-500/20 border-indigo-500/30 text-indigo-300 text-sm md:text-base py-2.5 md:py-3"
                       >
-                        Automatiser mon premier process RH
+                        {sendingEmail ? 'Envoi en cours...' : 'Automatiser mon premier process RH'}
                       </Button>
                       <p className="text-xs text-gray-400 mt-2 md:mt-3 italic text-center">
                         Aucune compétence technique nécessaire
