@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, CheckCircle2, TrendingUp, Target, Zap, Sparkles } from 'lucide-react';
+import { ArrowRight, CheckCircle2, TrendingUp, Target, Zap, Sparkles, Briefcase, MessageCircle, Megaphone, Settings, Users } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 
@@ -415,6 +415,157 @@ export const AutomationLevelQuiz: React.FC = () => {
                     </p>
                   </div>
                 </Card>
+              </motion.div>
+            )}
+
+            {/* Section CTA par Métier - Affiche uniquement après le résultat */}
+            {showResult && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+                className="mt-12"
+              >
+                <div className="text-center mb-8">
+                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
+                    Automatisez selon votre <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">métier</span>
+                  </h3>
+                  <p className="text-gray-300 text-lg max-w-2xl mx-auto">
+                    Choisissez votre métier et découvrez la première automatisation qui vous fera gagner du temps dès cette semaine.
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Commercial */}
+                  <motion.div
+                    whileHover={{ scale: 1.02, y: -5 }}
+                    className="bg-gradient-to-br from-green-900/30 to-emerald-900/20 rounded-xl p-6 border-2 border-green-500/30 cursor-pointer group"
+                    onClick={() => {
+                      document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  >
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-3 rounded-xl bg-green-500/20 border border-green-500/30">
+                        <Briefcase className="w-6 h-6 text-green-400" />
+                      </div>
+                      <h4 className="text-xl font-bold text-white">Commercial</h4>
+                    </div>
+                    <p className="text-gray-200 mb-4 leading-relaxed">
+                      Vos relances prennent trop de temps ? <span className="text-green-300 font-semibold">Automatisez la première tâche simple et concentrez-vous sur vos ventes.</span>
+                    </p>
+                    <Button
+                      variant="secondary"
+                      icon={<ArrowRight className="w-4 h-4" />}
+                      className="w-full bg-green-500/10 hover:bg-green-500/20 border-green-500/30 text-green-300"
+                    >
+                      Automatiser ma première relance
+                    </Button>
+                  </motion.div>
+
+                  {/* Support Client */}
+                  <motion.div
+                    whileHover={{ scale: 1.02, y: -5 }}
+                    className="bg-gradient-to-br from-blue-900/30 to-cyan-900/20 rounded-xl p-6 border-2 border-blue-500/30 cursor-pointer group"
+                    onClick={() => {
+                      document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  >
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-3 rounded-xl bg-blue-500/20 border border-blue-500/30">
+                        <MessageCircle className="w-6 h-6 text-blue-400" />
+                      </div>
+                      <h4 className="text-xl font-bold text-white">Support Client</h4>
+                    </div>
+                    <p className="text-gray-200 mb-4 leading-relaxed">
+                      Vous répétez les mêmes réponses ? <span className="text-blue-300 font-semibold">Automatisez les réponses aux questions fréquentes et libérez du temps pour les cas complexes.</span>
+                    </p>
+                    <Button
+                      variant="secondary"
+                      icon={<ArrowRight className="w-4 h-4" />}
+                      className="w-full bg-blue-500/10 hover:bg-blue-500/20 border-blue-500/30 text-blue-300"
+                    >
+                      Automatiser mes réponses
+                    </Button>
+                  </motion.div>
+
+                  {/* Marketing */}
+                  <motion.div
+                    whileHover={{ scale: 1.02, y: -5 }}
+                    className="bg-gradient-to-br from-purple-900/30 to-pink-900/20 rounded-xl p-6 border-2 border-purple-500/30 cursor-pointer group"
+                    onClick={() => {
+                      document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  >
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-3 rounded-xl bg-purple-500/20 border border-purple-500/30">
+                        <Megaphone className="w-6 h-6 text-purple-400" />
+                      </div>
+                      <h4 className="text-xl font-bold text-white">Marketing</h4>
+                    </div>
+                    <p className="text-gray-200 mb-4 leading-relaxed">
+                      La création de contenu vous prend des heures ? <span className="text-purple-300 font-semibold">Automatisez la première étape de votre workflow et créez plus de contenu en moins de temps.</span>
+                    </p>
+                    <Button
+                      variant="secondary"
+                      icon={<ArrowRight className="w-4 h-4" />}
+                      className="w-full bg-purple-500/10 hover:bg-purple-500/20 border-purple-500/30 text-purple-300"
+                    >
+                      Automatiser ma création de contenu
+                    </Button>
+                  </motion.div>
+
+                  {/* Opérations */}
+                  <motion.div
+                    whileHover={{ scale: 1.02, y: -5 }}
+                    className="bg-gradient-to-br from-orange-900/30 to-amber-900/20 rounded-xl p-6 border-2 border-orange-500/30 cursor-pointer group"
+                    onClick={() => {
+                      document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  >
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-3 rounded-xl bg-orange-500/20 border border-orange-500/30">
+                        <Settings className="w-6 h-6 text-orange-400" />
+                      </div>
+                      <h4 className="text-xl font-bold text-white">Opérations</h4>
+                    </div>
+                    <p className="text-gray-200 mb-4 leading-relaxed">
+                      La gestion des commandes et stocks vous prend trop de temps ? <span className="text-orange-300 font-semibold">Automatisez le suivi et la gestion pour gagner plusieurs heures chaque semaine.</span>
+                    </p>
+                    <Button
+                      variant="secondary"
+                      icon={<ArrowRight className="w-4 h-4" />}
+                      className="w-full bg-orange-500/10 hover:bg-orange-500/20 border-orange-500/30 text-orange-300"
+                    >
+                      Automatiser mes opérations
+                    </Button>
+                  </motion.div>
+
+                  {/* RH */}
+                  <motion.div
+                    whileHover={{ scale: 1.02, y: -5 }}
+                    className="bg-gradient-to-br from-indigo-900/30 to-violet-900/20 rounded-xl p-6 border-2 border-indigo-500/30 cursor-pointer group md:col-span-2 lg:col-span-1"
+                    onClick={() => {
+                      document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  >
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-3 rounded-xl bg-indigo-500/20 border border-indigo-500/30">
+                        <Users className="w-6 h-6 text-indigo-400" />
+                      </div>
+                      <h4 className="text-xl font-bold text-white">Ressources Humaines</h4>
+                    </div>
+                    <p className="text-gray-200 mb-4 leading-relaxed">
+                      Le recrutement et la gestion administrative vous noient ? <span className="text-indigo-300 font-semibold">Automatisez le tri des candidatures et la gestion des dossiers pour vous concentrer sur l'humain.</span>
+                    </p>
+                    <Button
+                      variant="secondary"
+                      icon={<ArrowRight className="w-4 h-4" />}
+                      className="w-full bg-indigo-500/10 hover:bg-indigo-500/20 border-indigo-500/30 text-indigo-300"
+                    >
+                      Automatiser mon recrutement
+                    </Button>
+                  </motion.div>
+                </div>
               </motion.div>
             )}
           </div>
