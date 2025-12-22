@@ -195,13 +195,6 @@ export const PersonalizedSolutionsQuiz: React.FC<PersonalizedSolutionsQuizProps>
 
       if (response.ok) {
         setIsSubmitted(true);
-        // Ouvrir Calendly après 2 secondes
-        setTimeout(() => {
-          window.open(
-            'https://calendly.com/b00784336-essec?utm_source=quiz&utm_campaign=personalized_quiz&utm_medium=button',
-            '_blank'
-          );
-        }, 2000);
       } else {
         console.error('Erreur lors de l\'envoi');
         alert('Une erreur est survenue. Veuillez réessayer.');
@@ -288,15 +281,29 @@ export const PersonalizedSolutionsQuiz: React.FC<PersonalizedSolutionsQuizProps>
                 <p className="text-gray-300 text-lg mb-6">
                   Votre plan personnalisé vous sera présenté lors du rendez-vous.
                 </p>
-                <p className="text-sm text-gray-400 mb-6">
-                  Vous allez être redirigé vers notre calendrier pour réserver votre créneau.
+                <p className="text-sm text-gray-400 mb-8">
+                  Réservez maintenant votre créneau pour découvrir vos solutions personnalisées.
                 </p>
-                <Button
-                  onClick={handleClose}
-                  className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500"
-                >
-                  Parfait, j'ai compris
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button
+                    onClick={() => {
+                      window.open(
+                        'https://calendly.com/b00784336-essec?utm_source=quiz&utm_campaign=personalized_quiz&utm_medium=button',
+                        '_blank'
+                      );
+                    }}
+                    icon={<Sparkles className="w-5 h-5" />}
+                    className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500"
+                  >
+                    Réserver mon rendez-vous
+                  </Button>
+                  <Button
+                    onClick={handleClose}
+                    variant="secondary"
+                  >
+                    Fermer
+                  </Button>
+                </div>
               </motion.div>
             ) : (
               <>
