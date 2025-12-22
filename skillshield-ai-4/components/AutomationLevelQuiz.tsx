@@ -333,6 +333,52 @@ export const AutomationLevelQuiz: React.FC = () => {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Section CTA "Première Automatisation" - Affiche uniquement après le résultat */}
+            {showResult && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mt-8"
+              >
+                <Card className="border-cyan-500/30 bg-gradient-to-br from-cyan-900/20 via-violet-900/20 to-cyan-900/20">
+                  <div className="p-8 md:p-10 text-center">
+                    <div className="mb-8">
+                      <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
+                        Vous voyez où vous perdez le plus de temps ?
+                      </h3>
+                      <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
+                        Commencez par automatiser la première tâche simple dès maintenant. 
+                        <span className="text-cyan-300 font-semibold"> En 15 minutes, vous aurez déjà gagné votre première heure par semaine.</span>
+                      </p>
+                    </div>
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Button
+                        onClick={() => {
+                          document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        icon={<Sparkles className="w-6 h-6" />}
+                        className="bg-gradient-to-r from-cyan-600 to-violet-600 hover:from-cyan-500 hover:to-violet-500 text-white border-0 text-xl px-10 py-6 rounded-2xl shadow-2xl shadow-cyan-500/30 font-bold transition-all duration-300"
+                      >
+                        Découvrir ma première automatisation
+                      </Button>
+                    </motion.div>
+                    <p className="text-sm text-gray-300 mt-6 flex items-center justify-center gap-2 flex-wrap">
+                      <CheckCircle2 className="w-4 h-4 text-green-400" />
+                      <span className="font-medium">100% gratuit</span>
+                      <span className="text-gray-500">•</span>
+                      <span className="font-medium">Sans engagement</span>
+                      <span className="text-gray-500">•</span>
+                      <span className="font-medium">Résultats en 2 minutes</span>
+                    </p>
+                  </div>
+                </Card>
+              </motion.div>
+            )}
           </div>
         </Card>
       </div>
