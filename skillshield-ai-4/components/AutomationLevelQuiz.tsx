@@ -372,50 +372,12 @@ export const AutomationLevelQuiz: React.FC = () => {
               )}
             </AnimatePresence>
 
-            {/* 2️⃣ CTA Générique - Affiche uniquement après le résultat */}
+            {/* 2️⃣ CTA Unifié - Message Émotionnel avec Potentiel */}
             {showResult && result && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="mt-8"
-              >
-                <Card className="border-cyan-500/30 bg-gradient-to-br from-cyan-900/20 via-violet-900/20 to-cyan-900/20">
-                  <div className="p-8 md:p-10 text-center">
-                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
-                      Vous voyez où vous perdez le plus de temps ?
-                    </h3>
-                    <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed mb-8">
-                      Commencez par automatiser la première tâche simple dès maintenant.
-                    </p>
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Button
-                        onClick={() => {
-                          document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
-                        }}
-                        icon={<Sparkles className="w-6 h-6" />}
-                        className="bg-gradient-to-r from-cyan-600 to-violet-600 hover:from-cyan-500 hover:to-violet-500 text-white border-0 text-xl px-10 py-6 rounded-2xl shadow-2xl shadow-cyan-500/30 font-bold transition-all duration-300"
-                      >
-                        Découvrir ma première automatisation
-                      </Button>
-                    </motion.div>
-                    <p className="text-sm text-gray-300 mt-6 italic">
-                      Aucune compétence technique nécessaire — on vous guide pas à pas.
-                    </p>
-                  </div>
-                </Card>
-              </motion.div>
-            )}
-
-            {/* 3️⃣ CTA Personnalisé selon le Score - Affiche uniquement après le résultat */}
-            {showResult && result && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
                 className="mt-8"
               >
                 <Card className={`border-2 ${
@@ -424,34 +386,23 @@ export const AutomationLevelQuiz: React.FC = () => {
                   'border-green-500/30 bg-gradient-to-br from-green-900/20 via-cyan-900/20 to-green-900/20'
                 }`}>
                   <div className="p-8 md:p-10 text-center">
-                    <div className="mb-8">
-                      {/* CTA Débutant 🟥 */}
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
+                      Vous voyez où vous perdez le plus de temps ?
+                    </h3>
+                    
+                    {/* Message adapté selon le score */}
+                    <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed mb-8">
                       {result.color === 'red' && (
-                        <>
-                          <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
-                            Commencez par automatiser votre tâche la plus chronophage aujourd'hui
-                          </h3>
-                        </>
+                        <>Commencez par automatiser votre tâche la plus chronophage aujourd'hui. <span className="text-red-300 font-semibold">Votre potentiel d'amélioration est énorme</span> — chaque petite automatisation va vous faire gagner un temps précieux.</>
                       )}
-
-                      {/* CTA Intermédiaire 🟧 */}
                       {result.color === 'orange' && (
-                        <>
-                          <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
-                            Optimisez les tâches répétitives qui vous prennent le plus de temps
-                          </h3>
-                        </>
+                        <>Commencez par automatiser la première tâche simple dès maintenant. <span className="text-orange-300 font-semibold">Vous avez déjà fait un bon début</span> — optimisez les tâches répétitives qui vous prennent encore le plus de temps.</>
                       )}
-
-                      {/* CTA Avancé 🟩 */}
                       {result.color === 'green' && (
-                        <>
-                          <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
-                            Améliorez les petites tâches restantes pour gagner encore plus de temps
-                          </h3>
-                        </>
+                        <>Commencez par automatiser la première tâche simple dès maintenant. <span className="text-green-300 font-semibold">Votre organisation est déjà efficace</span> — améliorez les petites tâches restantes pour gagner encore plus de temps.</>
                       )}
-                    </div>
+                    </p>
+
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -467,11 +418,10 @@ export const AutomationLevelQuiz: React.FC = () => {
                           'bg-gradient-to-r from-green-600 to-cyan-600 hover:from-green-500 hover:to-cyan-500 shadow-green-500/30'
                         }`}
                       >
-                        {result.color === 'red' ? 'Je veux ma première automatisation' :
-                         result.color === 'orange' ? 'Optimiser mes premières automatisations' :
-                         'Aller plus loin dans l\'automatisation'}
+                        Découvrir ma première automatisation
                       </Button>
                     </motion.div>
+                    
                     <p className="text-sm text-gray-300 mt-6 italic">
                       Aucune compétence technique nécessaire — on vous guide pas à pas.
                     </p>
