@@ -164,8 +164,10 @@ const App: React.FC = () => {
     // Si on navigue vers prospection, mettre à jour l'URL
     if (page === 'prospection') {
       window.history.pushState({}, '', '/77230');
-    } else if (window.location.pathname === '/77230') {
-      // Si on quitte la prospection, nettoyer l'URL
+    } else if (page === 'quiz') {
+      window.history.pushState({}, '', '/92300');
+    } else if (window.location.pathname === '/77230' || window.location.pathname === '/92300') {
+      // Si on quitte la prospection ou le quiz, nettoyer l'URL
       window.history.pushState({}, '', '/');
     }
   };
