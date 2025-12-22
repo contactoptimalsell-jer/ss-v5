@@ -10,6 +10,8 @@ import { AboutPage } from './components/AboutPage';
 import { VirtualEmployeesPage } from './components/VirtualEmployeesPage';
 import { UploadPhotosPage } from './components/UploadPhotosPage';
 import { ProspectionPage } from './components/ProspectionPage';
+import { QuizPage } from './components/QuizPage';
+import { QuizWithTokenPage } from './components/QuizWithTokenPage';
 import { TermsPage } from './components/TermsPage';
 import { FAQPage } from './components/FAQPage';
 import { BlogPage } from './components/BlogPage';
@@ -28,6 +30,7 @@ const App: React.FC = () => {
   const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [blogArticleSlug, setBlogArticleSlug] = useState<string | null>(null);
+  const [quizToken, setQuizToken] = useState<string | null>(null);
   
   // -- GESTION LOGO (MODE ÉDITION RÉACTIVÉ) --
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -98,6 +101,24 @@ const App: React.FC = () => {
       setCurrentPage('prospection');
       setBlogArticleSlug(null);
       window.history.replaceState({}, '', '/77230');
+      return;
+    }
+    
+    // Route /92300 pour l'envoi de quiz
+    if (path === '/92300') {
+      setCurrentPage('quiz');
+      setBlogArticleSlug(null);
+      window.history.replaceState({}, '', '/92300');
+      return;
+    }
+    
+    // Route /quiz/:token pour le quiz avec token
+    const quizMatch = path.match(/^\/quiz\/(.+)$/);
+    if (quizMatch) {
+      setCurrentPage('quiz-with-token');
+      setQuizToken(quizMatch[1]);
+      setBlogArticleSlug(null);
+      window.history.replaceState({}, '', path);
       return;
     }
     
@@ -281,6 +302,18 @@ const App: React.FC = () => {
             <ProspectionPage onNavigateHome={() => navigateTo('home')} />
           </motion.div>
         );
+      case 'quiz':
+        return (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <QuizPage onNavigateHome={() => navigateTo('home')} />
+          </motion.div>
+        );
+      case 'quiz-with-token':
+        return (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <QuizWithTokenPage />
+          </motion.div>
+        );
       case 'terms':
         return (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -368,6 +401,18 @@ const App: React.FC = () => {
           title: "Prospection Automatisée - SkillShield AI | Agent IA de prospection",
           description: "Automatisez votre prospection avec notre agent IA spécialisé. Qualifiez les leads, prenez rendez-vous, suivez vos prospects 24/7 avec notre système de gardien humain.",
           canonicalUrl: "https://skillshield.app/77230"
+        };
+      case 'quiz':
+        return {
+          title: "Envoi de Quiz Personnalisé - SkillShield AI | Outil de Qualification",
+          description: "Envoyez un quiz personnalisé à vos prospects pour identifier leurs besoins et préparer votre rendez-vous. Outil de qualification intelligent avec tracking.",
+          canonicalUrl: "https://skillshield.app/92300"
+        };
+      case 'quiz-with-token':
+        return {
+          title: "Quiz Personnalisé - SkillShield AI | Identifiez vos Solutions",
+          description: "Répondez à quelques questions pour identifier les solutions d'automatisation les plus adaptées à votre activité.",
+          canonicalUrl: `https://skillshield.app/quiz/${quizToken || ''}`
         };
       case 'case-studies':
         return {
