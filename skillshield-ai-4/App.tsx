@@ -4,6 +4,7 @@ import { ProblemSection } from './components/ProblemSection';
 import { GuardianModeSection } from './components/GuardianModeSection';
 import { ProcessSection } from './components/ProcessSection';
 import { AuditTool } from './components/AuditTool';
+import { AutomationLevelQuiz } from './components/AutomationLevelQuiz';
 import { Footer } from './components/Footer';
 import { AboutPage } from './components/AboutPage';
 import { VirtualEmployeesPage } from './components/VirtualEmployeesPage';
@@ -217,6 +218,7 @@ const App: React.FC = () => {
 
             <ProcessSection />
             <AuditTool />
+            <AutomationLevelQuiz />
 
             <section className="py-32 relative overflow-hidden">
                <div className="absolute inset-0 bg-gradient-to-b from-midnight via-violet-900/10 to-midnight" />
