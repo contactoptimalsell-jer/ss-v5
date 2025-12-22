@@ -334,24 +334,56 @@ export const AutomationLevelQuiz: React.FC = () => {
               )}
             </AnimatePresence>
 
-            {/* Section CTA "Première Automatisation" - Affiche uniquement après le résultat */}
-            {showResult && (
+            {/* Section CTA Personnalisée selon le Score - Affiche uniquement après le résultat */}
+            {showResult && result && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
                 className="mt-8"
               >
-                <Card className="border-cyan-500/30 bg-gradient-to-br from-cyan-900/20 via-violet-900/20 to-cyan-900/20">
+                <Card className={`border-2 ${
+                  result.color === 'red' ? 'border-red-500/30 bg-gradient-to-br from-red-900/20 via-orange-900/20 to-red-900/20' :
+                  result.color === 'orange' ? 'border-orange-500/30 bg-gradient-to-br from-orange-900/20 via-violet-900/20 to-orange-900/20' :
+                  'border-green-500/30 bg-gradient-to-br from-green-900/20 via-cyan-900/20 to-green-900/20'
+                }`}>
                   <div className="p-8 md:p-10 text-center">
                     <div className="mb-8">
-                      <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
-                        Vous voyez où vous perdez le plus de temps ?
-                      </h3>
-                      <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
-                        Commencez par automatiser la première tâche simple dès maintenant. 
-                        <span className="text-cyan-300 font-semibold"> En 15 minutes, vous aurez déjà gagné votre première heure par semaine.</span>
-                      </p>
+                      {/* CTA Débutant 🟥 */}
+                      {result.color === 'red' && (
+                        <>
+                          <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
+                            Commencez par automatiser votre tâche la plus chronophage aujourd'hui
+                          </h3>
+                          <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
+                            Pas besoin de tout changer d'un coup. <span className="text-red-300 font-semibold">Identifiez la tâche qui vous prend le plus de temps chaque semaine, et automatisez-la en premier.</span> Vous verrez la différence dès la première semaine.
+                          </p>
+                        </>
+                      )}
+
+                      {/* CTA Intermédiaire 🟧 */}
+                      {result.color === 'orange' && (
+                        <>
+                          <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
+                            Optimisez vos automatisations existantes et ajoutez-en de nouvelles
+                          </h3>
+                          <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
+                            Vous avez déjà fait un bon début. <span className="text-orange-300 font-semibold">Identifiez les 2-3 tâches clés qui vous font encore perdre du temps et automatisez-les maintenant.</span> Vous allez gagner encore plus d'heures chaque semaine.
+                          </p>
+                        </>
+                      )}
+
+                      {/* CTA Avancé 🟩 */}
+                      {result.color === 'green' && (
+                        <>
+                          <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
+                            Passez à l'étape suivante : automatisez les processus complexes
+                          </h3>
+                          <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
+                            Vous maîtrisez déjà les bases. <span className="text-green-300 font-semibold">Identifiez les processus plus complexes qui pourraient encore être optimisés.</span> C'est là que vous allez gagner le plus de temps et d'efficacité.
+                          </p>
+                        </>
+                      )}
                     </div>
                     <motion.div
                       whileHover={{ scale: 1.02 }}
@@ -362,9 +394,15 @@ export const AutomationLevelQuiz: React.FC = () => {
                           document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
                         }}
                         icon={<Sparkles className="w-6 h-6" />}
-                        className="bg-gradient-to-r from-cyan-600 to-violet-600 hover:from-cyan-500 hover:to-violet-500 text-white border-0 text-xl px-10 py-6 rounded-2xl shadow-2xl shadow-cyan-500/30 font-bold transition-all duration-300"
+                        className={`text-white border-0 text-xl px-10 py-6 rounded-2xl shadow-2xl font-bold transition-all duration-300 ${
+                          result.color === 'red' ? 'bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 shadow-red-500/30' :
+                          result.color === 'orange' ? 'bg-gradient-to-r from-orange-600 to-violet-600 hover:from-orange-500 hover:to-violet-500 shadow-orange-500/30' :
+                          'bg-gradient-to-r from-green-600 to-cyan-600 hover:from-green-500 hover:to-cyan-500 shadow-green-500/30'
+                        }`}
                       >
-                        Découvrir ma première automatisation
+                        {result.color === 'red' ? 'Je veux ma première automatisation' :
+                         result.color === 'orange' ? 'Optimiser mes automatisations' :
+                         'Aller plus loin dans l\'automatisation'}
                       </Button>
                     </motion.div>
                     <p className="text-sm text-gray-300 mt-6 flex items-center justify-center gap-2 flex-wrap">
