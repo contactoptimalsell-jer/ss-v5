@@ -448,161 +448,171 @@ export const AutomationLevelQuiz: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
-                className="mt-12"
+                className="mt-8 md:mt-12"
               >
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
+                <div className="text-center mb-6 md:mb-8 px-4">
+                  <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-2 md:mb-3 leading-tight">
                     Automatisez selon votre <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">métier</span>
                   </h3>
-                  <p className="text-gray-300 text-lg max-w-2xl mx-auto">
+                  <p className="text-gray-300 text-sm md:text-base lg:text-lg max-w-2xl mx-auto leading-relaxed">
                     Choisissez votre métier et découvrez la première automatisation qui vous fera gagner du temps dès cette semaine.
                   </p>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {/* Commercial */}
                   <motion.div
                     whileHover={{ scale: 1.02, y: -5 }}
-                    className="bg-gradient-to-br from-green-900/30 to-emerald-900/20 rounded-xl p-6 border-2 border-green-500/30 cursor-pointer group"
+                    className="bg-gradient-to-br from-green-900/30 to-emerald-900/20 rounded-xl p-4 md:p-6 border-2 border-green-500/30 cursor-pointer group flex flex-col h-full"
                     onClick={() => {
                       document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
                     }}
                   >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-3 rounded-xl bg-green-500/20 border border-green-500/30">
-                        <Briefcase className="w-6 h-6 text-green-400" />
+                    <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                      <div className="p-2 md:p-3 rounded-xl bg-green-500/20 border border-green-500/30 shrink-0">
+                        <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-green-400" />
                       </div>
-                      <h4 className="text-xl font-bold text-white">Commercial</h4>
+                      <h4 className="text-lg md:text-xl font-bold text-white">Commercial</h4>
                     </div>
-                    <p className="text-gray-200 mb-4 leading-relaxed">
+                    <p className="text-gray-200 mb-4 md:mb-5 leading-relaxed text-sm md:text-base flex-grow">
                       Vos relances prennent trop de temps ? <span className="text-green-300 font-semibold">Automatisez la première tâche simple et concentrez-vous sur vos ventes.</span>
                     </p>
-                    <Button
-                      variant="secondary"
-                      icon={<ArrowRight className="w-4 h-4" />}
-                      className="w-full bg-green-500/10 hover:bg-green-500/20 border-green-500/30 text-green-300"
-                    >
-                      Automatiser ma première relance
-                    </Button>
-                    <p className="text-xs text-gray-400 mt-3 italic">
-                      Aucune compétence technique nécessaire
-                    </p>
+                    <div className="mt-auto">
+                      <Button
+                        variant="secondary"
+                        icon={<ArrowRight className="w-4 h-4" />}
+                        className="w-full bg-green-500/10 hover:bg-green-500/20 border-green-500/30 text-green-300 text-sm md:text-base py-2.5 md:py-3"
+                      >
+                        Automatiser ma première relance
+                      </Button>
+                      <p className="text-xs text-gray-400 mt-2 md:mt-3 italic text-center">
+                        Aucune compétence technique nécessaire
+                      </p>
+                    </div>
                   </motion.div>
 
                   {/* Support Client */}
                   <motion.div
                     whileHover={{ scale: 1.02, y: -5 }}
-                    className="bg-gradient-to-br from-blue-900/30 to-cyan-900/20 rounded-xl p-6 border-2 border-blue-500/30 cursor-pointer group"
+                    className="bg-gradient-to-br from-blue-900/30 to-cyan-900/20 rounded-xl p-4 md:p-6 border-2 border-blue-500/30 cursor-pointer group flex flex-col h-full"
                     onClick={() => {
                       document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
                     }}
                   >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-3 rounded-xl bg-blue-500/20 border border-blue-500/30">
-                        <MessageCircle className="w-6 h-6 text-blue-400" />
+                    <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                      <div className="p-2 md:p-3 rounded-xl bg-blue-500/20 border border-blue-500/30 shrink-0">
+                        <MessageCircle className="w-5 h-5 md:w-6 md:h-6 text-blue-400" />
                       </div>
-                      <h4 className="text-xl font-bold text-white">Support client</h4>
+                      <h4 className="text-lg md:text-xl font-bold text-white">Support client</h4>
                     </div>
-                    <p className="text-gray-200 mb-4 leading-relaxed">
+                    <p className="text-gray-200 mb-4 md:mb-5 leading-relaxed text-sm md:text-base flex-grow">
                       Les questions répétitives vous ralentissent ? <span className="text-blue-300 font-semibold">Automatisez la première réponse type dès maintenant.</span>
                     </p>
-                    <Button
-                      variant="secondary"
-                      icon={<ArrowRight className="w-4 h-4" />}
-                      className="w-full bg-blue-500/10 hover:bg-blue-500/20 border-blue-500/30 text-blue-300"
-                    >
-                      Créer ma première réponse automatique
-                    </Button>
-                    <p className="text-xs text-gray-400 mt-3 italic">
-                      Aucune compétence technique nécessaire
-                    </p>
+                    <div className="mt-auto">
+                      <Button
+                        variant="secondary"
+                        icon={<ArrowRight className="w-4 h-4" />}
+                        className="w-full bg-blue-500/10 hover:bg-blue-500/20 border-blue-500/30 text-blue-300 text-sm md:text-base py-2.5 md:py-3"
+                      >
+                        Créer ma première réponse automatique
+                      </Button>
+                      <p className="text-xs text-gray-400 mt-2 md:mt-3 italic text-center">
+                        Aucune compétence technique nécessaire
+                      </p>
+                    </div>
                   </motion.div>
 
                   {/* Marketing */}
                   <motion.div
                     whileHover={{ scale: 1.02, y: -5 }}
-                    className="bg-gradient-to-br from-purple-900/30 to-pink-900/20 rounded-xl p-6 border-2 border-purple-500/30 cursor-pointer group"
+                    className="bg-gradient-to-br from-purple-900/30 to-pink-900/20 rounded-xl p-4 md:p-6 border-2 border-purple-500/30 cursor-pointer group flex flex-col h-full"
                     onClick={() => {
                       document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
                     }}
                   >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-3 rounded-xl bg-purple-500/20 border border-purple-500/30">
-                        <Megaphone className="w-6 h-6 text-purple-400" />
+                    <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                      <div className="p-2 md:p-3 rounded-xl bg-purple-500/20 border border-purple-500/30 shrink-0">
+                        <Megaphone className="w-5 h-5 md:w-6 md:h-6 text-purple-400" />
                       </div>
-                      <h4 className="text-xl font-bold text-white">Marketing</h4>
+                      <h4 className="text-lg md:text-xl font-bold text-white">Marketing</h4>
                     </div>
-                    <p className="text-gray-200 mb-4 leading-relaxed">
+                    <p className="text-gray-200 mb-4 md:mb-5 leading-relaxed text-sm md:text-base flex-grow">
                       La création de contenus et campagnes vous prend trop de temps ? <span className="text-purple-300 font-semibold">Commencez par automatiser une tâche simple.</span>
                     </p>
-                    <Button
-                      variant="secondary"
-                      icon={<ArrowRight className="w-4 h-4" />}
-                      className="w-full bg-purple-500/10 hover:bg-purple-500/20 border-purple-500/30 text-purple-300"
-                    >
-                      Automatiser ma première campagne
-                    </Button>
-                    <p className="text-xs text-gray-400 mt-3 italic">
-                      Aucune compétence technique nécessaire
-                    </p>
+                    <div className="mt-auto">
+                      <Button
+                        variant="secondary"
+                        icon={<ArrowRight className="w-4 h-4" />}
+                        className="w-full bg-purple-500/10 hover:bg-purple-500/20 border-purple-500/30 text-purple-300 text-sm md:text-base py-2.5 md:py-3"
+                      >
+                        Automatiser ma première campagne
+                      </Button>
+                      <p className="text-xs text-gray-400 mt-2 md:mt-3 italic text-center">
+                        Aucune compétence technique nécessaire
+                      </p>
+                    </div>
                   </motion.div>
 
                   {/* Opérations / Admin */}
                   <motion.div
                     whileHover={{ scale: 1.02, y: -5 }}
-                    className="bg-gradient-to-br from-orange-900/30 to-amber-900/20 rounded-xl p-6 border-2 border-orange-500/30 cursor-pointer group"
+                    className="bg-gradient-to-br from-orange-900/30 to-amber-900/20 rounded-xl p-4 md:p-6 border-2 border-orange-500/30 cursor-pointer group flex flex-col h-full"
                     onClick={() => {
                       document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
                     }}
                   >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-3 rounded-xl bg-orange-500/20 border border-orange-500/30">
-                        <Settings className="w-6 h-6 text-orange-400" />
+                    <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                      <div className="p-2 md:p-3 rounded-xl bg-orange-500/20 border border-orange-500/30 shrink-0">
+                        <Settings className="w-5 h-5 md:w-6 md:h-6 text-orange-400" />
                       </div>
-                      <h4 className="text-xl font-bold text-white">Opérations / Admin</h4>
+                      <h4 className="text-lg md:text-xl font-bold text-white">Opérations / Admin</h4>
                     </div>
-                    <p className="text-gray-200 mb-4 leading-relaxed">
+                    <p className="text-gray-200 mb-4 md:mb-5 leading-relaxed text-sm md:text-base flex-grow">
                       Les tâches répétitives vous épuisent ? <span className="text-orange-300 font-semibold">Automatisez la première opération facilement.</span>
                     </p>
-                    <Button
-                      variant="secondary"
-                      icon={<ArrowRight className="w-4 h-4" />}
-                      className="w-full bg-orange-500/10 hover:bg-orange-500/20 border-orange-500/30 text-orange-300"
-                    >
-                      Automatiser ma première opération
-                    </Button>
-                    <p className="text-xs text-gray-400 mt-3 italic">
-                      Aucune compétence technique nécessaire
-                    </p>
+                    <div className="mt-auto">
+                      <Button
+                        variant="secondary"
+                        icon={<ArrowRight className="w-4 h-4" />}
+                        className="w-full bg-orange-500/10 hover:bg-orange-500/20 border-orange-500/30 text-orange-300 text-sm md:text-base py-2.5 md:py-3"
+                      >
+                        Automatiser ma première opération
+                      </Button>
+                      <p className="text-xs text-gray-400 mt-2 md:mt-3 italic text-center">
+                        Aucune compétence technique nécessaire
+                      </p>
+                    </div>
                   </motion.div>
 
                   {/* RH */}
                   <motion.div
                     whileHover={{ scale: 1.02, y: -5 }}
-                    className="bg-gradient-to-br from-indigo-900/30 to-violet-900/20 rounded-xl p-6 border-2 border-indigo-500/30 cursor-pointer group md:col-span-2 lg:col-span-1"
+                    className="bg-gradient-to-br from-indigo-900/30 to-violet-900/20 rounded-xl p-4 md:p-6 border-2 border-indigo-500/30 cursor-pointer group flex flex-col h-full md:col-span-2 lg:col-span-1"
                     onClick={() => {
                       document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
                     }}
                   >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-3 rounded-xl bg-indigo-500/20 border border-indigo-500/30">
-                        <Users className="w-6 h-6 text-indigo-400" />
+                    <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                      <div className="p-2 md:p-3 rounded-xl bg-indigo-500/20 border border-indigo-500/30 shrink-0">
+                        <Users className="w-5 h-5 md:w-6 md:h-6 text-indigo-400" />
                       </div>
-                      <h4 className="text-xl font-bold text-white">RH</h4>
+                      <h4 className="text-lg md:text-xl font-bold text-white">RH</h4>
                     </div>
-                    <p className="text-gray-200 mb-4 leading-relaxed">
+                    <p className="text-gray-200 mb-4 md:mb-5 leading-relaxed text-sm md:text-base flex-grow">
                       Le suivi des candidatures prend trop de temps ? <span className="text-indigo-300 font-semibold">Automatisez la première étape simple dès maintenant.</span>
                     </p>
-                    <Button
-                      variant="secondary"
-                      icon={<ArrowRight className="w-4 h-4" />}
-                      className="w-full bg-indigo-500/10 hover:bg-indigo-500/20 border-indigo-500/30 text-indigo-300"
-                    >
-                      Automatiser mon premier process RH
-                    </Button>
-                    <p className="text-xs text-gray-400 mt-3 italic">
-                      Aucune compétence technique nécessaire
-                    </p>
+                    <div className="mt-auto">
+                      <Button
+                        variant="secondary"
+                        icon={<ArrowRight className="w-4 h-4" />}
+                        className="w-full bg-indigo-500/10 hover:bg-indigo-500/20 border-indigo-500/30 text-indigo-300 text-sm md:text-base py-2.5 md:py-3"
+                      >
+                        Automatiser mon premier process RH
+                      </Button>
+                      <p className="text-xs text-gray-400 mt-2 md:mt-3 italic text-center">
+                        Aucune compétence technique nécessaire
+                      </p>
+                    </div>
                   </motion.div>
                 </div>
               </motion.div>
