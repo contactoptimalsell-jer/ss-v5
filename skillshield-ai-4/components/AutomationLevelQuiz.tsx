@@ -598,6 +598,40 @@ export const AutomationLevelQuiz: React.FC = () => {
                     </div>
                   </motion.div>
                 </div>
+
+                {/* CTA Calendly à la fin */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.9 }}
+                  className="mt-8 text-center"
+                >
+                  <Card className="border-violet-500/30 bg-gradient-to-br from-violet-900/20 via-cyan-900/20 to-violet-900/20">
+                    <div className="p-6 md:p-8">
+                      <h3 className="text-xl md:text-2xl font-bold text-white mb-3">
+                        Prêt à automatiser votre métier ?
+                      </h3>
+                      <p className="text-gray-300 mb-6 max-w-xl mx-auto">
+                        Réservez un rendez-vous gratuit de 15 minutes pour découvrir comment automatiser vos tâches et gagner du temps dès cette semaine.
+                      </p>
+                      <Button
+                        onClick={() => {
+                          window.open(
+                            'https://calendly.com/b00784336-essec?utm_source=quiz&utm_campaign=profession_cta&utm_medium=button',
+                            '_blank'
+                          );
+                        }}
+                        icon={<Sparkles className="w-5 h-5" />}
+                        className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white border-0 text-lg px-8 py-4 rounded-xl shadow-xl shadow-violet-500/30 font-bold"
+                      >
+                        Réserver mon rendez-vous gratuit
+                      </Button>
+                      <p className="text-xs text-gray-400 mt-4 italic">
+                        Sans engagement • 15 minutes • Plan personnalisé offert
+                      </p>
+                    </div>
+                  </Card>
+                </motion.div>
               </motion.div>
             )}
           </div>
