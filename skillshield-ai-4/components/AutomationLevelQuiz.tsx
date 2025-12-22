@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, CheckCircle2, TrendingUp, Target, Zap, Sparkles, Briefcase, MessageCircle, Megaphone, Settings, Users, Loader2 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
+import { PersonalizedSolutionsQuiz } from './PersonalizedSolutionsQuiz';
 
 interface Question {
   id: number;
@@ -121,6 +122,7 @@ export const AutomationLevelQuiz: React.FC = () => {
   const [score, setScore] = useState(0);
   const [result, setResult] = useState<Result | null>(null);
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [isQuizOpen, setIsQuizOpen] = useState(false);
 
   const CALENDLY_URL = 'https://calendly.com/b00784336-essec?utm_source=quiz&utm_campaign=automation_quiz&utm_medium=button';
 
@@ -352,9 +354,7 @@ export const AutomationLevelQuiz: React.FC = () => {
                   {/* CTA */}
                   <div className="flex flex-col sm:flex-row gap-4">
                     <Button
-                      onClick={() => {
-                        document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
-                      }}
+                      onClick={() => setIsQuizOpen(true)}
                       icon={<ArrowRight className="w-5 h-5" />}
                       className="flex-1"
                     >
@@ -603,6 +603,16 @@ export const AutomationLevelQuiz: React.FC = () => {
           </div>
         </Card>
       </div>
+
+      {/* Quiz Personnalisé Pop-up */}
+      <PersonalizedSolutionsQuiz
+        isOpen={isQuizOpen}
+        onClose={() => setIsQuizOpen(false)}
+        quizScore={score}
+        quizLevel={result?.level}
+        quizPotential={result?.potential}
+        quizPriority={result?.priority}
+      />
     </section>
   );
 };
