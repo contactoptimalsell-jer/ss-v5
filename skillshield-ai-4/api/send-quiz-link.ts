@@ -2,19 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import nodemailer from 'nodemailer';
 import { randomBytes } from 'crypto';
 import { canSendEmail, recordEmailSend, tryLockEmail } from './emailRateLimit.js';
-
-// Stockage simple en mémoire (en production, utiliser une base de données)
-const quizTokens = new Map<string, {
-  token: string;
-  prospectName: string;
-  prospectEmail: string;
-  prospectProblem: string;
-  createdAt: Date;
-  opened: boolean;
-  openedAt?: Date;
-  completed: boolean;
-  completedAt?: Date;
-}>();
+import { setQuizTokenData } from './quizTokenStorage.js';
 
 function generateSecureToken(): string {
   return randomBytes(32).toString('hex');
@@ -67,7 +55,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const quizUrl = `https://skillshield.app/quiz/${token}`;
 
     // Stocker les informations du prospect
-    quizTokens.set(token, {
+    setQuizTokenData(token, {
       token,
       prospectName,
       prospectEmail: email,
@@ -235,15 +223,4 @@ L'équipe SkillShield AI
   }
 }
 
-// Export pour récupérer les données du token (utilisé par d'autres APIs)
-export function getQuizTokenData(token: string) {
-  return quizTokens.get(token);
-}
-
-export function updateQuizToken(token: string, updates: Partial<typeof quizTokens extends Map<string, infer V> ? V : never>) {
-  const existing = quizTokens.get(token);
-  if (existing) {
-    quizTokens.set(token, { ...existing, ...updates });
-  }
-}
 
