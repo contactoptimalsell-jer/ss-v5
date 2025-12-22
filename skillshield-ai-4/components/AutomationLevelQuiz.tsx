@@ -94,7 +94,7 @@ const getResult = (score: number): Result => {
     return {
       level: 'Intermédiaire',
       potential: 'Moyen',
-      priority: 'Optimiser intelligemment',
+      priority: 'Optimiser',
       color: 'orange',
       emoji: '🟧',
       title: "Certaines choses sont déjà automatisées, mais il reste des gains simples à atteindre.",

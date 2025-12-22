@@ -445,24 +445,24 @@ export const generateAudit = async (userProblem: string): Promise<AuditResult> =
       
       // If API key is not configured, return helpful message
       if (response.status === 500 && errorData.message?.includes('API key')) {
-        const fallbackSuggestions = [
+        const fallbackSuggestions: AuditSuggestion[] = [
           {
             title: "Agent IA de tri et réponse d'emails",
             description: "Agent IA qui analyse automatiquement tous vos emails entrants, les classe par urgence et sujet, et génère des réponses personnalisées basées sur votre historique. Il apprend vos formulations et peut gérer 80% des demandes courantes sans votre intervention.",
             timeSaved: "8h / semaine",
-            difficulty: "Facile"
+            difficulty: "Facile" as const
           },
           {
             title: "Agent IA de gestion documentaire intelligente",
             description: "Agent IA qui extrait automatiquement les données de vos documents (factures, contrats, formulaires), les classe et les archive selon vos règles. Il peut aussi générer des rapports automatiques et alerter en cas d'anomalies.",
             timeSaved: "6h / semaine",
-            difficulty: "Moyen"
+            difficulty: "Moyen" as const
           },
           {
             title: "Agent IA de planification et gestion d'agenda",
             description: "Agent IA qui gère automatiquement vos rendez-vous, optimise votre planning selon vos priorités, envoie des confirmations aux clients, et s'adapte aux changements en temps réel. Il apprend vos préférences et évite les conflits.",
             timeSaved: "5h / semaine",
-            difficulty: "Facile"
+            difficulty: "Facile" as const
           }
         ];
         return {
@@ -483,24 +483,24 @@ export const generateAudit = async (userProblem: string): Promise<AuditResult> =
     console.error("API Error:", error);
     
     // Fallback data in case of network error
-    const fallbackSuggestions = [
+    const fallbackSuggestions: AuditSuggestion[] = [
       {
         title: "Agent IA de tri et réponse d'emails",
         description: "Agent IA qui analyse automatiquement tous vos emails entrants, les classe par urgence et sujet, et génère des réponses personnalisées basées sur votre historique. Il apprend vos formulations et peut gérer 80% des demandes courantes sans votre intervention.",
         timeSaved: "8h / semaine",
-        difficulty: "Facile"
+        difficulty: "Facile" as const
       },
       {
         title: "Agent IA de gestion documentaire intelligente",
         description: "Agent IA qui extrait automatiquement les données de vos documents (factures, contrats, formulaires), les classe et les archive selon vos règles. Il peut aussi générer des rapports automatiques et alerter en cas d'anomalies.",
         timeSaved: "6h / semaine",
-        difficulty: "Moyen"
+        difficulty: "Moyen" as const
       },
       {
         title: "Agent IA de planification et gestion d'agenda",
         description: "Agent IA qui gère automatiquement vos rendez-vous, optimise votre planning selon vos priorités, envoie des confirmations aux clients, et s'adapte aux changements en temps réel. Il apprend vos préférences et évite les conflits.",
         timeSaved: "5h / semaine",
-        difficulty: "Facile"
+        difficulty: "Facile" as const
       }
     ];
     return {
