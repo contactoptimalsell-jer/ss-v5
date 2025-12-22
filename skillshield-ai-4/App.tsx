@@ -94,50 +94,69 @@ const App: React.FC = () => {
 
   // Détecter les routes pour afficher les bonnes pages
   useEffect(() => {
-    const path = window.location.pathname;
-    
-    // Route /77230 pour la prospection
-    if (path === '/77230') {
-      setCurrentPage('prospection');
-      setBlogArticleSlug(null);
-      window.history.replaceState({}, '', '/77230');
-      return;
-    }
-    
-    // Route /92300 pour l'envoi de quiz
-    if (path === '/92300') {
-      setCurrentPage('quiz');
-      setBlogArticleSlug(null);
-      window.history.replaceState({}, '', '/92300');
-      return;
-    }
-    
-    // Route /quiz/:token pour le quiz avec token
-    const quizMatch = path.match(/^\/quiz\/(.+)$/);
-    if (quizMatch) {
-      setCurrentPage('quiz-with-token');
-      setQuizToken(quizMatch[1]);
-      setBlogArticleSlug(null);
-      window.history.replaceState({}, '', path);
-      return;
-    }
-    
-    // Routes /blog/:slug pour les articles de blog
-    const blogMatch = path.match(/^\/blog\/(.+)$/);
-    if (blogMatch) {
-      setCurrentPage('blog');
-      setBlogArticleSlug(blogMatch[1]);
-      return;
-    }
-    
-    // Route /blog pour la liste des articles
-    if (path === '/blog') {
-      setCurrentPage('blog');
-      setBlogArticleSlug(null);
-      return;
-    }
-    
-    // Autres routes (gérées par navigateTo)
+    const checkRoute = () => {
+      const path = window.location.pathname;
+      
+      // Route /77230 pour la prospection
+      if (path === '/77230') {
+        setCurrentPage('prospection');
+        setBlogArticleSlug(null);
+        setQuizToken(null);
+        return;
+      }
+      
+      // Route /92300 pour l'envoi de quiz
+      if (path === '/92300') {
+        setCurrentPage('quiz');
+        setBlogArticleSlug(null);
+        setQuizToken(null);
+        return;
+      }
+      
+      // Route /quiz/:token pour le quiz avec token
+      const quizMatch = path.match(/^\/quiz\/(.+)$/);
+      if (quizMatch) {
+        setCurrentPage('quiz-with-token');
+        setQuizToken(quizMatch[1]);
+        setBlogArticleSlug(null);
+        return;
+      }
+      
+      // Routes /blog/:slug pour les articles de blog
+      const blogMatch = path.match(/^\/blog\/(.+)$/);
+      if (blogMatch) {
+        setCurrentPage('blog');
+        setBlogArticleSlug(blogMatch[1]);
+        setQuizToken(null);
+        return;
+      }
+      
+      // Route /blog pour la liste des articles
+      if (path === '/blog') {
+        setCurrentPage('blog');
+        setBlogArticleSlug(null);
+        setQuizToken(null);
+        return;
+      }
+      
+      // Si on est sur la home, s'assurer qu'on est bien sur 'home'
+      if (path === '/' || path === '') {
+        setCurrentPage('home');
+        setBlogArticleSlug(null);
+        setQuizToken(null);
+      }
+    };
+
+    // Vérifier la route au montage
+    checkRoute();
+
+    // Écouter les changements d'URL (popstate pour les boutons précédent/suivant)
+    const handlePopState = () => {
+      checkRoute();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   // Raccourci clavier pour accéder à l'upload (Ctrl/Cmd + Shift + U)
