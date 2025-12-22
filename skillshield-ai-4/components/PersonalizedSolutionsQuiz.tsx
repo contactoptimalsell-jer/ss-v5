@@ -56,6 +56,14 @@ export const PersonalizedSolutionsQuiz: React.FC<PersonalizedSolutionsQuizProps>
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [calculatedScore, setCalculatedScore] = useState<{
+    score: number;
+    color: 'red' | 'orange' | 'green';
+    level: string;
+    potential: string;
+    priority: string;
+    recommendations: string[];
+  } | null>(null);
 
   const automationOptions = [
     'Emails répétitifs',
@@ -176,7 +184,36 @@ export const PersonalizedSolutionsQuiz: React.FC<PersonalizedSolutionsQuizProps>
 
     setIsSubmitting(true);
     try {
-      const response = await fetch('/api/send-quiz-complete', {
+      // 1. Calculer le score intelligent
+      const scoreResponse = await fetch('/api/calculate-quiz-score', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          quizAnswers,
+          prospectInfo,
+        }),
+      });
+
+      let calculatedScoreData = null;
+      if (scoreResponse.ok) {
+        const scoreData = await scoreResponse.json();
+        if (scoreData.success && scoreData.result) {
+          calculatedScoreData = scoreData.result;
+          setCalculatedScore({
+            score: scoreData.result.score,
+            color: scoreData.result.color,
+            level: scoreData.result.level,
+            potential: scoreData.result.potential,
+            priority: scoreData.result.priority,
+            recommendations: scoreData.result.recommendations,
+          });
+        }
+      }
+
+      // 2. Envoyer l'email avec le score calculé
+      const emailResponse = await fetch('/api/send-quiz-complete', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -188,12 +225,13 @@ export const PersonalizedSolutionsQuiz: React.FC<PersonalizedSolutionsQuizProps>
             potential: quizPotential,
             priority: quizPriority,
           },
+          calculatedScore: calculatedScoreData,
           quizAnswers,
           prospectInfo,
         }),
       });
 
-      if (response.ok) {
+      if (emailResponse.ok) {
         setIsSubmitted(true);
       } else {
         console.error('Erreur lors de l\'envoi');
@@ -266,43 +304,106 @@ export const PersonalizedSolutionsQuiz: React.FC<PersonalizedSolutionsQuizProps>
           {/* Content */}
           <div className="p-6 md:p-8">
             {isSubmitted ? (
-              // Confirmation
+              // Confirmation avec score calculé
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center py-8"
+                className="py-8"
               >
-                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <CheckCircle2 className="w-8 h-8 text-green-400" />
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle2 className="w-8 h-8 text-green-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-4">
+                    Merci ! Vos réponses ont bien été enregistrées.
+                  </h3>
+                  <p className="text-gray-300 text-lg mb-6">
+                    Votre plan personnalisé vous sera présenté lors du rendez-vous.
+                  </p>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-4">
-                  Merci ! Vos réponses ont bien été enregistrées.
-                </h3>
-                <p className="text-gray-300 text-lg mb-6">
-                  Votre plan personnalisé vous sera présenté lors du rendez-vous.
-                </p>
-                <p className="text-sm text-gray-400 mb-8">
-                  Réservez maintenant votre créneau pour découvrir vos solutions personnalisées.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button
-                    onClick={() => {
-                      window.open(
-                        'https://calendly.com/b00784336-essec?utm_source=quiz&utm_campaign=personalized_quiz&utm_medium=button',
-                        '_blank'
-                      );
-                    }}
-                    icon={<Sparkles className="w-5 h-5" />}
-                    className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500"
+
+                {/* Affichage du score calculé */}
+                {calculatedScore && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className={`mb-8 p-6 rounded-xl border-2 ${
+                      calculatedScore.color === 'red' ? 'bg-red-500/10 border-red-500/30' :
+                      calculatedScore.color === 'orange' ? 'bg-orange-500/10 border-orange-500/30' :
+                      'bg-green-500/10 border-green-500/30'
+                    }`}
                   >
-                    Réserver mon rendez-vous
-                  </Button>
-                  <Button
-                    onClick={handleClose}
-                    variant="secondary"
-                  >
-                    Fermer
-                  </Button>
+                    <div className="text-center mb-4">
+                      <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-3 ${
+                        calculatedScore.color === 'red' ? 'bg-red-500/20 border border-red-500/30' :
+                        calculatedScore.color === 'orange' ? 'bg-orange-500/20 border border-orange-500/30' :
+                        'bg-green-500/20 border border-green-500/30'
+                      }`}>
+                        <span className="text-2xl">
+                          {calculatedScore.color === 'red' ? '🟥' : calculatedScore.color === 'orange' ? '🟧' : '🟩'}
+                        </span>
+                        <span className={`text-sm font-bold uppercase ${
+                          calculatedScore.color === 'red' ? 'text-red-300' :
+                          calculatedScore.color === 'orange' ? 'text-orange-300' :
+                          'text-green-300'
+                        }`}>
+                          {calculatedScore.level}
+                        </span>
+                      </div>
+                      <div className={`text-4xl font-bold mb-2 ${
+                        calculatedScore.color === 'red' ? 'text-red-300' :
+                        calculatedScore.color === 'orange' ? 'text-orange-300' :
+                        'text-green-300'
+                      }`}>
+                        {calculatedScore.score}/100
+                      </div>
+                      <p className="text-gray-300 text-sm">
+                        Potentiel : <span className="font-semibold">{calculatedScore.potential}</span> • Priorité : <span className="font-semibold">{calculatedScore.priority}</span>
+                      </p>
+                    </div>
+
+                    {/* Recommandations */}
+                    {calculatedScore.recommendations.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-white/10">
+                        <h4 className="text-white font-semibold mb-3 text-sm">Recommandations personnalisées :</h4>
+                        <ul className="space-y-2">
+                          {calculatedScore.recommendations.map((rec, index) => (
+                            <li key={index} className="text-gray-300 text-sm flex items-start gap-2">
+                              <span className="text-violet-400 mt-1">•</span>
+                              <span>{rec}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+
+                <div className="text-center">
+                  <p className="text-sm text-gray-400 mb-6">
+                    Réservez maintenant votre créneau pour découvrir vos solutions personnalisées.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Button
+                      onClick={() => {
+                        window.open(
+                          'https://calendly.com/b00784336-essec?utm_source=quiz&utm_campaign=personalized_quiz&utm_medium=button',
+                          '_blank'
+                        );
+                      }}
+                      icon={<Sparkles className="w-5 h-5" />}
+                      className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500"
+                    >
+                      Réserver mon rendez-vous
+                    </Button>
+                    <Button
+                      onClick={handleClose}
+                      variant="secondary"
+                    >
+                      Fermer
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
             ) : (

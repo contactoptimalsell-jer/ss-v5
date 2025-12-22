@@ -27,14 +27,30 @@ interface ProspectInfo {
   mainChallenge: string;
 }
 
+interface CalculatedScore {
+  score: number;
+  color: 'red' | 'orange' | 'green';
+  level: string;
+  potential: string;
+  priority: string;
+  analysis: {
+    automationUrgency: number;
+    solutionComplexity: number;
+    goalAlignment: number;
+    teamReadiness: number;
+  };
+  recommendations: string[];
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { quizData, quizAnswers, prospectInfo }: {
+    const { quizData, calculatedScore, quizAnswers, prospectInfo }: {
       quizData: QuizData;
+      calculatedScore?: CalculatedScore;
       quizAnswers: QuizAnswers;
       prospectInfo: ProspectInfo;
     } = req.body;
@@ -183,6 +199,55 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 <span class="info-label">Priorité :</span>
                 <span class="info-value">${quizData.priority || 'Non renseigné'}</span>
               </div>
+            </div>
+            ` : ''}
+
+            ${calculatedScore ? `
+            <div class="section" style="border-left-color: ${calculatedScore.color === 'red' ? '#ef4444' : calculatedScore.color === 'orange' ? '#f97316' : '#22c55e'};">
+              <div class="section-title">🎯 Score Intelligent Calculé</div>
+              <div class="info-row">
+                <span class="info-label">Score final :</span>
+                <span class="info-value" style="font-weight: bold; font-size: 18px; color: ${calculatedScore.color === 'red' ? '#ef4444' : calculatedScore.color === 'orange' ? '#f97316' : '#22c55e'};">${calculatedScore.score}/100</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Niveau :</span>
+                <span class="info-value">${calculatedScore.level}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Potentiel :</span>
+                <span class="info-value">${calculatedScore.potential}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Priorité :</span>
+                <span class="info-value">${calculatedScore.priority}</span>
+              </div>
+              <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                <div class="section-title" style="font-size: 14px; margin-bottom: 10px;">Analyse détaillée :</div>
+                <div class="info-row">
+                  <span class="info-label">Urgence automatisation :</span>
+                  <span class="info-value">${calculatedScore.analysis.automationUrgency}/100</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Complexité solutions :</span>
+                  <span class="info-value">${calculatedScore.analysis.solutionComplexity}/100</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Alignement objectifs :</span>
+                  <span class="info-value">${calculatedScore.analysis.goalAlignment}/100</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Préparation équipe :</span>
+                  <span class="info-value">${calculatedScore.analysis.teamReadiness}/100</span>
+                </div>
+              </div>
+              ${calculatedScore.recommendations.length > 0 ? `
+              <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                <div class="section-title" style="font-size: 14px; margin-bottom: 10px;">Recommandations :</div>
+                <ul class="list">
+                  ${calculatedScore.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                </ul>
+              </div>
+              ` : ''}
             </div>
             ` : ''}
 
