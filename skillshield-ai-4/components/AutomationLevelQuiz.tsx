@@ -74,30 +74,30 @@ interface Result {
 
 const getResult = (score: number): Result => {
   // Score max = 10 (5 questions × 2 points max)
-  // Débutant: 0-3 points
-  // Intermédiaire: 4-7 points
-  // Avancé: 8-10 points
+  // Débutant: 0-5 points
+  // Intermédiaire: 6-8 points
+  // Avancé: 9-10 points
 
-  if (score <= 3) {
+  if (score <= 5) {
     return {
       level: 'Débutant',
       potential: 'Élevé',
       priority: 'Commencer maintenant',
       color: 'red',
       emoji: '🟥',
-      title: "Vous êtes au début de votre parcours d'automatisation",
-      description: "Vous passez beaucoup de temps sur des tâches répétitives qui pourraient être gérées différemment. La bonne nouvelle ? Vous avez un potentiel énorme d'amélioration.",
+      title: "Beaucoup de tâches reposent encore sur l'humain et le manuel.",
+      description: "Beaucoup de tâches reposent encore sur l'humain et le manuel.",
       recommendation: "C'est le moment idéal pour commencer. Chaque petite automatisation va vous faire gagner du temps précieux. Commencez par une seule tâche qui vous prend le plus de temps."
     };
-  } else if (score <= 7) {
+  } else if (score <= 8) {
     return {
       level: 'Intermédiaire',
       potential: 'Moyen',
-      priority: 'Optimiser',
+      priority: 'Optimiser intelligemment',
       color: 'orange',
       emoji: '🟧',
-      title: "Vous avez déjà quelques automatisations en place",
-      description: "C'est un bon début ! Vous avez commencé à automatiser certaines tâches, mais il reste encore du potentiel. Vous pouvez aller plus loin et optimiser ce qui existe déjà.",
+      title: "Certaines choses sont déjà automatisées, mais il reste des gains simples à atteindre.",
+      description: "Certaines choses sont déjà automatisées, mais il reste des gains simples à atteindre.",
       recommendation: "Vous êtes sur la bonne voie. Il est temps d'optimiser vos processus existants et d'identifier les prochaines tâches à automatiser pour gagner encore plus de temps."
     };
   } else {
@@ -107,8 +107,8 @@ const getResult = (score: number): Result => {
       priority: 'Aller plus loin',
       color: 'green',
       emoji: '🟩',
-      title: "Vous avez déjà bien automatisé votre quotidien",
-      description: "Félicitations ! Vous avez mis en place plusieurs automatisations et vous savez gérer votre temps efficacement. Vous pouvez maintenant vous concentrer sur l'optimisation fine.",
+      title: "Votre organisation est déjà efficace, quelques optimisations peuvent améliorer votre quotidien.",
+      description: "Votre organisation est déjà efficace, quelques optimisations peuvent améliorer votre quotidien.",
       recommendation: "Vous maîtrisez déjà bien l'automatisation. Pour aller plus loin, identifiez les processus complexes qui pourraient encore être améliorés ou optimisés."
     };
   }
@@ -334,7 +334,45 @@ export const AutomationLevelQuiz: React.FC = () => {
               )}
             </AnimatePresence>
 
-            {/* Section CTA Personnalisée selon le Score - Affiche uniquement après le résultat */}
+            {/* 2️⃣ CTA Générique - Affiche uniquement après le résultat */}
+            {showResult && result && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mt-8"
+              >
+                <Card className="border-cyan-500/30 bg-gradient-to-br from-cyan-900/20 via-violet-900/20 to-cyan-900/20">
+                  <div className="p-8 md:p-10 text-center">
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
+                      Vous voyez où vous perdez le plus de temps ?
+                    </h3>
+                    <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed mb-8">
+                      Commencez par automatiser la première tâche simple dès maintenant.
+                    </p>
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Button
+                        onClick={() => {
+                          document.getElementById('audit-tool')?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        icon={<Sparkles className="w-6 h-6" />}
+                        className="bg-gradient-to-r from-cyan-600 to-violet-600 hover:from-cyan-500 hover:to-violet-500 text-white border-0 text-xl px-10 py-6 rounded-2xl shadow-2xl shadow-cyan-500/30 font-bold transition-all duration-300"
+                      >
+                        Découvrir ma première automatisation
+                      </Button>
+                    </motion.div>
+                    <p className="text-sm text-gray-300 mt-6 italic">
+                      Aucune compétence technique nécessaire — on vous guide pas à pas.
+                    </p>
+                  </div>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* 3️⃣ CTA Personnalisé selon le Score - Affiche uniquement après le résultat */}
             {showResult && result && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -355,9 +393,6 @@ export const AutomationLevelQuiz: React.FC = () => {
                           <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
                             Commencez par automatiser votre tâche la plus chronophage aujourd'hui
                           </h3>
-                          <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
-                            Pas besoin de tout changer d'un coup. <span className="text-red-300 font-semibold">Identifiez la tâche qui vous prend le plus de temps chaque semaine, et automatisez-la en premier.</span> Vous verrez la différence dès la première semaine.
-                          </p>
                         </>
                       )}
 
@@ -365,11 +400,8 @@ export const AutomationLevelQuiz: React.FC = () => {
                       {result.color === 'orange' && (
                         <>
                           <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
-                            Optimisez vos automatisations existantes et ajoutez-en de nouvelles
+                            Optimisez les tâches répétitives qui vous prennent le plus de temps
                           </h3>
-                          <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
-                            Vous avez déjà fait un bon début. <span className="text-orange-300 font-semibold">Identifiez les 2-3 tâches clés qui vous font encore perdre du temps et automatisez-les maintenant.</span> Vous allez gagner encore plus d'heures chaque semaine.
-                          </p>
                         </>
                       )}
 
@@ -377,11 +409,8 @@ export const AutomationLevelQuiz: React.FC = () => {
                       {result.color === 'green' && (
                         <>
                           <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
-                            Passez à l'étape suivante : automatisez les processus complexes
+                            Améliorez les petites tâches restantes pour gagner encore plus de temps
                           </h3>
-                          <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
-                            Vous maîtrisez déjà les bases. <span className="text-green-300 font-semibold">Identifiez les processus plus complexes qui pourraient encore être optimisés.</span> C'est là que vous allez gagner le plus de temps et d'efficacité.
-                          </p>
                         </>
                       )}
                     </div>
@@ -401,24 +430,19 @@ export const AutomationLevelQuiz: React.FC = () => {
                         }`}
                       >
                         {result.color === 'red' ? 'Je veux ma première automatisation' :
-                         result.color === 'orange' ? 'Optimiser mes automatisations' :
+                         result.color === 'orange' ? 'Optimiser mes premières automatisations' :
                          'Aller plus loin dans l\'automatisation'}
                       </Button>
                     </motion.div>
-                    <p className="text-sm text-gray-300 mt-6 flex items-center justify-center gap-2 flex-wrap">
-                      <CheckCircle2 className="w-4 h-4 text-green-400" />
-                      <span className="font-medium">100% gratuit</span>
-                      <span className="text-gray-500">•</span>
-                      <span className="font-medium">Sans engagement</span>
-                      <span className="text-gray-500">•</span>
-                      <span className="font-medium">Résultats en 2 minutes</span>
+                    <p className="text-sm text-gray-300 mt-6 italic">
+                      Aucune compétence technique nécessaire — on vous guide pas à pas.
                     </p>
                   </div>
                 </Card>
               </motion.div>
             )}
 
-            {/* Section CTA par Métier - Affiche uniquement après le résultat */}
+            {/* 4️⃣ CTA par Métier - Affiche uniquement après le résultat */}
             {showResult && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -460,6 +484,9 @@ export const AutomationLevelQuiz: React.FC = () => {
                     >
                       Automatiser ma première relance
                     </Button>
+                    <p className="text-xs text-gray-400 mt-3 italic">
+                      Aucune compétence technique nécessaire
+                    </p>
                   </motion.div>
 
                   {/* Support Client */}
@@ -474,18 +501,21 @@ export const AutomationLevelQuiz: React.FC = () => {
                       <div className="p-3 rounded-xl bg-blue-500/20 border border-blue-500/30">
                         <MessageCircle className="w-6 h-6 text-blue-400" />
                       </div>
-                      <h4 className="text-xl font-bold text-white">Support Client</h4>
+                      <h4 className="text-xl font-bold text-white">Support client</h4>
                     </div>
                     <p className="text-gray-200 mb-4 leading-relaxed">
-                      Vous répétez les mêmes réponses ? <span className="text-blue-300 font-semibold">Automatisez les réponses aux questions fréquentes et libérez du temps pour les cas complexes.</span>
+                      Les questions répétitives vous ralentissent ? <span className="text-blue-300 font-semibold">Automatisez la première réponse type dès maintenant.</span>
                     </p>
                     <Button
                       variant="secondary"
                       icon={<ArrowRight className="w-4 h-4" />}
                       className="w-full bg-blue-500/10 hover:bg-blue-500/20 border-blue-500/30 text-blue-300"
                     >
-                      Automatiser mes réponses
+                      Créer ma première réponse automatique
                     </Button>
+                    <p className="text-xs text-gray-400 mt-3 italic">
+                      Aucune compétence technique nécessaire
+                    </p>
                   </motion.div>
 
                   {/* Marketing */}
@@ -503,18 +533,21 @@ export const AutomationLevelQuiz: React.FC = () => {
                       <h4 className="text-xl font-bold text-white">Marketing</h4>
                     </div>
                     <p className="text-gray-200 mb-4 leading-relaxed">
-                      La création de contenu vous prend des heures ? <span className="text-purple-300 font-semibold">Automatisez la première étape de votre workflow et créez plus de contenu en moins de temps.</span>
+                      La création de contenus et campagnes vous prend trop de temps ? <span className="text-purple-300 font-semibold">Commencez par automatiser une tâche simple.</span>
                     </p>
                     <Button
                       variant="secondary"
                       icon={<ArrowRight className="w-4 h-4" />}
                       className="w-full bg-purple-500/10 hover:bg-purple-500/20 border-purple-500/30 text-purple-300"
                     >
-                      Automatiser ma création de contenu
+                      Automatiser ma première campagne
                     </Button>
+                    <p className="text-xs text-gray-400 mt-3 italic">
+                      Aucune compétence technique nécessaire
+                    </p>
                   </motion.div>
 
-                  {/* Opérations */}
+                  {/* Opérations / Admin */}
                   <motion.div
                     whileHover={{ scale: 1.02, y: -5 }}
                     className="bg-gradient-to-br from-orange-900/30 to-amber-900/20 rounded-xl p-6 border-2 border-orange-500/30 cursor-pointer group"
@@ -526,18 +559,21 @@ export const AutomationLevelQuiz: React.FC = () => {
                       <div className="p-3 rounded-xl bg-orange-500/20 border border-orange-500/30">
                         <Settings className="w-6 h-6 text-orange-400" />
                       </div>
-                      <h4 className="text-xl font-bold text-white">Opérations</h4>
+                      <h4 className="text-xl font-bold text-white">Opérations / Admin</h4>
                     </div>
                     <p className="text-gray-200 mb-4 leading-relaxed">
-                      La gestion des commandes et stocks vous prend trop de temps ? <span className="text-orange-300 font-semibold">Automatisez le suivi et la gestion pour gagner plusieurs heures chaque semaine.</span>
+                      Les tâches répétitives vous épuisent ? <span className="text-orange-300 font-semibold">Automatisez la première opération facilement.</span>
                     </p>
                     <Button
                       variant="secondary"
                       icon={<ArrowRight className="w-4 h-4" />}
                       className="w-full bg-orange-500/10 hover:bg-orange-500/20 border-orange-500/30 text-orange-300"
                     >
-                      Automatiser mes opérations
+                      Automatiser ma première opération
                     </Button>
+                    <p className="text-xs text-gray-400 mt-3 italic">
+                      Aucune compétence technique nécessaire
+                    </p>
                   </motion.div>
 
                   {/* RH */}
@@ -552,18 +588,21 @@ export const AutomationLevelQuiz: React.FC = () => {
                       <div className="p-3 rounded-xl bg-indigo-500/20 border border-indigo-500/30">
                         <Users className="w-6 h-6 text-indigo-400" />
                       </div>
-                      <h4 className="text-xl font-bold text-white">Ressources Humaines</h4>
+                      <h4 className="text-xl font-bold text-white">RH</h4>
                     </div>
                     <p className="text-gray-200 mb-4 leading-relaxed">
-                      Le recrutement et la gestion administrative vous noient ? <span className="text-indigo-300 font-semibold">Automatisez le tri des candidatures et la gestion des dossiers pour vous concentrer sur l'humain.</span>
+                      Le suivi des candidatures prend trop de temps ? <span className="text-indigo-300 font-semibold">Automatisez la première étape simple dès maintenant.</span>
                     </p>
                     <Button
                       variant="secondary"
                       icon={<ArrowRight className="w-4 h-4" />}
                       className="w-full bg-indigo-500/10 hover:bg-indigo-500/20 border-indigo-500/30 text-indigo-300"
                     >
-                      Automatiser mon recrutement
+                      Automatiser mon premier process RH
                     </Button>
+                    <p className="text-xs text-gray-400 mt-3 italic">
+                      Aucune compétence technique nécessaire
+                    </p>
                   </motion.div>
                 </div>
               </motion.div>
