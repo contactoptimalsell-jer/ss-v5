@@ -87,7 +87,17 @@ async function getTokenFromSupabase(token: string): Promise<QuizTokenData | unde
       .eq('token', token)
       .single();
     
-    if (error || !data) {
+    if (error) {
+      // Erreur PGRST116 = "relation does not exist" (table n'existe pas)
+      if (error.code === 'PGRST116') {
+        console.log('⚠️ [quizTokenStorage] Table quiz_tokens n\'existe pas. Créez-la dans Supabase Dashboard.');
+      } else {
+        console.log(`❌ [quizTokenStorage] Erreur Supabase get: ${error.message || error.code || error}`);
+      }
+      return undefined;
+    }
+    
+    if (!data) {
       console.log(`❌ [quizTokenStorage] Token non trouvé dans Supabase: ${token.substring(0, 10)}...`);
       return undefined;
     }
@@ -141,9 +151,10 @@ async function setTokenInSupabase(token: string, data: QuizTokenData): Promise<v
       });
     
     if (error) {
-      console.error('❌ [quizTokenStorage] Erreur Supabase set:', error);
+      console.error(`❌ [quizTokenStorage] Erreur Supabase set: ${error.message || error.code || error}`);
+      // Ne pas throw pour permettre le fallback vers /tmp
     } else {
-      console.log(`✅ [quizTokenStorage] Token sauvegardé dans Supabase: ${token.substring(0, 10)}...`);
+      console.log(`✅ [quizTokenStorage] Token sauvegardé dans Supabase: ${token.substring(0, 10)}... pour ${data.prospectEmail}`);
     }
   } catch (error) {
     console.error('❌ [quizTokenStorage] Erreur Supabase set:', error);
