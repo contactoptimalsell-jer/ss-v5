@@ -24,21 +24,30 @@ const TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours
 let kv: any = null;
 let kvAvailable = false;
 
-try {
-  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
-    const { kv: vercelKv } = require('@vercel/kv');
-    kv = vercelKv;
-    kvAvailable = true;
-    console.log('✅ [quizTokenStorage] Vercel KV est disponible');
-  } else {
-    console.log('⚠️ [quizTokenStorage] Vercel KV non configuré, utilisation du fallback /tmp');
+// Initialiser Vercel KV de manière asynchrone
+async function initKV() {
+  if (kvAvailable) return; // Déjà initialisé
+  
+  try {
+    if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+      const { kv: vercelKv } = await import('@vercel/kv');
+      kv = vercelKv;
+      kvAvailable = true;
+      console.log('✅ [quizTokenStorage] Vercel KV est disponible');
+    } else {
+      console.log('⚠️ [quizTokenStorage] Vercel KV non configuré, utilisation du fallback /tmp');
+    }
+  } catch (error) {
+    console.log('⚠️ [quizTokenStorage] Vercel KV non disponible, utilisation du fallback /tmp:', error);
   }
-} catch (error) {
-  console.log('⚠️ [quizTokenStorage] Vercel KV non disponible, utilisation du fallback /tmp');
 }
+
+// Initialiser au chargement du module
+initKV().catch(console.error);
 
 // ===== FONCTIONS VERCEL KV =====
 async function getTokenFromKV(token: string): Promise<QuizTokenData | undefined> {
+  await initKV(); // S'assurer que KV est initialisé
   if (!kvAvailable || !kv) return undefined;
   
   try {
@@ -67,6 +76,7 @@ async function getTokenFromKV(token: string): Promise<QuizTokenData | undefined>
 }
 
 async function setTokenInKV(token: string, data: QuizTokenData): Promise<void> {
+  await initKV(); // S'assurer que KV est initialisé
   if (!kvAvailable || !kv) return;
   
   try {
@@ -86,6 +96,7 @@ async function setTokenInKV(token: string, data: QuizTokenData): Promise<void> {
 }
 
 async function updateTokenInKV(token: string, updates: Partial<QuizTokenData>): Promise<void> {
+  await initKV(); // S'assurer que KV est initialisé
   if (!kvAvailable || !kv) return;
   
   try {
