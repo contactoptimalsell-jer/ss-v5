@@ -47,7 +47,7 @@ async function initSupabase() {
   }
 }
 
-// S'assurer que la table existe (création automatique via RPC ou vérification)
+// Vérifier que la table existe et que la connexion fonctionne
 async function ensureTableExists() {
   if (!supabaseAvailable || !supabase) return;
   
@@ -58,13 +58,17 @@ async function ensureTableExists() {
       .select('token')
       .limit(1);
     
-    // Si l'erreur indique que la table n'existe pas, on la créera manuellement
-    // Pour l'instant, on suppose qu'elle existe ou sera créée via Supabase Dashboard
-    if (error && error.code === 'PGRST116') {
-      console.log('⚠️ [quizTokenStorage] Table quiz_tokens n\'existe pas. Créez-la dans Supabase Dashboard.');
+    if (error) {
+      if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        console.log('⚠️ [quizTokenStorage] Table quiz_tokens n\'existe pas. Exécutez le script SQL dans Supabase Dashboard.');
+      } else {
+        console.log('⚠️ [quizTokenStorage] Erreur de connexion Supabase:', error.message);
+      }
+    } else {
+      console.log('✅ [quizTokenStorage] Table quiz_tokens vérifiée et accessible');
     }
-  } catch (error) {
-    console.log('⚠️ [quizTokenStorage] Erreur vérification table:', error);
+  } catch (error: any) {
+    console.log('⚠️ [quizTokenStorage] Erreur vérification table:', error?.message || error);
   }
 }
 
