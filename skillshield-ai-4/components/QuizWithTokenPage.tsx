@@ -140,7 +140,7 @@ export const QuizWithTokenPage: React.FC = () => {
   const loadTokenData = async (tokenValue: string) => {
     try {
       // Récupérer les données du token
-      const response = await fetch(`/api/get-quiz-token?token=${tokenValue}`);
+      const response = await fetch(`/api/quiz-token?token=${tokenValue}`);
       if (!response.ok) {
         throw new Error('Token invalide ou expiré');
       }
@@ -154,7 +154,7 @@ export const QuizWithTokenPage: React.FC = () => {
         }
         // Tracker l'ouverture si pas déjà fait
         if (!data.data.opened) {
-          await fetch('/api/track-quiz', {
+          await fetch('/api/quiz-token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token: tokenValue, action: 'opened' }),
@@ -223,10 +223,10 @@ export const QuizWithTokenPage: React.FC = () => {
     setIsSubmitting(true);
     try {
       // 1. Calculer le score intelligent
-      const scoreResponse = await fetch('/api/calculate-quiz-score', {
+      const scoreResponse = await fetch('/api/quiz-score', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quizAnswers, prospectInfo }),
+        body: JSON.stringify({ type: 'personalized', quizAnswers, prospectInfo }),
       });
 
       let calculatedScoreData = null;

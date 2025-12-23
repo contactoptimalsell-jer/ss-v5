@@ -185,12 +185,13 @@ export const PersonalizedSolutionsQuiz: React.FC<PersonalizedSolutionsQuizProps>
     setIsSubmitting(true);
     try {
       // 1. Calculer le score intelligent
-      const scoreResponse = await fetch('/api/calculate-quiz-score', {
+      const scoreResponse = await fetch('/api/quiz-score', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          type: 'personalized',
           quizAnswers,
           prospectInfo,
         }),
@@ -213,12 +214,13 @@ export const PersonalizedSolutionsQuiz: React.FC<PersonalizedSolutionsQuizProps>
       }
 
       // 2. Envoyer l'email avec le score calculé
-      const emailResponse = await fetch('/api/send-quiz-complete', {
+      const emailResponse = await fetch('/api/quiz-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          type: 'complete',
           quizData: {
             score: quizScore,
             level: quizLevel,

@@ -143,12 +143,13 @@ export const AutomationLevelQuiz: React.FC = () => {
     setSendingEmail(true);
     try {
       // Envoyer l'email avec les données du quiz
-      const response = await fetch('/api/send-quiz-email', {
+      const response = await fetch('/api/quiz-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          type: 'notification',
           score,
           level: result.level,
           potential: result.potential,
@@ -187,12 +188,13 @@ export const AutomationLevelQuiz: React.FC = () => {
       // Calculer le score intelligent avec l'API
       setIsCalculatingScore(true);
       try {
-        const scoreResponse = await fetch('/api/calculate-base-quiz-score', {
+        const scoreResponse = await fetch('/api/quiz-score', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
+            type: 'base',
             answers: {
               question1: newAnswers[0],
               question2: newAnswers[1],
