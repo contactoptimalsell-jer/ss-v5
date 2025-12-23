@@ -55,7 +55,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const quizUrl = `https://skillshield.app/quiz/${token}`;
 
     // Stocker les informations du prospect
-    setQuizTokenData(token, {
+    await setQuizTokenData(token, {
       token,
       prospectName,
       prospectEmail: email,

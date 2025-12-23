@@ -62,13 +62,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Récupérer les données du token
-    const tokenData = getQuizTokenData(token);
+    const tokenData = await getQuizTokenData(token);
     if (!tokenData) {
       return res.status(404).json({ error: 'Token invalide ou expiré' });
     }
 
     // Marquer comme complété
-    updateQuizToken(token, {
+    await updateQuizToken(token, {
       completed: true,
       completedAt: new Date(),
     });

@@ -14,7 +14,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: 'Token requis' });
       }
 
-      const tokenData = getQuizTokenData(token);
+      const tokenData = await getQuizTokenData(token);
 
       if (!tokenData) {
         return res.status(404).json({ error: 'Token invalide ou expiré' });
@@ -44,7 +44,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: 'Action invalide' });
       }
 
-      const tokenData = getQuizTokenData(token);
+      const tokenData = await getQuizTokenData(token);
 
       if (!tokenData) {
         return res.status(404).json({ error: 'Token invalide ou expiré' });
@@ -52,13 +52,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       // Mettre à jour le tracking
       if (action === 'opened' && !tokenData.opened) {
-        updateQuizToken(token, {
+        await updateQuizToken(token, {
           opened: true,
           openedAt: new Date(),
         });
         console.log(`✅ [quiz-token] Quiz opened: ${tokenData.prospectEmail}`);
       } else if (action === 'completed' && !tokenData.completed) {
-        updateQuizToken(token, {
+        await updateQuizToken(token, {
           completed: true,
           completedAt: new Date(),
         });
