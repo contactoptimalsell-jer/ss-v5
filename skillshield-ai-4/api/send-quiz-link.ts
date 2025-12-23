@@ -144,14 +144,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             <div class="content">
               <p>Bonjour ${prospectName},</p>
               
-              <p>Nous avons préparé un court quiz pour identifier les solutions les plus utiles pour votre activité. Cela prend moins de 3 minutes.</p>
+              <p>Nous avons préparé un court quiz pour identifier <strong>exactement</strong> où vous perdez du temps chaque semaine et combien vous pourriez gagner en automatisation.</p>
               
-              <p>Ce quiz nous permettra de :</p>
+              <p>En moins de 3 minutes, vous découvrirez :</p>
               <ul>
-                <li>Comprendre vos besoins spécifiques</li>
-                <li>Identifier les automatisations les plus pertinentes pour vous</li>
-                <li>Préparer un plan personnalisé pour votre rendez-vous</li>
+                <li><strong>Votre score d'automatisation</strong> : où vous en êtes aujourd'hui</li>
+                <li><strong>Votre potentiel de gain de temps</strong> : combien d'heures vous pourriez libérer chaque semaine</li>
+                <li><strong>Les automatisations prioritaires</strong> pour votre activité spécifique</li>
+                <li><strong>Un plan personnalisé</strong> prêt pour votre rendez-vous</li>
               </ul>
+              
+              <p style="background-color: #f0f9ff; padding: 15px; border-radius: 6px; border-left: 4px solid #3b82f6; margin: 20px 0;">
+                <strong>💡 Le saviez-vous ?</strong><br>
+                Nos clients gagnent en moyenne <strong>10 à 15 heures par semaine</strong> grâce à leurs premières automatisations. Ce quiz vous montrera précisément votre potentiel.
+              </p>
               
               <div style="text-align: center; margin: 30px 0;">
                 <a href="${quizUrl}" class="cta-button">
@@ -176,7 +182,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const emailText = `
 Bonjour ${prospectName},
 
-Nous avons préparé un court quiz pour identifier les solutions les plus utiles pour votre activité. Cela prend moins de 3 minutes.
+Nous avons préparé un court quiz pour identifier EXACTEMENT où vous perdez du temps chaque semaine et combien vous pourriez gagner en automatisation.
+
+En moins de 3 minutes, vous découvrirez :
+- Votre score d'automatisation : où vous en êtes aujourd'hui
+- Votre potentiel de gain de temps : combien d'heures vous pourriez libérer chaque semaine
+- Les automatisations prioritaires pour votre activité spécifique
+- Un plan personnalisé prêt pour votre rendez-vous
+
+💡 Le saviez-vous ?
+Nos clients gagnent en moyenne 10 à 15 heures par semaine grâce à leurs premières automatisations. Ce quiz vous montrera précisément votre potentiel.
 
 Commencer le quiz : ${quizUrl}
 
