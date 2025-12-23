@@ -94,6 +94,9 @@ const App: React.FC = () => {
 
   // Détecter les routes pour afficher les bonnes pages
   useEffect(() => {
+    // Vérifier que window existe (évite les erreurs SSR)
+    if (typeof window === 'undefined') return;
+
     const checkRoute = () => {
       const path = window.location.pathname;
       
