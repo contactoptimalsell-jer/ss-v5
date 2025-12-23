@@ -10,15 +10,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'GET') {
       const { token } = req.query;
 
+      console.log(`🔍 [quiz-token] GET request - token: ${token}`);
+
       if (!token || typeof token !== 'string') {
+        console.log(`❌ [quiz-token] Token manquant ou invalide`);
         return res.status(400).json({ error: 'Token requis' });
       }
 
+      console.log(`🔍 [quiz-token] Recherche du token: ${token.substring(0, 10)}...`);
       const tokenData = await getQuizTokenData(token);
 
       if (!tokenData) {
+        console.log(`❌ [quiz-token] Token non trouvé: ${token.substring(0, 10)}...`);
         return res.status(404).json({ error: 'Token invalide ou expiré' });
       }
+
+      console.log(`✅ [quiz-token] Token trouvé pour: ${tokenData.prospectEmail}`);
 
       return res.status(200).json({
         success: true,

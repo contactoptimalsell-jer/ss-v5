@@ -139,10 +139,14 @@ export const QuizWithTokenPage: React.FC = () => {
   // Charger les données du token et tracker l'ouverture
   const loadTokenData = async (tokenValue: string) => {
     try {
+      console.log(`🔍 [QuizWithTokenPage] Chargement token: ${tokenValue.substring(0, 10)}...`);
       // Récupérer les données du token
-      const response = await fetch(`/api/quiz-token?token=${tokenValue}`);
+      const response = await fetch(`/api/quiz-token?token=${encodeURIComponent(tokenValue)}`);
+      console.log(`📡 [QuizWithTokenPage] Réponse API: ${response.status} ${response.statusText}`);
       if (!response.ok) {
-        throw new Error('Token invalide ou expiré');
+        const errorData = await response.json().catch(() => ({}));
+        console.error(`❌ [QuizWithTokenPage] Erreur API:`, errorData);
+        throw new Error(errorData.error || 'Token invalide ou expiré');
       }
 
       const data = await response.json();

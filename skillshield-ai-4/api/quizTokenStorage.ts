@@ -24,8 +24,10 @@ const TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours
 // Charger les tokens depuis le fichier
 async function loadTokens(): Promise<Map<string, QuizTokenData>> {
   try {
+    console.log(`📂 [quizTokenStorage] Chargement depuis: ${STORAGE_FILE}`);
     const data = await fs.readFile(STORAGE_FILE, 'utf-8');
     const tokens = JSON.parse(data);
+    console.log(`📊 [quizTokenStorage] ${Object.keys(tokens).length} tokens chargés`);
     const map = new Map<string, QuizTokenData>();
     
     // Convertir les dates et nettoyer les tokens expirés
@@ -52,9 +54,10 @@ async function loadTokens(): Promise<Map<string, QuizTokenData>> {
   } catch (error: any) {
     // Si le fichier n'existe pas, retourner une Map vide
     if (error.code === 'ENOENT') {
+      console.log(`📂 [quizTokenStorage] Fichier n'existe pas encore: ${STORAGE_FILE}`);
       return new Map();
     }
-    console.error('Erreur lors du chargement des tokens:', error);
+    console.error('❌ [quizTokenStorage] Erreur lors du chargement des tokens:', error);
     return new Map();
   }
 }
@@ -71,9 +74,11 @@ async function saveTokens(tokens: Map<string, QuizTokenData>): Promise<void> {
         completedAt: value.completedAt instanceof Date ? value.completedAt.toISOString() : value.completedAt,
       };
     });
+    console.log(`💾 [quizTokenStorage] Sauvegarde de ${tokens.size} tokens dans ${STORAGE_FILE}`);
     await fs.writeFile(STORAGE_FILE, JSON.stringify(obj, null, 2), 'utf-8');
+    console.log(`✅ [quizTokenStorage] Tokens sauvegardés avec succès`);
   } catch (error) {
-    console.error('Erreur lors de la sauvegarde des tokens:', error);
+    console.error('❌ [quizTokenStorage] Erreur lors de la sauvegarde des tokens:', error);
     // Ne pas throw pour éviter de bloquer l'application
   }
 }
@@ -100,10 +105,12 @@ export async function getQuizTokenData(token: string): Promise<QuizTokenData | u
 }
 
 export async function setQuizTokenData(token: string, data: QuizTokenData): Promise<void> {
+  console.log(`💾 [quizTokenStorage] Sauvegarde token: ${token.substring(0, 10)}... pour ${data.prospectEmail}`);
   const tokens = await getTokensMap();
   tokens.set(token, data);
   await saveTokens(tokens);
   tokensCache = tokens; // Mettre à jour le cache
+  console.log(`✅ [quizTokenStorage] Token sauvegardé avec succès`);
 }
 
 export async function updateQuizToken(token: string, updates: Partial<QuizTokenData>): Promise<void> {
