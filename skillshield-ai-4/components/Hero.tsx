@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Button } from './ui/Button';
 import { Sparkles, ArrowRight, Zap, ShieldCheck, TrendingUp, Clock, CheckCircle2, Star, Rocket, Heart, Timer } from 'lucide-react';
 import { SectionId } from '../types';
+import { SplineBackground } from './SplineBackground';
 
 export const Hero: React.FC = () => {
   const openCalendly = () => {
@@ -11,16 +12,32 @@ export const Hero: React.FC = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
-      {/* Enhanced Dynamic Background Elements */}
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-violet-600/30 rounded-full mix-blend-screen filter blur-[120px] animate-blob" />
-      <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-cyan-500/30 rounded-full mix-blend-screen filter blur-[120px] animate-blob animation-delay-2000" />
-      <div className="absolute -bottom-32 left-1/3 w-[700px] h-[700px] bg-orange-500/20 rounded-full mix-blend-screen filter blur-[140px] animate-blob animation-delay-4000" />
+      {/* Spline Animation Background - Opacité augmentée pour visibilité */}
+      <SplineBackground className="opacity-90" />
       
-      {/* Animated gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-900/5 to-transparent pointer-events-none" />
+      {/* Enhanced Dynamic Background Elements (complementary to Spline) - Réduits pour laisser place à Spline */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-violet-600/10 rounded-full mix-blend-screen filter blur-[120px] animate-blob z-[1]" />
+      <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-cyan-500/10 rounded-full mix-blend-screen filter blur-[120px] animate-blob animation-delay-2000 z-[1]" />
+      <div className="absolute -bottom-32 left-1/3 w-[700px] h-[700px] bg-orange-500/8 rounded-full mix-blend-screen filter blur-[140px] animate-blob animation-delay-4000 z-[1]" />
+      
+      {/* Gradient radial intelligent : assombrit le centre (contenu) mais laisse les bords visibles */}
+      <div className="absolute inset-0 bg-radial-gradient from-slate-900/60 via-slate-900/40 to-transparent pointer-events-none z-[5]" 
+           style={{
+             background: 'radial-gradient(ellipse at center, rgba(15, 23, 42, 0.7) 0%, rgba(15, 23, 42, 0.4) 40%, transparent 70%)'
+           }} />
+      
+      {/* Gradient vertical pour créer une séparation naturelle */}
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/50 via-transparent to-slate-900/50 pointer-events-none z-[5]" />
+      
+      {/* Overlay de couleur subtil pour harmoniser avec SkillShield */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-900/8 to-transparent pointer-events-none z-[6]" />
+      <div className="absolute inset-0 bg-gradient-to-r from-violet-600/5 via-transparent to-cyan-500/5 pointer-events-none z-[6]" />
 
+      {/* Contenu avec backdrop-blur subtil pour lisibilité */}
       <div className="container mx-auto px-6 relative z-10">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto relative">
+          {/* Fond subtil pour améliorer la lisibilité du contenu - crée une séparation visuelle avec l'animation */}
+          <div className="absolute inset-0 -mx-6 -my-8 bg-slate-900/40 backdrop-blur-md rounded-3xl pointer-events-none" style={{ zIndex: -1 }} />
           {/* Badge avec animation pulse */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
