@@ -5,7 +5,7 @@ export const Hero: React.FC = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Spline Animation Background - Plein écran, entièrement interactive */}
-      <SplineBackground className="absolute inset-0 w-full h-full" />
+      <SplineBackground className="opacity-100" />
       
       {/* Overlay très subtil pour harmoniser avec SkillShield - ne bloque pas les interactions */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-900/3 to-transparent pointer-events-none z-[1]" />
