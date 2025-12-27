@@ -27,7 +27,7 @@ export const SplineBackground: React.FC<SplineBackgroundProps> = ({
 }) => {
   return (
     <div className={`absolute inset-0 w-full h-full overflow-hidden ${className}`}>
-      <spline-viewer url="undefined"></spline-viewer>
+      <spline-viewer url="https://prod.spline.design/fZ8bpqOGC2ZMQjyT/scene.splinecode"></spline-viewer>
     </div>
   );
 };
