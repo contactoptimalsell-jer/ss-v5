@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Hero } from './components/Hero';
+import { HeroContent } from './components/HeroContent';
 import { ProblemSection } from './components/ProblemSection';
 import { GuardianModeSection } from './components/GuardianModeSection';
 import { ProcessSection } from './components/ProcessSection';
@@ -212,6 +213,7 @@ const App: React.FC = () => {
         return (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <Hero />
+            <HeroContent />
             <ProblemSection />
             <GuardianModeSection />
             
