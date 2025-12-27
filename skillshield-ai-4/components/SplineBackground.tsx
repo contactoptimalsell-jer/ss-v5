@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 
 /**
- * Composant SplineBackground utilisant Hana Viewer
+ * Composant SplineBackground utilisant Spline Viewer
  * 
- * Utilise le web component hana-viewer de Spline pour afficher l'animation 3D
+ * Utilise le web component spline-viewer de Spline pour afficher l'animation 3D
  * Le script CDN est chargé dans index.html
  */
 
@@ -12,11 +12,11 @@ interface SplineBackgroundProps {
   sceneUrl?: string;
 }
 
-// Déclaration TypeScript pour le web component hana-viewer
+// Déclaration TypeScript pour le web component spline-viewer
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      'hana-viewer': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {
+      'spline-viewer': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {
         url?: string;
       }, HTMLElement>;
     }
@@ -25,15 +25,15 @@ declare global {
 
 export const SplineBackground: React.FC<SplineBackgroundProps> = ({ 
   className = '',
-  // URL de la scène Spline Hana
-  sceneUrl = 'https://prod.spline.design/KGSdmjafxHorkMjP-4hD/scene.hanacode'
+  // URL de la scène Spline
+  sceneUrl = 'https://prod.spline.design/fZ8bpqOGC2ZMQjyT/scene.splinecode'
 }) => {
   const viewerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    // S'assurer que le script hana-viewer est chargé et définir l'URL
-    const setupHanaViewer = () => {
-      if (viewerRef.current && customElements.get('hana-viewer')) {
+    // S'assurer que le script spline-viewer est chargé et définir l'URL
+    const setupSplineViewer = () => {
+      if (viewerRef.current && customElements.get('spline-viewer')) {
         // Définir l'attribut url directement sur l'élément
         if (viewerRef.current) {
           viewerRef.current.setAttribute('url', sceneUrl);
@@ -44,10 +44,10 @@ export const SplineBackground: React.FC<SplineBackgroundProps> = ({
     };
 
     // Vérifier immédiatement
-    if (!setupHanaViewer()) {
+    if (!setupSplineViewer()) {
       // Si le web component n'est pas encore défini, attendre
       const interval = setInterval(() => {
-        if (setupHanaViewer()) {
+        if (setupSplineViewer()) {
           clearInterval(interval);
         }
       }, 100);
@@ -69,7 +69,7 @@ export const SplineBackground: React.FC<SplineBackgroundProps> = ({
       className={`absolute inset-0 w-full h-full overflow-hidden ${className}`}
       style={{ zIndex: 0 }}
     >
-      <hana-viewer
+      <spline-viewer
         ref={viewerRef}
         url={sceneUrl}
         style={{
