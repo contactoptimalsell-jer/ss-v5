@@ -66,7 +66,7 @@ export const SplineBackground: React.FC<SplineBackgroundProps> = ({
     }
   }, [sceneUrl]);
 
-  // Écouter les événements du spline-viewer pour détecter les clics sur les boutons
+  // Écouter les événements du spline-viewer pour détecter les interactions
   useEffect(() => {
     const scrollToQuiz = () => {
       // Rediriger vers le Quizz IA (AuditTool)
@@ -83,21 +83,18 @@ export const SplineBackground: React.FC<SplineBackgroundProps> = ({
       const customEvent = event as CustomEvent;
       const eventData = customEvent.detail;
       
-      // Log pour debug (peut être retiré en production)
-      if (eventData) {
-        console.log('Spline event:', eventData);
-      }
-      
-      // Vérifier si c'est un clic sur le bouton "Join Waitlist"
-      // Les événements Spline peuvent avoir différents formats selon la configuration
+      // Vérifier si c'est un clic sur un bouton ou une interaction
       const eventName = eventData?.name || eventData?.target?.name || eventData?.button || '';
       const eventType = customEvent.type || eventData?.type || '';
       
+      // Détecter les clics sur les boutons (Join Waitlist, ou tout bouton)
       if (
         eventName === 'Join Waitlist' ||
         eventName.toLowerCase().includes('waitlist') ||
         eventName.toLowerCase().includes('join') ||
-        (eventType.includes('click') && eventName.toLowerCase().includes('waitlist'))
+        eventName.toLowerCase().includes('calculer') ||
+        eventName.toLowerCase().includes('quiz') ||
+        (eventType.includes('click') && eventData?.target)
       ) {
         scrollToQuiz();
       }
@@ -117,7 +114,7 @@ export const SplineBackground: React.FC<SplineBackgroundProps> = ({
       document.addEventListener('spline-interaction', handleSplineEvent);
       document.addEventListener('spline-button-click', handleSplineEvent);
       
-      // Essayer d'accéder à l'API Spline si disponible
+      // Essayer d'accéder à l'API Spline si disponible pour une meilleure détection
       const checkSplineAPI = () => {
         try {
           // @ts-ignore - L'API Spline peut être disponible via le viewer
@@ -125,8 +122,14 @@ export const SplineBackground: React.FC<SplineBackgroundProps> = ({
           if (splineApp) {
             // Écouter les événements via l'API Spline
             splineApp.addEventListener('interaction', (e: any) => {
-              if (e.target?.name?.toLowerCase().includes('waitlist') || 
-                  e.target?.name?.toLowerCase().includes('join')) {
+              const targetName = e.target?.name?.toLowerCase() || '';
+              if (
+                targetName.includes('waitlist') || 
+                targetName.includes('join') ||
+                targetName.includes('calculer') ||
+                targetName.includes('quiz') ||
+                e.type === 'click'
+              ) {
                 scrollToQuiz();
               }
             });
@@ -167,11 +170,12 @@ export const SplineBackground: React.FC<SplineBackgroundProps> = ({
           height: '100%',
           zIndex: 0,
           border: 'none',
+          pointerEvents: 'auto', // Permet les interactions avec l'animation
         }}
         className="w-full h-full"
       />
       
-      {/* Overlay de couleur très subtil pour harmoniser avec SkillShield - Réduit pour laisser l'animation visible */}
+      {/* Overlay de couleur très subtil pour harmoniser avec SkillShield - pointer-events-none pour ne pas bloquer */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-900/5 to-transparent pointer-events-none" style={{ zIndex: 1 }} />
       <div className="absolute inset-0 bg-gradient-to-r from-violet-600/3 via-transparent to-cyan-500/3 pointer-events-none" style={{ zIndex: 1 }} />
       <div className="absolute inset-0 bg-gradient-to-t from-orange-500/2 via-transparent to-transparent pointer-events-none" style={{ zIndex: 1 }} />
