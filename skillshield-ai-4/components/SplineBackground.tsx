@@ -1,10 +1,12 @@
 import React, { useEffect, useRef } from 'react';
+import { SectionId } from '../types';
 
 /**
  * Composant SplineBackground utilisant Spline Viewer
  * 
  * Utilise le web component spline-viewer de Spline pour afficher l'animation 3D
  * Le script CDN est chargé dans index.html
+ * Écoute les événements du bouton "Join Waitlist" pour rediriger vers le Quizz IA
  */
 
 interface SplineBackgroundProps {
@@ -63,6 +65,91 @@ export const SplineBackground: React.FC<SplineBackgroundProps> = ({
       };
     }
   }, [sceneUrl]);
+
+  // Écouter les événements du spline-viewer pour détecter les clics sur les boutons
+  useEffect(() => {
+    const scrollToQuiz = () => {
+      // Rediriger vers le Quizz IA (AuditTool)
+      setTimeout(() => {
+        const auditSection = document.getElementById(SectionId.AUDIT_TOOL);
+        if (auditSection) {
+          auditSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    };
+
+    const handleSplineEvent = (event: Event) => {
+      // Les événements Spline peuvent être des CustomEvent avec des détails
+      const customEvent = event as CustomEvent;
+      const eventData = customEvent.detail;
+      
+      // Log pour debug (peut être retiré en production)
+      if (eventData) {
+        console.log('Spline event:', eventData);
+      }
+      
+      // Vérifier si c'est un clic sur le bouton "Join Waitlist"
+      // Les événements Spline peuvent avoir différents formats selon la configuration
+      const eventName = eventData?.name || eventData?.target?.name || eventData?.button || '';
+      const eventType = customEvent.type || eventData?.type || '';
+      
+      if (
+        eventName === 'Join Waitlist' ||
+        eventName.toLowerCase().includes('waitlist') ||
+        eventName.toLowerCase().includes('join') ||
+        (eventType.includes('click') && eventName.toLowerCase().includes('waitlist'))
+      ) {
+        scrollToQuiz();
+      }
+    };
+
+    // Écouter les événements personnalisés du spline-viewer
+    const viewer = viewerRef.current;
+    if (viewer) {
+      // Écouter différents types d'événements possibles
+      viewer.addEventListener('spline-event', handleSplineEvent);
+      viewer.addEventListener('interaction', handleSplineEvent);
+      viewer.addEventListener('click', handleSplineEvent);
+      viewer.addEventListener('pointerdown', handleSplineEvent);
+      
+      // Écouter aussi les événements au niveau du document pour capturer les événements Spline
+      document.addEventListener('spline-event', handleSplineEvent);
+      document.addEventListener('spline-interaction', handleSplineEvent);
+      document.addEventListener('spline-button-click', handleSplineEvent);
+      
+      // Essayer d'accéder à l'API Spline si disponible
+      const checkSplineAPI = () => {
+        try {
+          // @ts-ignore - L'API Spline peut être disponible via le viewer
+          const splineApp = (viewer as any).application;
+          if (splineApp) {
+            // Écouter les événements via l'API Spline
+            splineApp.addEventListener('interaction', (e: any) => {
+              if (e.target?.name?.toLowerCase().includes('waitlist') || 
+                  e.target?.name?.toLowerCase().includes('join')) {
+                scrollToQuiz();
+              }
+            });
+          }
+        } catch (error) {
+          // L'API n'est pas disponible, on continue avec les event listeners
+        }
+      };
+
+      // Vérifier l'API après un court délai pour laisser le viewer se charger
+      setTimeout(checkSplineAPI, 2000);
+      
+      return () => {
+        viewer.removeEventListener('spline-event', handleSplineEvent);
+        viewer.removeEventListener('interaction', handleSplineEvent);
+        viewer.removeEventListener('click', handleSplineEvent);
+        viewer.removeEventListener('pointerdown', handleSplineEvent);
+        document.removeEventListener('spline-event', handleSplineEvent);
+        document.removeEventListener('spline-interaction', handleSplineEvent);
+        document.removeEventListener('spline-button-click', handleSplineEvent);
+      };
+    }
+  }, []);
 
   return (
     <div 
