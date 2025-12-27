@@ -1,13 +1,25 @@
 import React from 'react';
 
 /**
- * Composant SplineBackground utilisant un iframe
+ * Composant SplineBackground utilisant Spline Viewer
  * 
- * Utilise un iframe pour afficher l'animation Spline
+ * Utilise le web component spline-viewer de Spline
+ * Le script CDN est chargé dans index.html
  */
 
 interface SplineBackgroundProps {
   className?: string;
+}
+
+// Déclaration TypeScript pour le web component spline-viewer
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'spline-viewer': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {
+        url?: string;
+      }, HTMLElement>;
+    }
+  }
 }
 
 export const SplineBackground: React.FC<SplineBackgroundProps> = ({ 
@@ -15,21 +27,7 @@ export const SplineBackground: React.FC<SplineBackgroundProps> = ({
 }) => {
   return (
     <div className={`absolute inset-0 w-full h-full overflow-hidden ${className}`}>
-      <iframe 
-        src="https://my.spline.design/prismcoin-CXjEHE9NsLdytwYHbZcDnQ2O/" 
-        frameBorder="0" 
-        width="100%" 
-        height="100%"
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          border: 'none',
-        }}
-        className="w-full h-full"
-      />
+      <spline-viewer url="undefined"></spline-viewer>
     </div>
   );
 };
