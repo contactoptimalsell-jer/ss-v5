@@ -46,9 +46,9 @@ export const HeroContent: React.FC = () => {
               <span className="text-cyan-300 font-semibold"> C'est ce que font nos clients.</span>
             </p>
             <p className="max-w-2xl mx-auto text-base md:text-lg text-gray-300 leading-relaxed">
-              Notre système de <span className="text-violet-300 font-semibold">gardien humain</span> garantit que l'IA travaille parfaitement pour vous. 
-              <span className="text-orange-300 font-semibold"> 10-20h par semaine</span> récupérées. 
-              <span className="text-cyan-300 font-semibold"> ROI de 300-520%</span> en 12 mois.
+              <span className="text-violet-300 font-bold text-xl">Surveillé.</span>{' '}
+              <span className="text-cyan-300 font-bold text-xl">Garanti.</span>{' '}
+              <span className="text-orange-300 font-bold text-xl">Performant.</span>
             </p>
           </motion.div>
 
