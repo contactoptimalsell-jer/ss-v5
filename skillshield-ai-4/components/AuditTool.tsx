@@ -89,7 +89,7 @@ export const AuditTool: React.FC = () => {
 
 
   return (
-    <section id={SectionId.AUDIT_TOOL} className="py-24 relative overflow-hidden">
+    <section id={SectionId.AUDIT_TOOL} className="py-24 relative overflow-hidden bg-cyan-950">
       {/* Background Glows */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-violet-900/10 to-cyan-900/20 rounded-full blur-[100px] -z-10" />
 

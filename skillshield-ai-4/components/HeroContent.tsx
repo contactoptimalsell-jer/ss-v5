@@ -10,7 +10,7 @@ export const HeroContent: React.FC = () => {
   };
 
   return (
-    <section className="relative py-20 md:py-24 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800">
+    <section className="relative py-20 md:py-24 bg-cyan-950">
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-7xl mx-auto">
           

@@ -5,7 +5,7 @@ import { SectionId } from '../types';
 
 export const ProblemSection: React.FC = () => {
   return (
-    <section id={SectionId.PROBLEM} className="py-24 relative">
+    <section id={SectionId.PROBLEM} className="py-24 relative bg-cyan-950">
       <div className="container mx-auto px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-5xl font-bold font-display text-white mb-4">
