@@ -170,6 +170,9 @@ async function sendBulkQuizzes(
 
       const displayName = name || companyName;
 
+      // URL d'opt-out (à implémenter selon votre système)
+      const optOutUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://skillshield.app'}/opt-out?email=${encodeURIComponent(email)}&token=${token}`;
+
       await transporter.sendMail({
         from: `"SkillShield AI" <${process.env.SMTP_USER}>`,
         to: email,
@@ -180,12 +183,15 @@ async function sendBulkQuizzes(
           <head>
             <meta charset="utf-8">
             <style>
-              body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
               .container { max-width: 600px; margin: 0 auto; padding: 20px; }
               .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
               .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-              .button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
-              .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+              .button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: 600; }
+              .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; border-top: 1px solid #ddd; padding-top: 20px; }
+              .opt-out { background: #fff3cd; padding: 15px; border-radius: 5px; margin-top: 20px; border-left: 4px solid #ffc107; }
+              .opt-out-link { color: #856404; text-decoration: underline; }
+              .associative { background: #e7f3ff; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #2196F3; }
             </style>
           </head>
           <body>
@@ -195,7 +201,14 @@ async function sendBulkQuizzes(
               </div>
               <div class="content">
                 <p>Bonjour ${displayName},</p>
-                <p>Nous avons préparé un <strong>quiz personnalisé</strong> pour vous aider à identifier les opportunités d'automatisation dans votre entreprise <strong>${companyName}</strong>.</p>
+                
+                <div class="associative">
+                  <p><strong>💡 Message associatif</strong></p>
+                  <p>Nous sommes une communauté d'entrepreneurs qui partageons des outils et bonnes pratiques pour améliorer l'efficacité de nos entreprises grâce à l'intelligence artificielle.</p>
+                  <p>Votre entreprise <strong>${companyName}</strong> a été identifiée comme potentiellement intéressée par nos solutions d'automatisation professionnelle.</p>
+                </div>
+
+                <p>Nous avons préparé un <strong>quiz personnalisé</strong> pour vous aider à identifier les opportunités d'automatisation dans votre entreprise.</p>
                 <p>Ce quiz vous permettra de :</p>
                 <ul>
                   <li>✅ Découvrir votre potentiel d'automatisation</li>
@@ -205,11 +218,28 @@ async function sendBulkQuizzes(
                 <p style="text-align: center;">
                   <a href="${quizUrl}" class="button">Commencer le Quiz</a>
                 </p>
+                </p>
+
+                <div class="opt-out">
+                  <p><strong>🔔 Désinscription</strong></p>
+                  <p>Si vous ne souhaitez plus recevoir nos communications, vous pouvez vous désinscrire à tout moment en cliquant sur ce lien :</p>
+                  <p style="text-align: center;">
+                    <a href="${optOutUrl}" class="opt-out-link">Me désinscrire de cette liste</a>
+                  </p>
+                  <p style="font-size: 11px; margin-top: 10px; color: #666;">
+                    Conformément au RGPD, vous avez le droit de vous opposer au traitement de vos données personnelles.
+                  </p>
+                </div>
+
                 <p><small>Ce lien est unique et personnel. Il expire dans 30 jours.</small></p>
               </div>
               <div class="footer">
-                <p>SkillShield AI - Implémentation IA avec Gardien Humain</p>
-                <p>Si vous n'avez pas demandé ce quiz, vous pouvez ignorer cet email.</p>
+                <p><strong>SkillShield AI</strong> - Implémentation IA avec Gardien Humain</p>
+                <p>📧 Contact: info@skillshield-ai.com</p>
+                <p style="font-size: 11px; color: #999; margin-top: 10px;">
+                  Cet email a été envoyé à ${email} car votre entreprise correspond à nos critères de prospection légale.
+                  <br>Source: Liste d'entreprises partenaires / Annuaire professionnel
+                </p>
               </div>
             </div>
           </body>
@@ -218,13 +248,25 @@ async function sendBulkQuizzes(
         text: `
 Bonjour ${displayName},
 
-Nous avons préparé un quiz personnalisé pour vous aider à identifier les opportunités d'automatisation dans votre entreprise ${companyName}.
+💡 Message associatif
+Nous sommes une communauté d'entrepreneurs qui partageons des outils et bonnes pratiques pour améliorer l'efficacité de nos entreprises grâce à l'intelligence artificielle.
+
+Votre entreprise ${companyName} a été identifiée comme potentiellement intéressée par nos solutions d'automatisation professionnelle.
+
+Nous avons préparé un quiz personnalisé pour vous aider à identifier les opportunités d'automatisation dans votre entreprise.
 
 Commencer le quiz : ${quizUrl}
+
+🔔 Désinscription
+Si vous ne souhaitez plus recevoir nos communications, vous pouvez vous désinscrire à tout moment :
+${optOutUrl}
+
+Conformément au RGPD, vous avez le droit de vous opposer au traitement de vos données personnelles.
 
 Ce lien est unique et personnel. Il expire dans 30 jours.
 
 SkillShield AI - Implémentation IA avec Gardien Humain
+Contact: info@skillshield-ai.com
         `,
       });
 

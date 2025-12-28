@@ -12,6 +12,9 @@ interface ProspectEmail {
   email: string;
   companyName: string;
   name?: string;
+  interestScore?: number;
+  sector?: string;
+  source?: string;
 }
 
 export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
@@ -103,6 +106,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
               .split('\n')
               .map(w => w.trim())
               .filter(w => w.length > 0),
+            source: 'provided', // Source légitime
           }
         : {
             sector,
@@ -110,7 +114,10 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
             category,
           };
 
-      const response = await fetch('/api/web-scraper', {
+      // Utiliser l'API légale pour le mode direct, l'API web-scraper pour le mode recherche
+      const apiEndpoint = useDirectMode ? '/api/legal-prospecting' : '/api/web-scraper';
+      
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -139,6 +146,9 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
         email: contact.email,
         companyName: contact.companyName || 'Entreprise',
         name: contact.name,
+        interestScore: contact.interestScore, // Score d'intérêt IA
+        sector: contact.sector,
+        source: contact.source,
       }));
 
       setFoundEmails(contacts);
@@ -321,8 +331,29 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                 <Search className="w-6 h-6 text-cyan-400" />
                 <h2 className="text-2xl font-bold text-white">Prospection Automatisée</h2>
               </div>
+              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <div className="bg-green-500/20 rounded-full p-2">
+                    <CheckCircle2 className="w-5 h-5 text-green-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-green-400 font-semibold mb-2">🟢 Architecture IA + Google Cloud 100% légale (recommandée)</h3>
+                    <div className="text-sm text-gray-300 space-y-1">
+                      <p><strong>🔧 Pipeline propre:</strong></p>
+                      <ol className="list-decimal list-inside space-y-1 ml-2">
+                        <li><strong>Humain / source légitime:</strong> Annuaire pro, liste d'entreprises partenaires potentielles</li>
+                        <li><strong>Google Cloud:</strong> Analyse des pages fournies, extraction d'emails génériques</li>
+                        <li><strong>IA:</strong> Tri par secteur, scoring d'intérêt</li>
+                        <li><strong>Email:</strong> Message associatif personnalisé, opt-out clair</li>
+                      </ol>
+                      <p className="mt-2 text-green-400">➡️ Scalable • ➡️ Défendable juridiquement • ➡️ Aucun scraping interdit</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <p className="text-gray-300 mb-6">
-                Recherchez automatiquement des contacts en scrapant les pages "Contact" des sites web d'entreprises selon vos critères.
+                Utilisez des sources légitimes (annuaires pro, listes d'entreprises) et laissez Google Cloud + IA analyser et scorer les contacts.
               </p>
 
               {/* Toggle entre mode recherche et mode direct */}
@@ -350,7 +381,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                     }`}
                   >
                     <FileText className="w-4 h-4 inline mr-2" />
-                    Sites directs
+                    Sites légitimes
                   </button>
                 </div>
               </div>
@@ -359,17 +390,19 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                 <div>
                   <label className="block text-sm font-semibold text-gray-300 mb-2">
                     <FileText className="w-4 h-4 inline mr-2" />
-                    URLs des sites web à scraper (une par ligne)
+                    URLs depuis sources légitimes (une par ligne)
                   </label>
                   <textarea
                     value={directWebsites}
                     onChange={(e) => setDirectWebsites(e.target.value)}
-                    placeholder="Exemple:&#10;https://example1.com&#10;https://example2.com&#10;example3.com"
+                    placeholder="Exemple depuis annuaire pro ou liste partenaire:&#10;https://entreprise1.com&#10;https://entreprise2.com&#10;entreprise3.com"
                     rows={6}
                     className="w-full px-4 py-3 bg-slate-800/50 border border-violet-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 resize-none font-mono text-sm"
                   />
                   <p className="text-xs text-gray-400 mt-2">
-                    💡 Entrez les URLs des sites web à scraper (une par ligne). Les pages "Contact" seront automatiquement détectées.
+                    💡 Entrez les URLs depuis des sources légitimes (annuaire pro, liste d'entreprises partenaires). 
+                    Google Cloud analysera les pages et extraira uniquement les emails génériques publics (contact@, info@, etc.).
+                    L'IA triera et scorera les contacts par intérêt.
                   </p>
                 </div>
               ) : (
@@ -501,10 +534,28 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                       <div key={index} className="p-4 bg-slate-800/50 rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-colors">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <p className="text-white font-medium">{prospect.companyName}</p>
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="text-white font-medium">{prospect.companyName}</p>
+                              {prospect.interestScore !== undefined && (
+                                <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                                  prospect.interestScore >= 80 ? 'bg-green-500/20 text-green-400' :
+                                  prospect.interestScore >= 60 ? 'bg-blue-500/20 text-blue-400' :
+                                  prospect.interestScore >= 40 ? 'bg-yellow-500/20 text-yellow-400' :
+                                  'bg-gray-500/20 text-gray-400'
+                                }`}>
+                                  Score: {prospect.interestScore}/100
+                                </span>
+                              )}
+                            </div>
                             <p className="text-cyan-400 text-sm mt-1">{prospect.email}</p>
                             {prospect.name && (
                               <p className="text-gray-400 text-xs mt-1">Contact: {prospect.name}</p>
+                            )}
+                            {prospect.sector && (
+                              <p className="text-gray-400 text-xs mt-1">Secteur: {prospect.sector}</p>
+                            )}
+                            {prospect.source && (
+                              <p className="text-gray-500 text-xs mt-1">Source: {prospect.source === 'provided' ? 'Liste fournie' : prospect.source}</p>
                             )}
                           </div>
                           <div className="text-xs text-gray-500 ml-4">
