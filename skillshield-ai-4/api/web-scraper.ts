@@ -217,6 +217,57 @@ async function findCompaniesViaGoogle(
   return allCompanies;
 }
 
+// Fonction de fallback pour trouver des entreprises sans Google Search
+// Utilise une recherche directe via des patterns d'URLs communes
+async function findCompaniesFallback(
+  sector: string,
+  location: string,
+  category: string
+): Promise<{ name: string; website: string }[]> {
+  console.log('🔄 Mode fallback: recherche directe via patterns d\'URLs');
+  
+  // Générer des URLs potentielles basées sur le secteur et la localisation
+  // Cette méthode est limitée mais peut trouver quelques entreprises
+  const potentialDomains: string[] = [];
+  
+  // Patterns communs pour les entreprises françaises
+  const sectorKeywords = sector.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const locationKeywords = location.toLowerCase().replace(/[^a-z0-9]/g, '');
+  
+  // Générer quelques combinaisons possibles
+  potentialDomains.push(`${sectorKeywords}-${locationKeywords}.fr`);
+  potentialDomains.push(`${sectorKeywords}${locationKeywords}.fr`);
+  potentialDomains.push(`www.${sectorKeywords}-${locationKeywords}.com`);
+  
+  const companies: { name: string; website: string }[] = [];
+  
+  // Tester quelques domaines potentiels (limité pour éviter trop de requêtes)
+  for (const domain of potentialDomains.slice(0, 3)) {
+    try {
+      const testUrl = `https://${domain}`;
+      const response = await fetch(testUrl, {
+        method: 'HEAD',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+        signal: AbortSignal.timeout(3000),
+      });
+      
+      if (response.ok) {
+        companies.push({
+          name: domain.split('.')[0].charAt(0).toUpperCase() + domain.split('.')[0].slice(1),
+          website: testUrl,
+        });
+      }
+    } catch {
+      // Ignorer les erreurs
+    }
+  }
+  
+  console.log(`✅ Mode fallback: ${companies.length} entreprises trouvées`);
+  return companies;
+}
+
 // Fonction pour trouver les pages Contact d'une entreprise
 async function findContactPages(website: string): Promise<string[]> {
   const commonContactPaths = [
@@ -258,17 +309,82 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { sector, location, category } = req.body;
+    const { sector, location, category, websites } = req.body;
 
+    // Mode 1: Scraping direct de sites web fournis
+    if (websites && Array.isArray(websites) && websites.length > 0) {
+      console.log(`🔍 Mode scraping direct: ${websites.length} site(s) web fourni(s)`);
+      const allContacts: ScrapedContact[] = [];
+      
+      for (const website of websites.slice(0, 20)) { // Limiter à 20 sites
+        try {
+          // Normaliser l'URL
+          let normalizedUrl = website.trim();
+          if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+            normalizedUrl = `https://${normalizedUrl}`;
+          }
+          
+          // Trouver les pages Contact
+          const contactPages = await findContactPages(normalizedUrl);
+          
+          if (contactPages.length === 0) {
+            contactPages.push(normalizedUrl);
+          }
+
+          // Scraper chaque page Contact
+          for (const contactPage of contactPages.slice(0, 2)) {
+            const contacts = await scrapeContactPage(contactPage);
+            contacts.forEach(contact => {
+              if (!contact.companyName || contact.companyName === 'Entreprise') {
+                contact.companyName = extractCompanyNameFromUrl(normalizedUrl);
+              }
+              contact.website = normalizedUrl;
+            });
+            allContacts.push(...contacts);
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        } catch (error: any) {
+          console.error(`Error processing ${website}:`, error.message);
+        }
+      }
+
+      // Supprimer les doublons
+      const uniqueContacts = allContacts.reduce((acc, contact) => {
+        const existing = acc.find(c => c.email === contact.email);
+        if (!existing) {
+          acc.push(contact);
+        }
+        return acc;
+      }, [] as ScrapedContact[]);
+
+      return res.status(200).json({
+        success: true,
+        contacts: uniqueContacts.slice(0, 50),
+        totalFound: uniqueContacts.length,
+        metadata: {
+          mode: 'direct',
+          websitesScraped: websites.length,
+        },
+      });
+    }
+
+    // Mode 2: Recherche via Google Search (nécessite sector, location, category)
     if (!sector || !location || !category) {
       return res.status(400).json({ 
-        error: 'Missing required fields: sector, location, category' 
+        error: 'Missing required fields: sector, location, category (ou fournissez des websites)' 
       });
     }
 
     // Étape 1: Trouver des entreprises via Google Search
     console.log(`🔍 Recherche d'entreprises: ${sector} - ${category} - ${location}`);
-    const companies = await findCompaniesViaGoogle(sector, location, category);
+    let companies = await findCompaniesViaGoogle(sector, location, category);
+    
+    // Si Google Search échoue, utiliser une recherche alternative
+    if (companies.length === 0) {
+      console.log('⚠️ Google Search non disponible, utilisation du mode fallback');
+      companies = await findCompaniesFallback(sector, location, category);
+    }
 
     if (companies.length === 0) {
       const googleApiKey = process.env.GOOGLE_SEARCH_API_KEY;
@@ -288,8 +404,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         success: false,
         contacts: [],
         totalFound: 0,
-        message: 'L\'API Google Custom Search est bloquée. Allez dans Google Cloud Console → APIs & Services → Library → Activez "Custom Search API". Voir FIX_GOOGLE_SEARCH_API.md pour les instructions détaillées.',
+        message: 'L\'API Google Custom Search est bloquée. Activez-la dans Google Cloud Console (APIs & Services → Library → Custom Search API → Enable). En attendant, vous pouvez scraper directement des sites web en fournissant leurs URLs.',
         error: 'API_KEY_SERVICE_BLOCKED',
+        suggestion: 'Vous pouvez aussi utiliser le mode manuel pour scraper des sites web spécifiques.',
       });
     }
 

@@ -27,6 +27,8 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
   const [category, setCategory] = useState('');
   const [sector, setSector] = useState('');
   const [location, setLocation] = useState('');
+  const [directWebsites, setDirectWebsites] = useState('');
+  const [useDirectMode, setUseDirectMode] = useState(false);
   const [searchingEmails, setSearchingEmails] = useState(false);
   const [sendingBulk, setSendingBulk] = useState(false);
   const [foundEmails, setFoundEmails] = useState<ProspectEmail[]>([]);
@@ -79,23 +81,41 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
   };
 
   const handleSearchEmails = async () => {
-    if (!category || !sector || !location) return;
+    if (useDirectMode) {
+      // Mode direct : scraper les sites web fournis
+      if (!directWebsites) {
+        setSearchError('Veuillez entrer au moins un site web');
+        return;
+      }
+    } else {
+      // Mode recherche : nécessite secteur, lieu, catégorie
+      if (!category || !sector || !location) return;
+    }
 
     setSearchingEmails(true);
     setSearchError(null);
     setFoundEmails([]);
 
     try {
+      const body = useDirectMode
+        ? {
+            websites: directWebsites
+              .split('\n')
+              .map(w => w.trim())
+              .filter(w => w.length > 0),
+          }
+        : {
+            sector,
+            location,
+            category,
+          };
+
       const response = await fetch('/api/web-scraper', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          sector,
-          location,
-          category,
-        }),
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
@@ -293,7 +313,55 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                 Recherchez automatiquement des contacts en scrapant les pages "Contact" des sites web d'entreprises selon vos critères.
               </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Toggle entre mode recherche et mode direct */}
+              <div className="flex justify-center mb-6">
+                <div className="bg-slate-800/50 rounded-lg p-1 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setUseDirectMode(false)}
+                    className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
+                      !useDirectMode
+                        ? 'bg-cyan-500 text-white'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <Search className="w-4 h-4 inline mr-2" />
+                    Recherche
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUseDirectMode(true)}
+                    className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
+                      useDirectMode
+                        ? 'bg-violet-500 text-white'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <FileText className="w-4 h-4 inline mr-2" />
+                    Sites directs
+                  </button>
+                </div>
+              </div>
+
+              {useDirectMode ? (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    <FileText className="w-4 h-4 inline mr-2" />
+                    URLs des sites web à scraper (une par ligne)
+                  </label>
+                  <textarea
+                    value={directWebsites}
+                    onChange={(e) => setDirectWebsites(e.target.value)}
+                    placeholder="Exemple:&#10;https://example1.com&#10;https://example2.com&#10;example3.com"
+                    rows={6}
+                    className="w-full px-4 py-3 bg-slate-800/50 border border-violet-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 resize-none font-mono text-sm"
+                  />
+                  <p className="text-xs text-gray-400 mt-2">
+                    💡 Entrez les URLs des sites web à scraper (une par ligne). Les pages "Contact" seront automatiquement détectées.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-300 mb-2">
                     <Building2 className="w-4 h-4 inline mr-2" />
@@ -338,12 +406,12 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                     required={automatedMode}
                   />
                 </div>
-              </div>
+              )}
 
               <Button
                 type="button"
                 onClick={handleSearchEmails}
-                disabled={searchingEmails || !category || !sector || !location}
+                disabled={searchingEmails || (useDirectMode ? !directWebsites : (!category || !sector || !location))}
                 className="w-full"
               >
                 {searchingEmails ? (
