@@ -122,30 +122,50 @@ async function findCompaniesViaGoogle(
   const googleCx = process.env.GOOGLE_SEARCH_ENGINE_ID;
 
   if (!googleApiKey || !googleCx) {
-    // Fallback: utiliser une recherche simplifiée
+    console.error('❌ Google Search API non configurée: GOOGLE_SEARCH_API_KEY ou GOOGLE_SEARCH_ENGINE_ID manquant');
+    return [];
+  }
+
+  // Vérifier le format des clés
+  if (!googleApiKey.startsWith('AIza')) {
+    console.error('❌ Format de GOOGLE_SEARCH_API_KEY invalide (doit commencer par AIza)');
     return [];
   }
 
   const query = `${sector} ${category} ${location} site:contact OR site:nous-contacter OR site:contactez-nous`;
   
   try {
-    const response = await fetch(
-      `https://www.googleapis.com/customsearch/v1?key=${googleApiKey}&cx=${googleCx}&q=${encodeURIComponent(query)}&num=10`
-    );
+    console.log(`🔍 Recherche Google: "${query}"`);
+    const apiUrl = `https://www.googleapis.com/customsearch/v1?key=${googleApiKey}&cx=${googleCx}&q=${encodeURIComponent(query)}&num=10`;
+    
+    const response = await fetch(apiUrl, {
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
 
     if (!response.ok) {
-      throw new Error(`Google Search API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`❌ Google Search API error ${response.status}:`, errorText);
+      throw new Error(`Google Search API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
+    
+    if (data.error) {
+      console.error('❌ Google Search API error:', data.error);
+      throw new Error(`Google Search API error: ${data.error.message || JSON.stringify(data.error)}`);
+    }
+
     const companies = (data.items || []).map((item: any) => ({
       name: item.title || extractCompanyNameFromUrl(item.link),
       website: item.link,
     }));
 
+    console.log(`✅ ${companies.length} entreprises trouvées via Google Search`);
     return companies;
   } catch (error: any) {
-    console.error('Google Search error:', error.message);
+    console.error('❌ Google Search error:', error.message);
     return [];
   }
 }
@@ -204,12 +224,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const companies = await findCompaniesViaGoogle(sector, location, category);
 
     if (companies.length === 0) {
-      // Si Google Search n'est pas configuré, utiliser une recherche alternative
+      const googleApiKey = process.env.GOOGLE_SEARCH_API_KEY;
+      const googleCx = process.env.GOOGLE_SEARCH_ENGINE_ID;
+      
+      if (!googleApiKey || !googleCx) {
+        return res.status(200).json({
+          success: false,
+          contacts: [],
+          totalFound: 0,
+          message: 'Google Search API non configurée. Configurez GOOGLE_SEARCH_API_KEY et GOOGLE_SEARCH_ENGINE_ID dans Vercel.',
+        });
+      }
+      
       return res.status(200).json({
         success: true,
         contacts: [],
         totalFound: 0,
-        message: 'Aucune entreprise trouvée. Configurez GOOGLE_SEARCH_API_KEY et GOOGLE_SEARCH_ENGINE_ID pour activer la recherche.',
+        message: 'Aucune entreprise trouvée pour ces critères. Essayez avec des termes plus larges (ex: "Paris" au lieu de "Paris 15e").',
       });
     }
 
