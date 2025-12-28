@@ -117,6 +117,14 @@ const App: React.FC = () => {
         return;
       }
       
+      // Route /12000 pour l'envoi de quiz (dupliquée de /92300)
+      if (path === '/12000') {
+        setCurrentPage('quiz');
+        setBlogArticleSlug(null);
+        setQuizToken(null);
+        return;
+      }
+      
       // Route /quiz/:token pour le quiz avec token
       const quizMatch = path.match(/^\/quiz\/(.+)$/);
       if (quizMatch) {
@@ -189,7 +197,7 @@ const App: React.FC = () => {
       window.history.pushState({}, '', '/77230');
     } else if (page === 'quiz') {
       window.history.pushState({}, '', '/92300');
-    } else if (window.location.pathname === '/77230' || window.location.pathname === '/92300') {
+    } else if (window.location.pathname === '/77230' || window.location.pathname === '/92300' || window.location.pathname === '/12000') {
       // Si on quitte la prospection ou le quiz, nettoyer l'URL
       window.history.pushState({}, '', '/');
     }
@@ -429,10 +437,14 @@ const App: React.FC = () => {
           canonicalUrl: "https://skillshield.app/77230"
         };
       case 'quiz':
+        // Utiliser l'URL actuelle comme canonique (peut être /92300 ou /12000)
+        const quizCanonical = window.location.pathname === '/12000' 
+          ? "https://skillshield.app/12000"
+          : "https://skillshield.app/92300";
         return {
           title: "Envoi de Quiz Personnalisé - SkillShield AI | Outil de Qualification",
           description: "Envoyez un quiz personnalisé à vos prospects pour identifier leurs besoins et préparer votre rendez-vous. Outil de qualification intelligent avec tracking.",
-          canonicalUrl: "https://skillshield.app/92300"
+          canonicalUrl: quizCanonical
         };
       case 'quiz-with-token':
         return {
