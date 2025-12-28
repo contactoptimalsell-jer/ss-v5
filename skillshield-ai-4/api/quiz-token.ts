@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getQuizTokenData, updateQuizToken } from './quizTokenStorage.js';
+import { getQuizTokenData, updateQuizToken } from '../utils/quizTokenStorage.js';
 
 // Fonction unifiée pour gérer les tokens de quiz
 // GET /api/quiz-token?token=xxx -> Récupérer les données du token

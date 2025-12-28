@@ -1,6 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getBenchmarkForProblem } from './sectorBenchmarks';
+import { getBenchmarkForProblem } from '../utils/sectorBenchmarks';
 import { VisualizationData } from '../types';
 import { getBenchmarkForSector } from '../utils/sectorDetection.js';
 

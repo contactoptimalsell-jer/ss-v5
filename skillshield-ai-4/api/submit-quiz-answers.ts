@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import nodemailer from 'nodemailer';
-import { getQuizTokenData, updateQuizToken } from './quizTokenStorage.js';
+import { getQuizTokenData, updateQuizToken } from '../utils/quizTokenStorage.js';
 
 interface QuizAnswers {
   automationNeeds: string[];

@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import nodemailer from 'nodemailer';
 import { randomBytes } from 'crypto';
-import { canSendEmail, recordEmailSend, tryLockEmail } from './emailRateLimit.js';
-import { setQuizTokenData } from './quizTokenStorage.js';
+import { canSendEmail, recordEmailSend, tryLockEmail } from '../utils/emailRateLimit.js';
+import { setQuizTokenData } from '../utils/quizTokenStorage.js';
 
 function generateSecureToken(): string {
   return randomBytes(32).toString('hex');

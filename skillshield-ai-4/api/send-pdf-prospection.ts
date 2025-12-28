@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import PDFDocument from 'pdfkit';
 import nodemailer from 'nodemailer';
 import { AuditResult } from '../types';
-import { canSendEmail, recordEmailSend, tryLockEmail } from './emailRateLimit.js';
+import { canSendEmail, recordEmailSend, tryLockEmail } from '../utils/emailRateLimit.js';
 import { getBenchmarkForSector } from '../utils/sectorDetection.js';
 
 // Les fonctions detectSector et getBenchmarkForProblem sont maintenant dans utils/sectorDetection.ts

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { canSendEmail, recordEmailSend, tryLockEmail } from './emailRateLimit.js';
-import { setQuizTokenData } from './quizTokenStorage.js';
+import { canSendEmail, recordEmailSend, tryLockEmail } from '../utils/emailRateLimit.js';
+import { setQuizTokenData } from '../utils/quizTokenStorage.js';
 import { randomBytes } from 'crypto';
 import nodemailer from 'nodemailer';
 

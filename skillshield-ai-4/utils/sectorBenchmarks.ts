@@ -70,7 +70,6 @@ export function detectSector(userProblem: string): string {
 }
 
 // Fonction pour obtenir les benchmarks selon le secteur
-// Données basées sur des études réelles et statistiques vérifiées (thunderbit.com, gsst.fr, études sectorielles 2024)
 export function getSectorBenchmark(sector: string): SectorBenchmark {
   const benchmarks: Record<string, SectorBenchmark> = {
     'immobilier': {
