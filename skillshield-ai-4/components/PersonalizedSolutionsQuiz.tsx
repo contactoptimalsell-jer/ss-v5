@@ -64,6 +64,10 @@ export const PersonalizedSolutionsQuiz: React.FC<PersonalizedSolutionsQuizProps>
     priority: string;
     recommendations: string[];
   } | null>(null);
+  const [showEmailPrompt, setShowEmailPrompt] = useState(false);
+  const [resultEmail, setResultEmail] = useState('');
+  const [sendingResults, setSendingResults] = useState(false);
+  const [resultsSent, setResultsSent] = useState(false);
 
   const automationOptions = [
     'Emails répétitifs',
@@ -235,6 +239,10 @@ export const PersonalizedSolutionsQuiz: React.FC<PersonalizedSolutionsQuizProps>
 
       if (emailResponse.ok) {
         setIsSubmitted(true);
+        // Afficher la demande d'email discrète après 1 seconde
+        setTimeout(() => {
+          setShowEmailPrompt(true);
+        }, 1000);
       } else {
         console.error('Erreur lors de l\'envoi');
         alert('Une erreur est survenue. Veuillez réessayer.');
@@ -244,6 +252,55 @@ export const PersonalizedSolutionsQuiz: React.FC<PersonalizedSolutionsQuizProps>
       alert('Une erreur est survenue. Veuillez réessayer.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSendResults = async () => {
+    const emailToUse = resultEmail || prospectInfo.email;
+    if (!emailToUse || !emailToUse.includes('@')) return;
+
+    setSendingResults(true);
+    try {
+      // Extraire les informations pour le format demandé
+      const profession = prospectInfo.role || 'Non spécifié';
+      const automation = quizAnswers.automationNeeds[0] || quizAnswers.otherAutomation || 'Non spécifié';
+      const score = calculatedScore 
+        ? `${calculatedScore.score}/100 - ${calculatedScore.level}`
+        : quizScore 
+        ? `${quizScore}/10 - ${quizLevel || 'Non spécifié'}`
+        : 'Non calculé';
+      const potential = calculatedScore?.potential || quizPotential || 'Non spécifié';
+      const priority = calculatedScore?.priority || quizPriority || 'Non spécifié';
+
+      const response = await fetch('/api/send-quiz-results', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: emailToUse,
+          prospectName: prospectInfo.fullName || 'Prospect',
+          profession,
+          automation,
+          score,
+          potential,
+          priority,
+          companyName: prospectInfo.company,
+          calculatedScore,
+          quizAnswers,
+        }),
+      });
+
+      if (response.ok) {
+        setResultsSent(true);
+      } else {
+        throw new Error('Erreur lors de l\'envoi');
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert('Une erreur est survenue lors de l\'envoi des résultats.');
+    } finally {
+      setSendingResults(false);
     }
   };
 
@@ -267,6 +324,9 @@ export const PersonalizedSolutionsQuiz: React.FC<PersonalizedSolutionsQuizProps>
         mainChallenge: '',
       });
       setIsSubmitted(false);
+      setShowEmailPrompt(false);
+      setResultEmail('');
+      setResultsSent(false);
     } else {
       onClose();
     }
@@ -407,6 +467,59 @@ export const PersonalizedSolutionsQuiz: React.FC<PersonalizedSolutionsQuizProps>
                     </Button>
                   </div>
                 </div>
+
+                {/* Demande d'email discrète pour envoyer les résultats */}
+                {showEmailPrompt && !resultsSent && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="mt-8 p-6 bg-gradient-to-br from-violet-500/10 to-cyan-500/10 rounded-xl border border-violet-500/20"
+                  >
+                    <p className="text-gray-300 text-sm mb-4 text-center">
+                      💡 <strong>Souhaitez-vous recevoir vos résultats par email ?</strong>
+                    </p>
+                    <div className="flex gap-3">
+                      <input
+                        type="email"
+                        value={resultEmail || prospectInfo.email}
+                        onChange={(e) => setResultEmail(e.target.value)}
+                        placeholder="votre@email.com"
+                        className="flex-1 px-4 py-2 bg-slate-800/50 border border-violet-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 text-sm"
+                      />
+                      <Button
+                        onClick={handleSendResults}
+                        disabled={sendingResults || !resultEmail && !prospectInfo.email}
+                        className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500"
+                      >
+                        {sendingResults ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Mail className="w-4 h-4 mr-2" />
+                            Recevoir
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-3 text-center">
+                      Nous vous enverrons un récapitulatif de vos réponses
+                    </p>
+                  </motion.div>
+                )}
+
+                {resultsSent && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg text-center"
+                  >
+                    <CheckCircle2 className="w-5 h-5 text-green-400 mx-auto mb-2" />
+                    <p className="text-green-300 text-sm">
+                      ✅ Résultats envoyés à {resultEmail || prospectInfo.email}
+                    </p>
+                  </motion.div>
+                )}
               </motion.div>
             ) : (
               <>
