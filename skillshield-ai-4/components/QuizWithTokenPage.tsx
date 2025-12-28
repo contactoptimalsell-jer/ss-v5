@@ -240,12 +240,13 @@ export const QuizWithTokenPage: React.FC = () => {
       const potential = calculatedScore?.potential || 'Non spécifié';
       const priority = calculatedScore?.priority || 'Non spécifié';
 
-      const response = await fetch('/api/send-quiz-results', {
+      const response = await fetch('/api/quiz-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          type: 'results',
           email: emailToUse,
           prospectName: prospectInfo.fullName || tokenData?.prospectName || 'Prospect',
           profession,
@@ -254,8 +255,6 @@ export const QuizWithTokenPage: React.FC = () => {
           potential,
           priority,
           companyName: prospectInfo.company,
-          calculatedScore,
-          quizAnswers,
         }),
       });
 

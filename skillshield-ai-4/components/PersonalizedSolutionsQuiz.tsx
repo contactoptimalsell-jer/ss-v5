@@ -272,12 +272,13 @@ export const PersonalizedSolutionsQuiz: React.FC<PersonalizedSolutionsQuizProps>
       const potential = calculatedScore?.potential || quizPotential || 'Non spécifié';
       const priority = calculatedScore?.priority || quizPriority || 'Non spécifié';
 
-      const response = await fetch('/api/send-quiz-results', {
+      const response = await fetch('/api/quiz-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          type: 'results',
           email: emailToUse,
           prospectName: prospectInfo.fullName || 'Prospect',
           profession,
@@ -286,8 +287,6 @@ export const PersonalizedSolutionsQuiz: React.FC<PersonalizedSolutionsQuizProps>
           potential,
           priority,
           companyName: prospectInfo.company,
-          calculatedScore,
-          quizAnswers,
         }),
       });
 
