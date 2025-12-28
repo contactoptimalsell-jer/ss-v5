@@ -165,6 +165,14 @@ async function findCompaniesViaGoogle(
       
       if (data.error) {
         console.error('❌ Google Search API error:', data.error);
+        const errorCode = data.error.code;
+        const errorReason = data.error.errors?.[0]?.reason || '';
+        
+        if (errorCode === 403 && (errorReason === 'API_KEY_SERVICE_BLOCKED' || data.error.message?.includes('blocked'))) {
+          console.error('❌ L\'API Custom Search n\'est pas activée dans Google Cloud Console');
+          throw new Error('API_KEY_SERVICE_BLOCKED: Activez Custom Search API dans Google Cloud Console');
+        }
+        
         throw new Error(`Google Search API error: ${data.error.message || JSON.stringify(data.error)}`);
       }
 
@@ -275,11 +283,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
       }
       
+      // Vérifier si l'erreur était due à l'API bloquée
       return res.status(200).json({
-        success: true,
+        success: false,
         contacts: [],
         totalFound: 0,
-        message: 'Aucune entreprise trouvée pour ces critères. Essayez avec des termes plus larges (ex: "Paris" au lieu de "Paris 15e").',
+        message: 'L\'API Google Custom Search est bloquée. Allez dans Google Cloud Console → APIs & Services → Library → Activez "Custom Search API". Voir FIX_GOOGLE_SEARCH_API.md pour les instructions détaillées.',
+        error: 'API_KEY_SERVICE_BLOCKED',
       });
     }
 
