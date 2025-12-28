@@ -170,7 +170,8 @@ async function findCompaniesViaGoogle(
         
         if (errorCode === 403 && (errorReason === 'API_KEY_SERVICE_BLOCKED' || data.error.message?.includes('blocked'))) {
           console.error('❌ L\'API Custom Search n\'est pas activée dans Google Cloud Console');
-          throw new Error('API_KEY_SERVICE_BLOCKED: Activez Custom Search API dans Google Cloud Console');
+          // Arrêter immédiatement - ne pas continuer avec d'autres requêtes
+          throw new Error('API_KEY_SERVICE_BLOCKED');
         }
         
         throw new Error(`Google Search API error: ${data.error.message || JSON.stringify(data.error)}`);
@@ -378,15 +379,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Étape 1: Trouver des entreprises via Google Search
     console.log(`🔍 Recherche d'entreprises: ${sector} - ${category} - ${location}`);
-    let companies = await findCompaniesViaGoogle(sector, location, category);
     
-    // Si Google Search échoue, utiliser une recherche alternative
-    if (companies.length === 0) {
-      console.log('⚠️ Google Search non disponible, utilisation du mode fallback');
-      companies = await findCompaniesFallback(sector, location, category);
+    let companies: { name: string; website: string }[] = [];
+    let googleSearchBlocked = false;
+    
+    try {
+      companies = await findCompaniesViaGoogle(sector, location, category);
+    } catch (error: any) {
+      // Vérifier si l'erreur indique que l'API est bloquée
+      if (error.message?.includes('API_KEY_SERVICE_BLOCKED') || error.message?.includes('blocked')) {
+        googleSearchBlocked = true;
+        console.error('❌ Google Search API bloquée - Utilisation du mode fallback impossible');
+      }
     }
-
-    if (companies.length === 0) {
+    
+    // Si Google Search est bloqué ou n'a rien retourné, informer l'utilisateur
+    if (googleSearchBlocked || companies.length === 0) {
       const googleApiKey = process.env.GOOGLE_SEARCH_API_KEY;
       const googleCx = process.env.GOOGLE_SEARCH_ENGINE_ID;
       
@@ -396,17 +404,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           contacts: [],
           totalFound: 0,
           message: 'Google Search API non configurée. Configurez GOOGLE_SEARCH_API_KEY et GOOGLE_SEARCH_ENGINE_ID dans Vercel.',
+          solution: 'Utilisez le mode "Sites directs" pour scraper des URLs spécifiques.',
         });
       }
       
-      // Vérifier si l'erreur était due à l'API bloquée
+      // Message clair pour l'API bloquée
       return res.status(200).json({
         success: false,
         contacts: [],
         totalFound: 0,
-        message: 'L\'API Google Custom Search est bloquée. Activez-la dans Google Cloud Console (APIs & Services → Library → Custom Search API → Enable). En attendant, vous pouvez scraper directement des sites web en fournissant leurs URLs.',
+        message: 'L\'API Google Custom Search est bloquée. Pour l\'activer : Google Cloud Console → APIs & Services → Library → Recherchez "Custom Search API" → Cliquez sur "Enable".',
         error: 'API_KEY_SERVICE_BLOCKED',
-        suggestion: 'Vous pouvez aussi utiliser le mode manuel pour scraper des sites web spécifiques.',
+        solution: '💡 En attendant, utilisez le mode "Sites directs" (bouton violet) pour scraper directement des sites web en entrant leurs URLs.',
+        instructions: [
+          '1. Cliquez sur le bouton "Sites directs" dans l\'interface',
+          '2. Entrez les URLs des sites web à scraper (une par ligne)',
+          '3. Cliquez sur "Scraper les pages Contact"',
+        ],
       });
     }
 

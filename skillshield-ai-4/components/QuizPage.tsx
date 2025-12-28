@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Loader2, CheckCircle2, FileText, Mail, User, MessageSquare, Sparkles, Search, Building2, Target } from 'lucide-react';
+import { ArrowRight, Loader2, CheckCircle2, FileText, Mail, User, MessageSquare, Sparkles, Search, Building2, Target, AlertCircle } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 
@@ -124,6 +124,16 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
         throw new Error(data.error || 'Erreur lors du scraping web');
       }
 
+      // Si l'API Google Search est bloquée, afficher un message avec solution
+      if (data.error === 'API_KEY_SERVICE_BLOCKED' || data.message?.includes('bloquée')) {
+        setSearchError(
+          data.message + (data.solution ? `\n\n${data.solution}` : '') +
+          (data.instructions ? `\n\n${data.instructions.join('\n')}` : '')
+        );
+        setFoundEmails([]);
+        return;
+      }
+
       // Convertir les contacts scrapés en format ProspectEmail
       const contacts = (data.contacts || []).map((contact: any) => ({
         email: contact.email,
@@ -132,8 +142,10 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
       }));
 
       setFoundEmails(contacts);
-      if (contacts.length === 0) {
-        setSearchError(data.message || 'Aucun contact trouvé. Vérifiez que GOOGLE_SEARCH_API_KEY et GOOGLE_SEARCH_ENGINE_ID sont configurés.');
+      if (contacts.length === 0 && !data.error) {
+        setSearchError(data.message || 'Aucun contact trouvé. Essayez avec des termes plus larges ou utilisez le mode "Sites directs".');
+      } else {
+        setSearchError(null);
       }
     } catch (error: any) {
       console.error('Error scraping web:', error);
@@ -430,7 +442,25 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
 
               {searchError && (
                 <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
-                  <p className="text-red-400 text-sm">{searchError}</p>
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-red-400 text-sm whitespace-pre-line">{searchError}</p>
+                      {searchError.includes('bloquée') && !useDirectMode && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUseDirectMode(true);
+                            setSearchError(null);
+                          }}
+                          className="mt-3 px-4 py-2 bg-violet-500 hover:bg-violet-600 text-white rounded-lg text-sm font-semibold transition-colors"
+                        >
+                          <FileText className="w-4 h-4 inline mr-2" />
+                          Basculer vers le mode "Sites directs"
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
 
