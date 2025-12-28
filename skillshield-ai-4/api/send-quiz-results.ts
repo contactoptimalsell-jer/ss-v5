@@ -35,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Email au prospect avec les résultats
     await transporter.sendMail({
-      from: `"SkillShield AI" <${process.env.SMTP_USER}>`,
+      from: `"SkillShield AI" <info@skillshield-ai.com>`,
       to: email,
       subject: `🎯 Vos résultats du Quiz Automatisation - ${prospectName}`,
       html: `
@@ -127,7 +127,7 @@ SkillShield AI - Implémentation IA avec Gardien Humain
 
     // Email de notification à info@skillshield-ai.com
     await transporter.sendMail({
-      from: `"SkillShield AI" <${process.env.SMTP_USER}>`,
+      from: `"SkillShield AI" <info@skillshield-ai.com>`,
       to: 'info@skillshield-ai.com',
       subject: `🎯 Nouveau Prospect - Quiz Automatisation`,
       text: `
