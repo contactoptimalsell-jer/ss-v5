@@ -406,6 +406,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                     required={automatedMode}
                   />
                 </div>
+                </div>
               )}
 
               <Button
