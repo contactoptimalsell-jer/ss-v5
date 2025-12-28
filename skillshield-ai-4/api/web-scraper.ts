@@ -132,17 +132,28 @@ async function findCompaniesViaGoogle(
     return [];
   }
 
-  const query = `${sector} ${category} ${location} site:contact OR site:nous-contacter OR site:contactez-nous`;
-  
-  try {
-    console.log(`🔍 Recherche Google: "${query}"`);
-    const apiUrl = `https://www.googleapis.com/customsearch/v1?key=${googleApiKey}&cx=${googleCx}&q=${encodeURIComponent(query)}&num=10`;
-    
-    const response = await fetch(apiUrl, {
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
+  // Améliorer la requête de recherche pour être plus flexible
+  // Essayer plusieurs variantes de requêtes
+  const queries = [
+    `${sector} ${category} ${location} contact`,
+    `${sector} ${location} entreprise`,
+    `${sector} ${location} ${category}`,
+    `${sector} ${location}`,
+  ];
+
+  let allCompanies: { name: string; website: string }[] = [];
+  const seenUrls = new Set<string>();
+
+  for (const query of queries.slice(0, 2)) { // Essayer les 2 premières requêtes
+    try {
+      console.log(`🔍 Recherche Google: "${query}"`);
+      const apiUrl = `https://www.googleapis.com/customsearch/v1?key=${googleApiKey}&cx=${googleCx}&q=${encodeURIComponent(query)}&num=10`;
+      
+      const response = await fetch(apiUrl, {
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -157,17 +168,45 @@ async function findCompaniesViaGoogle(
       throw new Error(`Google Search API error: ${data.error.message || JSON.stringify(data.error)}`);
     }
 
-    const companies = (data.items || []).map((item: any) => ({
-      name: item.title || extractCompanyNameFromUrl(item.link),
-      website: item.link,
-    }));
+      const companies = (data.items || []).map((item: any) => {
+        // Extraire l'URL de base (sans chemin)
+        let website = item.link;
+        try {
+          const url = new URL(item.link);
+          website = `${url.protocol}//${url.hostname}`;
+        } catch {
+          // Si l'URL est invalide, utiliser tel quel
+        }
+        
+        return {
+          name: item.title || extractCompanyNameFromUrl(item.link),
+          website: website,
+        };
+      }).filter((company: { name: string; website: string }) => {
+        // Filtrer les doublons
+        if (seenUrls.has(company.website)) {
+          return false;
+        }
+        seenUrls.add(company.website);
+        return true;
+      });
 
-    console.log(`✅ ${companies.length} entreprises trouvées via Google Search`);
-    return companies;
-  } catch (error: any) {
-    console.error('❌ Google Search error:', error.message);
-    return [];
+      allCompanies.push(...companies);
+      console.log(`✅ ${companies.length} entreprises trouvées pour "${query}"`);
+      
+      // Si on a trouvé assez d'entreprises, arrêter
+      if (allCompanies.length >= 10) {
+        break;
+      }
+    } catch (error: any) {
+      console.error(`❌ Google Search error pour "${query}":`, error.message);
+      // Continuer avec la requête suivante
+      continue;
+    }
   }
+
+  console.log(`✅ Total: ${allCompanies.length} entreprises trouvées via Google Search`);
+  return allCompanies;
 }
 
 // Fonction pour trouver les pages Contact d'une entreprise
