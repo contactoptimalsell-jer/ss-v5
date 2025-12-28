@@ -26,6 +26,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
   const [automatedMode, setAutomatedMode] = useState(false);
   const [category, setCategory] = useState('');
   const [sector, setSector] = useState('');
+  const [location, setLocation] = useState('');
   const [searchingEmails, setSearchingEmails] = useState(false);
   const [sendingBulk, setSendingBulk] = useState(false);
   const [foundEmails, setFoundEmails] = useState<ProspectEmail[]>([]);
@@ -78,38 +79,45 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
   };
 
   const handleSearchEmails = async () => {
-    if (!category || !sector) return;
+    if (!category || !sector || !location) return;
 
     setSearchingEmails(true);
     setSearchError(null);
     setFoundEmails([]);
 
     try {
-      const response = await fetch('/api/prospection-automation', {
+      const response = await fetch('/api/web-scraper', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          action: 'search',
-          category,
           sector,
+          location,
+          category,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Erreur lors de la recherche d\'emails');
+        throw new Error(data.error || 'Erreur lors du scraping web');
       }
 
-      setFoundEmails(data.emails || []);
-      if (data.emails && data.emails.length === 0) {
-        setSearchError('Aucun email trouvé pour cette catégorie et ce secteur.');
+      // Convertir les contacts scrapés en format ProspectEmail
+      const contacts = (data.contacts || []).map((contact: any) => ({
+        email: contact.email,
+        companyName: contact.companyName || 'Entreprise',
+        name: contact.name,
+      }));
+
+      setFoundEmails(contacts);
+      if (contacts.length === 0) {
+        setSearchError(data.message || 'Aucun contact trouvé. Vérifiez que GOOGLE_SEARCH_API_KEY et GOOGLE_SEARCH_ENGINE_ID sont configurés.');
       }
     } catch (error: any) {
-      console.error('Error searching emails:', error);
-      setSearchError(error.message || 'Erreur lors de la recherche d\'emails');
+      console.error('Error scraping web:', error);
+      setSearchError(error.message || 'Erreur lors du scraping web');
     } finally {
       setSearchingEmails(false);
     }
@@ -132,6 +140,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
           prospects: foundEmails,
           category,
           sector,
+          location,
         }),
       });
 
@@ -281,20 +290,20 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                 <h2 className="text-2xl font-bold text-white">Prospection Automatisée</h2>
               </div>
               <p className="text-gray-300 mb-6">
-                Recherchez automatiquement des emails d'entreprises dans une catégorie et un secteur spécifiques, puis envoyez-leur un quiz personnalisé.
+                Recherchez automatiquement des contacts en scrapant les pages "Contact" des sites web d'entreprises selon vos critères.
               </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-300 mb-2">
                     <Building2 className="w-4 h-4 inline mr-2" />
-                    Catégorie d'entreprise
+                    Secteur
                   </label>
                   <input
                     type="text"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    placeholder="Ex: PME, Startup, Grand groupe"
+                    value={sector}
+                    onChange={(e) => setSector(e.target.value)}
+                    placeholder="Ex: Construction, Immobilier"
                     className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
                     required={automatedMode}
                   />
@@ -303,13 +312,28 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                 <div>
                   <label className="block text-sm font-semibold text-gray-300 mb-2">
                     <Target className="w-4 h-4 inline mr-2" />
-                    Secteur d'activité
+                    Lieu
                   </label>
                   <input
                     type="text"
-                    value={sector}
-                    onChange={(e) => setSector(e.target.value)}
-                    placeholder="Ex: Immobilier, E-commerce, Santé"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="Ex: Paris, Lyon, Marseille"
+                    className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+                    required={automatedMode}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    <Building2 className="w-4 h-4 inline mr-2" />
+                    Catégorie
+                  </label>
+                  <input
+                    type="text"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    placeholder="Ex: PME, Startup, TPE"
                     className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
                     required={automatedMode}
                   />
@@ -319,18 +343,18 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
               <Button
                 type="button"
                 onClick={handleSearchEmails}
-                disabled={searchingEmails || !category || !sector}
+                disabled={searchingEmails || !category || !sector || !location}
                 className="w-full"
               >
                 {searchingEmails ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Recherche en cours via Grok...
+                    Scraping des pages Contact en cours...
                   </>
                 ) : (
                   <>
                     <Search className="w-4 h-4 mr-2" />
-                    Rechercher des emails
+                    Scraper les pages Contact
                   </>
                 )}
               </Button>
@@ -344,9 +368,16 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
               {foundEmails.length > 0 && (
                 <div className="mt-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-white">
-                      {foundEmails.length} email{foundEmails.length > 1 ? 's' : ''} trouvé{foundEmails.length > 1 ? 's' : ''}
-                    </h3>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">
+                        {foundEmails.length} contact{foundEmails.length > 1 ? 's' : ''} trouvé{foundEmails.length > 1 ? 's' : ''}
+                      </h3>
+                      <p className="text-sm text-gray-400 mt-1">
+                        Secteur: <span className="text-cyan-400">{sector}</span> • 
+                        Lieu: <span className="text-cyan-400">{location}</span> • 
+                        Catégorie: <span className="text-cyan-400">{category}</span>
+                      </p>
+                    </div>
                     <Button
                       type="button"
                       onClick={handleSendBulkQuizzes}
@@ -366,14 +397,23 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                       )}
                     </Button>
                   </div>
-                  <div className="max-h-60 overflow-y-auto space-y-2">
+                  <div className="max-h-96 overflow-y-auto space-y-2">
                     {foundEmails.map((prospect, index) => (
-                      <div key={index} className="p-3 bg-slate-800/50 rounded-lg border border-cyan-500/20">
-                        <p className="text-white font-medium">{prospect.companyName}</p>
-                        <p className="text-cyan-400 text-sm">{prospect.email}</p>
-                        {prospect.name && (
-                          <p className="text-gray-400 text-xs">{prospect.name}</p>
-                        )}
+                      <div key={index} className="p-4 bg-slate-800/50 rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-colors">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className="text-white font-medium">{prospect.companyName}</p>
+                            <p className="text-cyan-400 text-sm mt-1">{prospect.email}</p>
+                            {prospect.name && (
+                              <p className="text-gray-400 text-xs mt-1">Contact: {prospect.name}</p>
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-500 ml-4">
+                            <div className="bg-slate-700/50 px-2 py-1 rounded">{sector}</div>
+                            <div className="bg-slate-700/50 px-2 py-1 rounded mt-1">{location}</div>
+                            <div className="bg-slate-700/50 px-2 py-1 rounded mt-1">{category}</div>
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
