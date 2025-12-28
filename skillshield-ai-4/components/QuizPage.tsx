@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Loader2, CheckCircle2, FileText, Mail, User, MessageSquare, Sparkles, Search, Building2, Target, AlertCircle } from 'lucide-react';
+import { ArrowRight, Loader2, CheckCircle2, FileText, Mail, User, MessageSquare, Sparkles, Search, Building2, Target, AlertCircle, ShieldCheck, BookOpen, Users, Link as LinkIcon, FileCheck } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 
@@ -37,6 +37,14 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
   const [foundEmails, setFoundEmails] = useState<ProspectEmail[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [bulkResults, setBulkResults] = useState<{ sent: number; failed: number } | null>(null);
+  
+  // États RGPD-friendly pour la documentation des sources légitimes
+  const [legitimateSource, setLegitimateSource] = useState<'annuaire' | 'partner_list' | 'provided' | 'other'>('annuaire');
+  const [sourceName, setSourceName] = useState('');
+  const [sourceUrl, setSourceUrl] = useState('');
+  const [consentBasis, setConsentBasis] = useState<'legitimate_interest' | 'public_data' | 'partnership'>('legitimate_interest');
+  const [dataRetention, setDataRetention] = useState('12'); // mois
+  const [gdprNotes, setGdprNotes] = useState('');
 
   const handleSendQuiz = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,7 +114,15 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
               .split('\n')
               .map(w => w.trim())
               .filter(w => w.length > 0),
-            source: 'provided', // Source légitime
+            source: legitimateSource,
+            sourceName,
+            sourceUrl,
+            consentBasis,
+            dataRetention: parseInt(dataRetention),
+            gdprNotes,
+            sector: sector || undefined,
+            location: location || undefined,
+            category: category || undefined,
           }
         : {
             sector,
@@ -387,23 +403,134 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
               </div>
 
               {useDirectMode ? (
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">
-                    <FileText className="w-4 h-4 inline mr-2" />
-                    URLs depuis sources légitimes (une par ligne)
-                  </label>
-                  <textarea
-                    value={directWebsites}
-                    onChange={(e) => setDirectWebsites(e.target.value)}
-                    placeholder="Exemple depuis annuaire pro ou liste partenaire:&#10;https://entreprise1.com&#10;https://entreprise2.com&#10;entreprise3.com"
-                    rows={6}
-                    className="w-full px-4 py-3 bg-slate-800/50 border border-violet-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 resize-none font-mono text-sm"
-                  />
-                  <p className="text-xs text-gray-400 mt-2">
-                    💡 Entrez les URLs depuis des sources légitimes (annuaire pro, liste d'entreprises partenaires). 
-                    Google Cloud analysera les pages et extraira uniquement les emails génériques publics (contact@, info@, etc.).
-                    L'IA triera et scorera les contacts par intérêt.
-                  </p>
+                <div className="space-y-6">
+                  {/* Section RGPD - Documentation de la source légitime */}
+                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <ShieldCheck className="w-5 h-5 text-blue-400" />
+                      <h3 className="text-blue-400 font-semibold">📋 Documentation RGPD - Source Légitime</h3>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          <BookOpen className="w-4 h-4 inline mr-2" />
+                          Type de source légitime *
+                        </label>
+                        <select
+                          value={legitimateSource}
+                          onChange={(e) => setLegitimateSource(e.target.value as any)}
+                          className="w-full px-4 py-3 bg-slate-800/50 border border-blue-500/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        >
+                          <option value="annuaire">Annuaire professionnel</option>
+                          <option value="partner_list">Liste d'entreprises partenaires</option>
+                          <option value="provided">Liste fournie par un tiers autorisé</option>
+                          <option value="other">Autre source légitime</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          <FileText className="w-4 h-4 inline mr-2" />
+                          Nom de la source *
+                        </label>
+                        <input
+                          type="text"
+                          value={sourceName}
+                          onChange={(e) => setSourceName(e.target.value)}
+                          placeholder="Ex: PagesJaunes, Liste partenaires XYZ, etc."
+                          className="w-full px-4 py-3 bg-slate-800/50 border border-blue-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          <LinkIcon className="w-4 h-4 inline mr-2" />
+                          URL de la source <span className="text-gray-500 text-xs">(optionnel)</span>
+                        </label>
+                        <input
+                          type="url"
+                          value={sourceUrl}
+                          onChange={(e) => setSourceUrl(e.target.value)}
+                          placeholder="https://..."
+                          className="w-full px-4 py-3 bg-slate-800/50 border border-blue-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          <ShieldCheck className="w-4 h-4 inline mr-2" />
+                          Base légale RGPD *
+                        </label>
+                        <select
+                          value={consentBasis}
+                          onChange={(e) => setConsentBasis(e.target.value as any)}
+                          className="w-full px-4 py-3 bg-slate-800/50 border border-blue-500/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        >
+                          <option value="legitimate_interest">Intérêt légitime (art. 6.1.f RGPD)</option>
+                          <option value="public_data">Données publiques (art. 6.1.e RGPD)</option>
+                          <option value="partnership">Partenariat contractuel (art. 6.1.b RGPD)</option>
+                        </select>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {consentBasis === 'legitimate_interest' && '✓ Intérêt légitime pour la prospection B2B'}
+                          {consentBasis === 'public_data' && '✓ Données publiques accessibles (sites web, annuaires)'}
+                          {consentBasis === 'partnership' && '✓ Partenariat avec source autorisée'}
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          <FileCheck className="w-4 h-4 inline mr-2" />
+                          Conservation des données (mois) *
+                        </label>
+                        <select
+                          value={dataRetention}
+                          onChange={(e) => setDataRetention(e.target.value)}
+                          className="w-full px-4 py-3 bg-slate-800/50 border border-blue-500/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        >
+                          <option value="6">6 mois</option>
+                          <option value="12">12 mois (recommandé)</option>
+                          <option value="24">24 mois</option>
+                          <option value="36">36 mois</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          Notes de traçabilité <span className="text-gray-500 text-xs">(optionnel)</span>
+                        </label>
+                        <textarea
+                          value={gdprNotes}
+                          onChange={(e) => setGdprNotes(e.target.value)}
+                          placeholder="Ajoutez des notes pour la traçabilité (ex: Date d'obtention, conditions d'utilisation, etc.)"
+                          rows={3}
+                          className="w-full px-4 py-3 bg-slate-800/50 border border-blue-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Section URLs */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      <FileText className="w-4 h-4 inline mr-2" />
+                      URLs depuis la source légitime (une par ligne) *
+                    </label>
+                    <textarea
+                      value={directWebsites}
+                      onChange={(e) => setDirectWebsites(e.target.value)}
+                      placeholder="Exemple depuis annuaire pro ou liste partenaire:&#10;https://entreprise1.com&#10;https://entreprise2.com&#10;entreprise3.com"
+                      rows={6}
+                      className="w-full px-4 py-3 bg-slate-800/50 border border-violet-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 resize-none font-mono text-sm"
+                      required
+                    />
+                    <p className="text-xs text-gray-400 mt-2">
+                      💡 Entrez les URLs depuis la source légitime documentée ci-dessus. 
+                      Google Cloud analysera les pages et extraira uniquement les emails génériques publics (contact@, info@, etc.).
+                      L'IA triera et scorera les contacts par intérêt.
+                    </p>
+                  </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -457,7 +584,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
               <Button
                 type="button"
                 onClick={handleSearchEmails}
-                disabled={searchingEmails || (useDirectMode ? !directWebsites : (!category || !sector || !location))}
+                disabled={searchingEmails || (useDirectMode ? (!directWebsites || !sourceName || !legitimateSource) : (!category || !sector || !location))}
                 className="w-full"
               >
                 {searchingEmails ? (

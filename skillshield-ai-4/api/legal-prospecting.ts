@@ -8,7 +8,14 @@ interface LegalContact {
   website?: string;
   sector?: string;
   interestScore?: number;
-  source: 'annuaire' | 'partner_list' | 'provided';
+  source: 'annuaire' | 'partner_list' | 'provided' | 'other';
+  metadata?: {
+    sourceName: string;
+    sourceUrl?: string;
+    consentBasis: string;
+    dataRetention: number;
+    processedAt: string;
+  };
 }
 
 interface ProspectingRequest {
@@ -16,7 +23,12 @@ interface ProspectingRequest {
   sector?: string;
   location?: string;
   category?: string;
-  source?: 'annuaire' | 'partner_list' | 'provided';
+  source?: 'annuaire' | 'partner_list' | 'provided' | 'other';
+  sourceName?: string;
+  sourceUrl?: string;
+  consentBasis?: 'legitimate_interest' | 'public_data' | 'partnership';
+  dataRetention?: number;
+  gdprNotes?: string;
 }
 
 /**
@@ -258,7 +270,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { websites, sector, location, category, source = 'provided' }: ProspectingRequest = req.body;
+    const { 
+      websites, 
+      sector, 
+      location, 
+      category, 
+      source = 'provided',
+      sourceName,
+      sourceUrl,
+      consentBasis,
+      dataRetention,
+      gdprNotes,
+    }: ProspectingRequest = req.body;
 
     if (!websites || !Array.isArray(websites) || websites.length === 0) {
       return res.status(400).json({ 
@@ -266,7 +289,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    console.log(`🟢 Prospection légale: ${websites.length} site(s) depuis source ${source}`);
+    if (!sourceName || !source) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: sourceName and source (RGPD documentation required)' 
+      });
+    }
+
+    // Log RGPD pour traçabilité
+    console.log(`🟢 Prospection légale RGPD:`);
+    console.log(`   - Source: ${source} (${sourceName})`);
+    console.log(`   - Base légale: ${consentBasis || 'legitimate_interest'}`);
+    console.log(`   - Conservation: ${dataRetention || 12} mois`);
+    console.log(`   - Sites: ${websites.length}`);
+    if (gdprNotes) {
+      console.log(`   - Notes: ${gdprNotes}`);
+    }
 
     const allContacts: LegalContact[] = [];
 
@@ -305,7 +342,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           normalizedUrl
         );
 
-        // Créer les contacts
+        // Créer les contacts avec métadonnées RGPD
         for (const email of analysis.emails) {
           allContacts.push({
             email,
@@ -314,6 +351,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             sector: analysis.sector || sector,
             interestScore,
             source,
+            // Métadonnées RGPD pour traçabilité
+            metadata: {
+              sourceName,
+              sourceUrl,
+              consentBasis: consentBasis || 'legitimate_interest',
+              dataRetention: dataRetention || 12,
+              processedAt: new Date().toISOString(),
+            },
           });
         }
 
@@ -340,11 +385,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       totalFound: uniqueContacts.length,
       metadata: {
         source,
+        sourceName,
+        sourceUrl,
+        consentBasis: consentBasis || 'legitimate_interest',
+        dataRetention: dataRetention || 12,
         averageScore: uniqueContacts.length > 0
           ? Math.round(uniqueContacts.reduce((sum, c) => sum + (c.interestScore || 0), 0) / uniqueContacts.length)
           : 0,
+        processedAt: new Date().toISOString(),
       },
-      message: `${uniqueContacts.length} contact(s) trouvé(s) depuis source légitime.`,
+      message: `${uniqueContacts.length} contact(s) trouvé(s) depuis source légitime documentée.`,
+      gdprCompliant: true,
     });
   } catch (error: any) {
     console.error('❌ Erreur prospection légale:', error);
