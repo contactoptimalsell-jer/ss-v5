@@ -62,16 +62,19 @@ Assurez-vous que les variables SMTP sont configurées :
 - **Envoi en masse** : Maximum 50 quiz par batch
 - **Rate limiting** : Respect des limites d'envoi (1 quiz par email toutes les 24h)
 
-## API Routes
+## API Route
 
-### `/api/search-emails-grok`
+### `/api/prospection-automation`
+Route unifiée pour la prospection automatisée avec deux actions :
+
+#### Action `search` - Recherche d'emails
 - **Method** : POST
-- **Body** : `{ category: string, sector: string }`
+- **Body** : `{ action: "search", category: string, sector: string }`
 - **Response** : `{ success: boolean, emails: ProspectEmail[], count: number }`
 
-### `/api/send-bulk-quizzes`
+#### Action `send` - Envoi en masse
 - **Method** : POST
-- **Body** : `{ prospects: ProspectEmail[], category: string, sector: string }`
+- **Body** : `{ action: "send", prospects: ProspectEmail[], category: string, sector: string }`
 - **Response** : `{ success: boolean, sent: number, failed: number, results: Array }`
 
 ## Structure des données

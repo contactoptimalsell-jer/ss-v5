@@ -85,12 +85,13 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
     setFoundEmails([]);
 
     try {
-      const response = await fetch('/api/search-emails-grok', {
+      const response = await fetch('/api/prospection-automation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          action: 'search',
           category,
           sector,
         }),
@@ -121,12 +122,13 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
     setBulkResults(null);
 
     try {
-      const response = await fetch('/api/send-bulk-quizzes', {
+      const response = await fetch('/api/prospection-automation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          action: 'send',
           prospects: foundEmails,
           category,
           sector,

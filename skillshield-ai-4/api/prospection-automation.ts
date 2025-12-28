@@ -14,18 +14,104 @@ interface ProspectEmail {
   name?: string;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+// Fonction pour rechercher des emails via Grok
+async function searchEmailsViaGrok(category: string, sector: string): Promise<ProspectEmail[]> {
+  const grokApiKey = process.env.GROK_API_KEY;
+  
+  if (!grokApiKey) {
+    throw new Error('GROK_API_KEY not configured');
   }
 
-  const { prospects, category, sector } = req.body;
+  const prompt = `Tu es un assistant expert en recherche d'entreprises et de contacts professionnels.
 
-  if (!prospects || !Array.isArray(prospects) || prospects.length === 0) {
-    return res.status(400).json({ error: 'Liste de prospects requise' });
+Tâche : Trouve des emails d'entreprises françaises dans la catégorie "${category}" et le secteur "${sector}".
+
+Instructions :
+1. Recherche des entreprises françaises correspondant à ces critères
+2. Pour chaque entreprise, trouve l'email de contact principal (généralement contact@, info@, ou email du dirigeant)
+3. Retourne les résultats au format JSON strict avec cette structure :
+{
+  "emails": [
+    {
+      "email": "email@entreprise.com",
+      "companyName": "Nom de l'entreprise",
+      "name": "Nom du contact (optionnel)"
+    }
+  ]
+}
+
+Important :
+- Retourne UNIQUEMENT du JSON valide, sans texte avant ou après
+- Limite à 10-15 entreprises maximum
+- Assure-toi que les emails sont valides et pertinents
+- Focus sur des entreprises françaises réelles`;
+
+  const grokResponse = await fetch('https://api.x.ai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${grokApiKey}`,
+    },
+    body: JSON.stringify({
+      model: 'grok-beta',
+      messages: [
+        {
+          role: 'system',
+          content: 'Tu es un assistant expert en recherche d\'entreprises et de contacts professionnels. Tu retournes toujours du JSON valide.',
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      temperature: 0.7,
+      max_tokens: 2000,
+    }),
+  });
+
+  if (!grokResponse.ok) {
+    const errorData = await grokResponse.text();
+    throw new Error(`Grok API error: ${errorData}`);
   }
 
-  // Limiter à 50 envois par batch pour éviter les timeouts
+  const grokData = await grokResponse.json();
+  const content = grokData.choices?.[0]?.message?.content || '';
+
+  let emails: ProspectEmail[] = [];
+  
+  try {
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      emails = parsed.emails || [];
+    } else {
+      const parsed = JSON.parse(content);
+      emails = parsed.emails || [];
+    }
+  } catch (parseError) {
+    const emailRegex = /[\w\.-]+@[\w\.-]+\.\w+/g;
+    const foundEmails = content.match(emailRegex) || [];
+    
+    emails = foundEmails.slice(0, 10).map((email, index) => ({
+      email: email.toLowerCase(),
+      companyName: `Entreprise ${index + 1} - ${sector}`,
+    }));
+  }
+
+  return emails
+    .filter((p: ProspectEmail) => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(p.email) && p.companyName;
+    })
+    .slice(0, 15);
+}
+
+// Fonction pour envoyer les quiz en masse
+async function sendBulkQuizzes(
+  prospects: ProspectEmail[],
+  category: string,
+  sector: string
+): Promise<{ sent: number; failed: number; results: Array<{ email: string; success: boolean; error?: string }> }> {
   const maxBatchSize = 50;
   const prospectsToProcess = prospects.slice(0, maxBatchSize);
 
@@ -33,7 +119,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   let failed = 0;
   const results: Array<{ email: string; success: boolean; error?: string }> = [];
 
-  // Configuration du transporteur email
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '587'),
@@ -44,9 +129,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     },
   });
 
-  // Traiter chaque prospect
   for (const prospect of prospectsToProcess) {
-    const { email, companyName, name } = prospect as ProspectEmail;
+    const { email, companyName, name } = prospect;
 
     if (!email || !email.includes('@') || !companyName) {
       failed++;
@@ -55,7 +139,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-      // Vérifier le rate limiting
       const rateLimitCheck = await canSendEmail(email);
       if (!rateLimitCheck.canSend) {
         failed++;
@@ -63,7 +146,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         continue;
       }
 
-      // Verrouiller l'email
       const lockResult = await tryLockEmail(email);
       if (!lockResult.success) {
         failed++;
@@ -71,11 +153,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         continue;
       }
 
-      // Générer un token unique pour ce quiz
       const token = generateSecureToken();
       const quizUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://skillshield.app'}/quiz/${token}`;
 
-      // Stocker les données du quiz
       await setQuizTokenData(token, {
         email,
         prospectName: name || companyName,
@@ -86,13 +166,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         createdAt: new Date().toISOString(),
       });
 
-      // Enregistrer l'envoi
       await recordEmailSend(email);
 
-      // Construire le nom d'affichage
       const displayName = name || companyName;
 
-      // Envoyer l'email
       await transporter.sendMail({
         from: `"SkillShield AI" <${process.env.SMTP_USER}>`,
         to: email,
@@ -153,22 +230,57 @@ SkillShield AI - Implémentation IA avec Gardien Humain
 
       sent++;
       results.push({ email, success: true });
-      console.log(`✅ Quiz sent to ${email} (${companyName})`);
     } catch (error: any) {
       failed++;
       results.push({ email, success: false, error: error.message || 'Erreur inconnue' });
-      console.error(`❌ Error sending quiz to ${email}:`, error);
     }
   }
 
-  console.log(`📊 Bulk quiz results: ${sent} sent, ${failed} failed`);
+  return { sent, failed, results };
+}
 
-  return res.status(200).json({
-    success: true,
-    sent,
-    failed,
-    total: prospectsToProcess.length,
-    results,
-  });
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { action, category, sector, prospects } = req.body;
+
+  try {
+    if (action === 'search') {
+      // Recherche d'emails via Grok
+      if (!category || !sector) {
+        return res.status(400).json({ error: 'Catégorie et secteur requis' });
+      }
+
+      const emails = await searchEmailsViaGrok(category, sector);
+      
+      return res.status(200).json({
+        success: true,
+        emails,
+        count: emails.length,
+      });
+    } else if (action === 'send') {
+      // Envoi en masse de quiz
+      if (!prospects || !Array.isArray(prospects) || prospects.length === 0) {
+        return res.status(400).json({ error: 'Liste de prospects requise' });
+      }
+
+      const results = await sendBulkQuizzes(prospects, category || '', sector || '');
+      
+      return res.status(200).json({
+        success: true,
+        ...results,
+        total: prospects.length,
+      });
+    } else {
+      return res.status(400).json({ error: 'Action invalide. Utilisez "search" ou "send"' });
+    }
+  } catch (error: any) {
+    console.error('❌ Error in prospection-automation:', error);
+    return res.status(500).json({
+      error: error.message || 'Erreur lors de l\'opération',
+    });
+  }
 }
 
