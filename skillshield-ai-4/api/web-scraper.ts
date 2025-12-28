@@ -155,18 +155,18 @@ async function findCompaniesViaGoogle(
         },
       });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`❌ Google Search API error ${response.status}:`, errorText);
-      throw new Error(`Google Search API error: ${response.status} - ${errorText}`);
-    }
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ Google Search API error ${response.status}:`, errorText);
+        throw new Error(`Google Search API error: ${response.status} - ${errorText}`);
+      }
 
-    const data = await response.json();
-    
-    if (data.error) {
-      console.error('❌ Google Search API error:', data.error);
-      throw new Error(`Google Search API error: ${data.error.message || JSON.stringify(data.error)}`);
-    }
+      const data = await response.json();
+      
+      if (data.error) {
+        console.error('❌ Google Search API error:', data.error);
+        throw new Error(`Google Search API error: ${data.error.message || JSON.stringify(data.error)}`);
+      }
 
       const companies = (data.items || []).map((item: any) => {
         // Extraire l'URL de base (sans chemin)
