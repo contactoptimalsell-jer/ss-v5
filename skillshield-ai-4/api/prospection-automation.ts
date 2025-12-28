@@ -157,13 +157,13 @@ async function sendBulkQuizzes(
       const quizUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://skillshield.app'}/quiz/${token}`;
 
       await setQuizTokenData(token, {
-        email,
+        token,
         prospectName: name || companyName,
+        prospectEmail: email,
         prospectProblem: `Entreprise dans le secteur ${sector}, catégorie ${category}`,
-        companyName,
-        category,
-        sector,
         createdAt: new Date().toISOString(),
+        opened: false,
+        completed: false,
       });
 
       await recordEmailSend(email);
