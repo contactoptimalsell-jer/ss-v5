@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { canSendEmail, recordEmailSend, tryLockEmail } from '../utils/emailRateLimit.js';
-import { setQuizTokenData } from '../utils/quizTokenStorage.js';
+import { setQuizTokenData, getQuizTokenData } from '../utils/quizTokenStorage.js';
 import { randomBytes } from 'crypto';
 import nodemailer from 'nodemailer';
 
@@ -139,6 +139,15 @@ async function sendBulkQuizzes(
     }
 
     try {
+      // Vérifier l'opt-out RGPD avant d'envoyer
+      const tokenData = await getQuizTokenData(token);
+      if (tokenData?.optOut) {
+        console.log(`🔔 Email ${email} a opt-out, skip`);
+        failed++;
+        results.push({ email, success: false, error: 'Opt-out RGPD' });
+        continue;
+      }
+
       const rateLimitCheck = await canSendEmail(email);
       if (!rateLimitCheck.canSend) {
         failed++;
