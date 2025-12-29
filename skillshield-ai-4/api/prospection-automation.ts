@@ -290,8 +290,234 @@ Contact: info@skillshield-ai.com
   return { sent, failed, results };
 }
 
-// Import des fonctions de prospection unique
-import { analyzePage, findContactEmail, generatePersonalizedMessage } from './prospection-single-helpers.js';
+// ===== FONCTIONS DE PROSPECTION UNIQUE =====
+// Emails autorisés UNIQUEMENT
+const ALLOWED_EMAIL_PATTERNS = [
+  'contact@',
+  'info@',
+  'partenariat@',
+  'communication@',
+  'hello@',
+  'support@'
+];
+
+// Pages à analyser
+const CONTACT_PAGES = [
+  '/contact',
+  '/contactez-nous',
+  '/nous-contacter',
+  '/mentions-legales',
+  '/mentions-légales',
+  '/partenaires',
+  '/partenariat'
+];
+
+function extractCompanyNameFromUrl(url: string): string {
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname.replace('www.', '');
+    const domain = hostname.split('.')[0];
+    return domain.charAt(0).toUpperCase() + domain.slice(1);
+  } catch {
+    return 'Entreprise';
+  }
+}
+
+function extractAllowedEmails(html: string): string[] {
+  const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+  const allEmails = html.match(emailRegex) || [];
+  
+  return allEmails
+    .map(email => email.toLowerCase().trim())
+    .filter(email => {
+      const isAllowed = ALLOWED_EMAIL_PATTERNS.some(pattern => email.includes(pattern));
+      const emailLocalPart = email.split('@')[0];
+      const isNominal = emailLocalPart.includes('.') && emailLocalPart.length > 10;
+      const excludePatterns = [
+        'example@', 'test@', 'noreply@', 'no-reply@', 'donotreply@',
+        'webmaster@', 'postmaster@', 'abuse@', 'privacy@', 'legal@'
+      ];
+      const isExcluded = excludePatterns.some(pattern => email.includes(pattern));
+      return isAllowed && !isNominal && !isExcluded;
+    })
+    .filter((email, index, self) => self.indexOf(email) === index);
+}
+
+async function analyzePage(url: string): Promise<{ html: string; emails: string[]; companyName: string }> {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      },
+      signal: AbortSignal.timeout(10000),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const html = await response.text();
+    const emails = extractAllowedEmails(html);
+    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+    const companyName = titleMatch 
+      ? titleMatch[1].split('|')[0].split('-')[0].trim()
+      : extractCompanyNameFromUrl(url);
+
+    return { html, emails, companyName };
+  } catch (error: any) {
+    throw new Error(`Erreur lors de l'analyse de ${url}: ${error.message}`);
+  }
+}
+
+async function findContactEmail(site: string): Promise<{ email: string; companyName: string }> {
+  const baseUrl = site.startsWith('http') ? site : `https://${site}`;
+  const urlObj = new URL(baseUrl);
+  const baseDomain = `${urlObj.protocol}//${urlObj.hostname}`;
+
+  let result = await analyzePage(baseUrl);
+  let companyName = result.companyName;
+
+  if (result.emails.length > 0) {
+    return { email: result.emails[0], companyName };
+  }
+
+  for (const page of CONTACT_PAGES) {
+    try {
+      const contactUrl = `${baseDomain}${page}`;
+      result = await analyzePage(contactUrl);
+      if (result.emails.length > 0) {
+        return { email: result.emails[0], companyName: result.companyName || companyName };
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return { email: '', companyName };
+}
+
+async function generatePersonalizedMessage(companyName: string, site: string): Promise<string> {
+  const geminiApiKey = process.env.GEMINI_API_KEY || process.env.DefaultGeminiAPIKey;
+  
+  if (!geminiApiKey) {
+    const emotionalPhrases = [
+      'Chaque jour, des heures précieuses sont perdues dans des tâches répétitives qui pourraient être automatisées.',
+      'La complexité croissante de la gestion quotidienne peut devenir un frein à votre croissance.',
+      'Ne pas automatiser aujourd\'hui, c\'est risquer de prendre du retard sur vos concurrents qui ont déjà fait le pas.'
+    ];
+    const randomEmotional = emotionalPhrases[Math.floor(Math.random() * emotionalPhrases.length)];
+    return `Bonjour,
+
+${randomEmotional}
+
+Nous sommes SkillShield AI, spécialisés dans l'implémentation d'IA avec gardien humain pour les entreprises comme ${companyName}.
+
+Notre solution permet d'automatiser vos processus répétitifs tout en conservant le contrôle humain, vous faisant gagner 10-20h par semaine avec un ROI de 300-520% en 12 mois.
+
+Seriez-vous intéressé par un audit gratuit de votre potentiel d'automatisation ?
+
+Si ce message ne vous concerne pas ou si vous ne souhaitez plus être contacté, faites-le nous savoir et nous supprimerons vos coordonnées.
+
+Cordialement,
+L'équipe SkillShield AI`;
+  }
+
+  try {
+    const prompt = `Tu es un assistant de prospection B2B professionnel.
+
+Génère un message personnalisé pour cette entreprise:
+- Nom: ${companyName}
+- Site: ${site}
+
+CONTRAINTES STRICTES:
+1. Ton B2B professionnel, humain, clair, respectueux
+2. Inclure UNE phrase émotionnelle sur: le temps perdu, la complexité, ou la peur de rater une opportunité
+3. Pas de promesse mensongère
+4. Pas de pression commerciale
+5. Mention légale OBLIGATOIRE: "Si ce message ne vous concerne pas ou si vous ne souhaitez plus être contacté, faites-le nous savoir et nous supprimerons vos coordonnées."
+
+Retourne UNIQUEMENT le message, sans formatage supplémentaire.`;
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }]
+      }),
+    });
+
+    if (!response.ok) throw new Error(`Gemini API error: ${response.status}`);
+
+    const responseText = await response.text();
+    const data = JSON.parse(responseText);
+    const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    
+    if (content && content.trim().length > 50) {
+      if (!content.includes('supprimerons') && !content.includes('ne souhaitez plus')) {
+        return content.trim() + '\n\nSi ce message ne vous concerne pas ou si vous ne souhaitez plus être contacté, faites-le nous savoir et nous supprimerons vos coordonnées.';
+      }
+      return content.trim();
+    }
+  } catch (error: any) {
+    console.error('Erreur génération message IA:', error.message);
+  }
+
+  return generatePersonalizedMessage(companyName, site);
+}
+
+async function handleSingleProspecting(req: VercelRequest, res: VercelResponse, site: string) {
+  if (!site || typeof site !== 'string') {
+    return res.status(400).json({ 
+      error: 'Un seul site web doit être fourni',
+      message: 'Veuillez fournir UN site web à analyser. Le traitement en masse n\'est pas autorisé pour des raisons légales.'
+    });
+  }
+
+  let normalizedSite = site.trim();
+  if (!normalizedSite.startsWith('http://') && !normalizedSite.startsWith('https://')) {
+    normalizedSite = `https://${normalizedSite}`;
+  }
+
+  try {
+    new URL(normalizedSite);
+  } catch {
+    return res.status(400).json({ 
+      error: 'URL invalide',
+      message: 'Veuillez fournir une URL valide (ex: example.com ou https://example.com)'
+    });
+  }
+
+  console.log(`🔍 Analyse d'UN site: ${normalizedSite}`);
+
+  try {
+    const { email, companyName } = await findContactEmail(normalizedSite);
+
+    if (!email) {
+      return res.status(200).json({
+        entreprise_nom: companyName || extractCompanyNameFromUrl(normalizedSite),
+        site: normalizedSite,
+        email: '',
+        message_personnalise: 'Email non trouvé – prospection manuelle requise'
+      });
+    }
+
+    const message = await generatePersonalizedMessage(companyName, normalizedSite);
+
+    return res.status(200).json({
+      entreprise_nom: companyName || extractCompanyNameFromUrl(normalizedSite),
+      site: normalizedSite,
+      email: email,
+      message_personnalise: message
+    });
+  } catch (error: any) {
+    console.error('❌ Erreur prospection:', error);
+    return res.status(500).json({ 
+      error: 'Erreur lors de l\'analyse',
+      message: error.message 
+    });
+  }
+}
+// ===== FIN FONCTIONS DE PROSPECTION UNIQUE =====
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -304,8 +530,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (mode === 'single' && site) {
     return handleSingleProspecting(req, res, site);
   }
-
-  const { action, category, sector, prospects } = req.body;
 
   try {
     if (action === 'search') {
