@@ -492,12 +492,12 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                       setProspectingResult(null);
 
                       try {
-                        const response = await fetch('/api/prospection-automation', {
+                        const response = await fetch('/api/prospection-single', {
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',
                           },
-                          body: JSON.stringify({ mode: 'single', site: singleSite }),
+                          body: JSON.stringify({ site: singleSite }),
                         });
 
                         const data = await response.json();
