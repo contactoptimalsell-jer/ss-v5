@@ -208,6 +208,7 @@ Ce lien est personnel et sécurisé. Il expire dans 7 jours.
 
 Cordialement,
 L'équipe SkillShield AI
+${EMAIL_SIGNATURE}
     `;
 
     // Envoi de l'email
@@ -217,12 +218,6 @@ L'équipe SkillShield AI
       subject: emailSubject,
       text: emailText,
       html: emailHtml,
-      attachments: [
-        {
-          filename: 'skillshield-logo.pdf',
-          content: await generateLogoPDF(),
-        },
-      ],
     });
 
     // Enregistrer l'envoi
