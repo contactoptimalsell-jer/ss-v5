@@ -35,6 +35,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
   const [singleSite, setSingleSite] = useState('');
   const [prospectingResult, setProspectingResult] = useState<{
     entreprise_nom: string;
+    secteur?: string;
     site: string;
     email: string;
     message_personnalise: string;
@@ -547,18 +548,19 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                   {prospectingResult && prospectingResult.email && (
                     <div className="mt-6 p-4 bg-slate-800/50 rounded-lg border border-green-500/30">
                       <h3 className="text-lg font-semibold text-white mb-4">Résultat de la prospection</h3>
-                      <div className="space-y-3 mb-6">
-                        <div>
-                          <p className="text-sm text-gray-400">Entreprise</p>
-                          <p className="text-white font-medium">{prospectingResult.entreprise_nom}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-400">Site</p>
-                          <p className="text-white font-medium">{prospectingResult.site}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-400">Email</p>
-                          <p className="text-green-400 font-medium">{prospectingResult.email}</p>
+                      <div className="mb-6">
+                        <p className="text-sm text-gray-400 mb-2">Nom, secteur, site et email</p>
+                        <div className="p-3 bg-slate-900/50 rounded border border-green-500/20">
+                          <p className="text-white font-medium">
+                            <span className="text-cyan-400">{prospectingResult.entreprise_nom}</span>
+                            {prospectingResult.secteur && (
+                              <> - <span className="text-violet-400">{prospectingResult.secteur}</span></>
+                            )}
+                            <br />
+                            <span className="text-gray-300 text-sm">{prospectingResult.site}</span>
+                            <br />
+                            <span className="text-green-400">{prospectingResult.email}</span>
+                          </p>
                         </div>
                       </div>
 

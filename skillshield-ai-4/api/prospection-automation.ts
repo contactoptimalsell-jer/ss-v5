@@ -609,6 +609,7 @@ async function handleSingleProspecting(req: VercelRequest, res: VercelResponse, 
 
     return res.status(200).json({
       entreprise_nom: companyName || extractCompanyNameFromUrl(normalizedSite),
+      secteur: sector || undefined,
       site: normalizedSite,
       email: email,
       message_personnalise: message
@@ -622,6 +623,36 @@ async function handleSingleProspecting(req: VercelRequest, res: VercelResponse, 
   }
 }
 // ===== FIN FONCTIONS DE PROSPECTION UNIQUE =====
+
+// Fonction pour générer un PDF avec le logo SkillShield
+async function generateLogoPDF(): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({ size: [200, 200], margin: 20 });
+      const buffers: Buffer[] = [];
+
+      doc.on('data', buffers.push.bind(buffers));
+      doc.on('end', () => {
+        const pdfBuffer = Buffer.concat(buffers);
+        resolve(pdfBuffer);
+      });
+      doc.on('error', reject);
+
+      // Ajouter le logo (texte stylisé pour l'instant, peut être remplacé par une image)
+      doc.fontSize(24)
+         .fillColor('#667eea')
+         .text('SkillShield', 20, 60, { align: 'center' });
+      
+      doc.fontSize(16)
+         .fillColor('#764ba2')
+         .text('AI', 20, 90, { align: 'center' });
+
+      doc.end();
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 
 // Fonction pour envoyer un email de prospection (simple ou quiz)
 async function sendProspectionEmail(
@@ -718,9 +749,8 @@ L'équipe SkillShield AI`;
       text: `${emailMessage}\n\n---\nDécouvrez SkillShield AI : https://skillshield.app\nSkillShield AI - Implémentation IA avec Gardien Humain`,
       attachments: [
         {
-          filename: 'skillshield-logo.png',
-          path: 'https://skillshield.app/logo.png',
-          cid: 'skillshield-logo',
+          filename: 'skillshield-logo.pdf',
+          content: await generateLogoPDF(),
         },
       ],
       });
@@ -836,9 +866,8 @@ SkillShield AI - Implémentation IA avec Gardien Humain
       `,
       attachments: [
         {
-          filename: 'skillshield-logo.png',
-          path: 'https://skillshield.app/logo.png',
-          cid: 'skillshield-logo',
+          filename: 'skillshield-logo.pdf',
+          content: await generateLogoPDF(),
         },
       ],
       });
