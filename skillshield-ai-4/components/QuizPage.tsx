@@ -578,7 +578,140 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                     )}
                   </Button>
 
-                  {prospectingResult && prospectingResult.email && (
+                  {/* Affichage résultats prospection multiple */}
+                  {prospectingMultiple && multipleSitesResult.length > 0 && (
+                    <div className="mt-6">
+                      <h3 className="text-lg font-semibold text-white mb-4">
+                        {multipleSitesResult.length} entreprise{multipleSitesResult.length > 1 ? 's' : ''} trouvée{multipleSitesResult.length > 1 ? 's' : ''}
+                      </h3>
+                      <div className="space-y-4 max-h-96 overflow-y-auto">
+                        {multipleSitesResult.map((result, index) => (
+                          <div key={index} className="p-4 bg-slate-800/50 rounded-lg border border-blue-500/30">
+                            <div className="mb-4">
+                              <p className="text-sm text-gray-400 mb-2">Nom, secteur, site et email</p>
+                              <div className="p-3 bg-slate-900/50 rounded border border-blue-500/20">
+                                <p className="text-white font-medium">
+                                  <span className="text-cyan-400">{result.entreprise_nom}</span>
+                                  {result.secteur && (
+                                    <> - <span className="text-violet-400">{result.secteur}</span></>
+                                  )}
+                                  <br />
+                                  <span className="text-gray-300 text-sm">{result.site}</span>
+                                  <br />
+                                  {result.email ? (
+                                    <span className="text-green-400">{result.email}</span>
+                                  ) : (
+                                    <span className="text-gray-500 text-sm">Email non trouvé</span>
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+
+                            {result.email && !sentMultipleEmails[result.email] ? (
+                              <>
+                                <div className="mb-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                                  <label className="block text-sm font-semibold text-gray-300 mb-3">
+                                    Type d'email à envoyer
+                                  </label>
+                                  <div className="space-y-2">
+                                    <label className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg border border-cyan-500/30 cursor-pointer hover:border-cyan-500/50 transition-colors">
+                                      <input
+                                        type="radio"
+                                        name={`emailType-${index}`}
+                                        value="simple"
+                                        defaultChecked
+                                        className="w-4 h-4 text-cyan-500"
+                                      />
+                                      <div className="flex-1">
+                                        <p className="text-white font-medium">Message simple</p>
+                                        <p className="text-xs text-gray-400">Message de prospection personnalisé</p>
+                                      </div>
+                                    </label>
+                                    <label className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg border border-violet-500/30 cursor-pointer hover:border-violet-500/50 transition-colors">
+                                      <input
+                                        type="radio"
+                                        name={`emailType-${index}`}
+                                        value="quiz"
+                                        className="w-4 h-4 text-violet-500"
+                                      />
+                                      <div className="flex-1">
+                                        <p className="text-white font-medium">Quiz complet</p>
+                                        <p className="text-xs text-gray-400">Quiz personnalisé comme sur /92300</p>
+                                      </div>
+                                    </label>
+                                  </div>
+                                </div>
+
+                                <Button
+                                  type="button"
+                                  onClick={async () => {
+                                    if (!result.email) return;
+                                    
+                                    const selectedType = (document.querySelector(`input[name="emailType-${index}"]:checked`) as HTMLInputElement)?.value || 'simple';
+                                    
+                                    setSendingMultipleEmails(prev => ({ ...prev, [result.email]: true }));
+                                    setSearchError(null);
+
+                                    try {
+                                      const response = await fetch('/api/prospection-automation', {
+                                        method: 'POST',
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                          mode: 'send-email',
+                                          email: result.email,
+                                          companyName: result.entreprise_nom,
+                                          site: result.site,
+                                          emailType: selectedType,
+                                          message: selectedType === 'simple' ? result.message_personnalise : null,
+                                        }),
+                                      });
+
+                                      const data = await response.json();
+
+                                      if (!response.ok) {
+                                        throw new Error(data.error || data.message || 'Erreur lors de l\'envoi');
+                                      }
+
+                                      setSentMultipleEmails(prev => ({ ...prev, [result.email]: true }));
+                                    } catch (error: any) {
+                                      console.error('Error sending email:', error);
+                                      setSearchError(error.message || 'Erreur lors de l\'envoi de l\'email');
+                                    } finally {
+                                      setSendingMultipleEmails(prev => ({ ...prev, [result.email]: false }));
+                                    }
+                                  }}
+                                  disabled={sendingMultipleEmails[result.email] || !result.email}
+                                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500"
+                                >
+                                  {sendingMultipleEmails[result.email] ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                      Envoi en cours...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Mail className="w-4 h-4 mr-2" />
+                                      Envoyer l'email
+                                    </>
+                                  )}
+                                </Button>
+                              </>
+                            ) : result.email && sentMultipleEmails[result.email] ? (
+                              <div className="mt-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-sm flex items-center gap-2">
+                                <CheckCircle2 className="w-5 h-5" />
+                                <span>L'email a été envoyé à {result.email} depuis contact@skillshield-ai.com avec succès !</span>
+                              </div>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Affichage résultat prospection unique */}
+                  {!prospectingMultiple && prospectingResult && prospectingResult.email && (
                     <div className="mt-6 p-4 bg-slate-800/50 rounded-lg border border-green-500/30">
                       <h3 className="text-lg font-semibold text-white mb-4">Résultat de la prospection</h3>
                       <div className="mb-6">
