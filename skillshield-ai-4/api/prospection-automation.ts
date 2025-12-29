@@ -547,13 +547,32 @@ async function sendProspectionEmail(
   emailType: 'simple' | 'quiz',
   message?: string
 ): Promise<{ success: boolean; quizUrl?: string }> {
+  // Vérifier la configuration SMTP
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const smtpPort = parseInt(process.env.SMTP_PORT || '587');
+
+  console.log(`📧 [sendProspectionEmail] Configuration SMTP:`);
+  console.log(`   - Host: ${smtpHost}`);
+  console.log(`   - Port: ${smtpPort}`);
+  console.log(`   - User: ${smtpUser ? smtpUser.substring(0, 5) + '...' : 'NON CONFIGURÉ'}`);
+  console.log(`   - Pass: ${smtpPass ? '***' : 'NON CONFIGURÉ'}`);
+  console.log(`   - Email type: ${emailType}`);
+  console.log(`   - To: ${email}`);
+  console.log(`   - From: info@skillshield-ai.com`);
+
+  if (!smtpUser || !smtpPass) {
+    throw new Error('Configuration SMTP manquante. Veuillez configurer SMTP_USER et SMTP_PASS dans Vercel Dashboard → Settings → Environment Variables');
+  }
+
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
+    host: smtpHost,
+    port: smtpPort,
     secure: false,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: smtpUser,
+      pass: smtpPass,
     },
   });
 
@@ -573,10 +592,13 @@ Si ce message ne vous concerne pas ou si vous ne souhaitez plus être contacté,
 Cordialement,
 L'équipe SkillShield AI`;
 
-    await transporter.sendMail({
-      from: '"SkillShield AI" <info@skillshield-ai.com>',
-      to: email,
-      subject: `🎯 Automatisation IA pour ${companyName} - Gagnez 10-20h par semaine`,
+    console.log(`📤 [sendProspectionEmail] Envoi email simple à ${email}...`);
+    
+    try {
+      const result = await transporter.sendMail({
+        from: '"SkillShield AI" <info@skillshield-ai.com>',
+        to: email,
+        subject: `🎯 Automatisation IA pour ${companyName} - Gagnez 10-20h par semaine`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -603,9 +625,19 @@ L'équipe SkillShield AI`;
         </html>
       `,
       text: emailMessage,
-    });
+      });
 
-    return { success: true };
+      console.log(`✅ [sendProspectionEmail] Email simple envoyé avec succès:`, {
+        messageId: result.messageId,
+        accepted: result.accepted,
+        rejected: result.rejected,
+      });
+
+      return { success: true };
+    } catch (error: any) {
+      console.error(`❌ [sendProspectionEmail] Erreur envoi email simple:`, error);
+      throw new Error(`Erreur lors de l'envoi de l'email: ${error.message}`);
+    }
   } else {
     // Envoi du quiz complet
     const token = generateSecureToken();
@@ -622,10 +654,15 @@ L'équipe SkillShield AI`;
       completed: false,
     });
 
-    await transporter.sendMail({
-      from: '"SkillShield AI" <info@skillshield-ai.com>',
-      to: email,
-      subject: `🎯 Quiz Personnalisé pour ${companyName} - Découvrez votre potentiel d'automatisation`,
+    console.log(`📤 [sendProspectionEmail] Envoi email quiz à ${email}...`);
+    console.log(`   - Quiz URL: ${quizUrl}`);
+    console.log(`   - Token: ${token}`);
+    
+    try {
+      const result = await transporter.sendMail({
+        from: '"SkillShield AI" <info@skillshield-ai.com>',
+        to: email,
+        subject: `🎯 Quiz Personnalisé pour ${companyName} - Découvrez votre potentiel d'automatisation`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -690,9 +727,20 @@ Conformément au RGPD, vous avez le droit de vous opposer au traitement de vos d
 
 SkillShield AI - Implémentation IA avec Gardien Humain
       `,
-    });
+      });
 
-    return { success: true, quizUrl };
+      console.log(`✅ [sendProspectionEmail] Email quiz envoyé avec succès:`, {
+        messageId: result.messageId,
+        accepted: result.accepted,
+        rejected: result.rejected,
+        quizUrl,
+      });
+
+      return { success: true, quizUrl };
+    } catch (error: any) {
+      console.error(`❌ [sendProspectionEmail] Erreur envoi email quiz:`, error);
+      throw new Error(`Erreur lors de l'envoi de l'email quiz: ${error.message}`);
+    }
   }
 }
 
@@ -710,8 +758,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Mode envoi email de prospection
   if (mode === 'send-email' && email && companyName && emailType) {
+    console.log(`🚀 [prospection-automation] Mode send-email activé`);
+    console.log(`   - Email: ${email}`);
+    console.log(`   - Company: ${companyName}`);
+    console.log(`   - Type: ${emailType}`);
+    
     try {
       const result = await sendProspectionEmail(email, companyName, site || '', emailType, message);
+      console.log(`✅ [prospection-automation] Email envoyé avec succès`);
       return res.status(200).json({
         success: true,
         message: 'Email envoyé avec succès',
@@ -719,11 +773,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         quizUrl: result.quizUrl,
       });
     } catch (error: any) {
-      console.error('❌ Erreur envoi email prospection:', error);
+      console.error('❌ [prospection-automation] Erreur envoi email prospection:', error);
       return res.status(500).json({
         success: false,
         error: 'Erreur lors de l\'envoi de l\'email',
         message: error.message,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       });
     }
   }
