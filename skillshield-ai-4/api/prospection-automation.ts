@@ -345,7 +345,7 @@ function extractAllowedEmails(html: string): string[] {
     .filter((email, index, self) => self.indexOf(email) === index);
 }
 
-async function analyzePage(url: string): Promise<{ html: string; emails: string[]; companyName: string }> {
+async function analyzePage(url: string): Promise<{ html: string; emails: string[]; companyName: string; sector?: string }> {
   try {
     const response = await fetch(url, {
       headers: {
@@ -360,6 +360,83 @@ async function analyzePage(url: string): Promise<{ html: string; emails: string[
 
     const html = await response.text();
     const emails = extractAllowedEmails(html);
+    
+    // Utiliser Gemini AI pour extraire le nom et le secteur précis
+    const geminiApiKey = process.env.GEMINI_API_KEY || process.env.DefaultGeminiAPIKey;
+    
+    if (geminiApiKey) {
+      try {
+        // Nettoyer le HTML
+        const cleanHtml = html
+          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        
+        const cleanText = cleanHtml.substring(0, 5000);
+
+        const prompt = `Tu es un assistant expert en analyse de pages web professionnelles.
+
+Analyse cette page web et extrais:
+1. Le nom officiel et complet de l'entreprise
+2. Le secteur d'activité PRÉCIS (ex: "Immobilier - Agence immobilière", "E-commerce - Vente de vêtements", "Restauration - Restaurant gastronomique", "BTP - Maçonnerie", etc.)
+
+URL: ${url}
+Contenu: ${cleanText}
+
+Retourne UNIQUEMENT du JSON valide avec cette structure:
+{
+  "companyName": "Nom officiel complet de l'entreprise",
+  "sector": "Secteur d'activité précis et détaillé"
+}
+
+Important:
+- Le nom doit être le nom officiel complet de l'entreprise
+- Le secteur doit être précis et détaillé (ex: "Immobilier - Agence immobilière à Lyon" plutôt que juste "Immobilier")
+- Si le secteur n'est pas identifiable, retourne "Non spécifié"`;
+
+        const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }]
+          }),
+        });
+
+        if (aiResponse.ok) {
+          const aiData = await aiResponse.json();
+          const aiContent = aiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          
+          // Parser la réponse JSON
+          const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            try {
+              const parsed = JSON.parse(jsonMatch[0]);
+              if (parsed && typeof parsed === 'object') {
+                const companyName = typeof parsed.companyName === 'string' && parsed.companyName.trim()
+                  ? parsed.companyName.trim()
+                  : (html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1]?.split('|')[0]?.split('-')[0]?.trim() || extractCompanyNameFromUrl(url));
+                
+                const sector = typeof parsed.sector === 'string' && parsed.sector.trim() && parsed.sector !== 'Non spécifié'
+                  ? parsed.sector.trim()
+                  : undefined;
+
+                console.log(`✅ Analyse IA: ${companyName} - ${sector || 'Secteur non détecté'}`);
+                
+                return { html, emails, companyName, sector };
+              }
+            } catch (parseError) {
+              console.warn('⚠️ Erreur parsing réponse IA, utilisation du fallback');
+            }
+          }
+        }
+      } catch (aiError: any) {
+        console.warn('⚠️ Erreur analyse IA:', aiError.message);
+      }
+    }
+
+    // Fallback: extraction basique
     const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
     const companyName = titleMatch 
       ? titleMatch[1].split('|')[0].split('-')[0].trim()
@@ -371,16 +448,17 @@ async function analyzePage(url: string): Promise<{ html: string; emails: string[
   }
 }
 
-async function findContactEmail(site: string): Promise<{ email: string; companyName: string }> {
+async function findContactEmail(site: string): Promise<{ email: string; companyName: string; sector?: string }> {
   const baseUrl = site.startsWith('http') ? site : `https://${site}`;
   const urlObj = new URL(baseUrl);
   const baseDomain = `${urlObj.protocol}//${urlObj.hostname}`;
 
   let result = await analyzePage(baseUrl);
   let companyName = result.companyName;
+  let sector = result.sector;
 
   if (result.emails.length > 0) {
-    return { email: result.emails[0], companyName };
+    return { email: result.emails[0], companyName, sector };
   }
 
   for (const page of CONTACT_PAGES) {
@@ -388,17 +466,25 @@ async function findContactEmail(site: string): Promise<{ email: string; companyN
       const contactUrl = `${baseDomain}${page}`;
       result = await analyzePage(contactUrl);
       if (result.emails.length > 0) {
-        return { email: result.emails[0], companyName: result.companyName || companyName };
+        return { 
+          email: result.emails[0], 
+          companyName: result.companyName || companyName,
+          sector: result.sector || sector
+        };
+      }
+      // Mettre à jour le secteur si trouvé
+      if (result.sector && !sector) {
+        sector = result.sector;
       }
     } catch {
       continue;
     }
   }
 
-  return { email: '', companyName };
+  return { email: '', companyName, sector };
 }
 
-async function generatePersonalizedMessage(companyName: string, site: string): Promise<string> {
+async function generatePersonalizedMessage(companyName: string, site: string, sector?: string): Promise<string> {
   const geminiApiKey = process.env.GEMINI_API_KEY || process.env.DefaultGeminiAPIKey;
   
   if (!geminiApiKey) {
@@ -408,11 +494,12 @@ async function generatePersonalizedMessage(companyName: string, site: string): P
       'Ne pas automatiser aujourd\'hui, c\'est risquer de prendre du retard sur vos concurrents qui ont déjà fait le pas.'
     ];
     const randomEmotional = emotionalPhrases[Math.floor(Math.random() * emotionalPhrases.length)];
+    const sectorContext = sector ? ` dans le secteur ${sector}` : '';
     return `Bonjour,
 
 ${randomEmotional}
 
-Nous sommes SkillShield AI, spécialisés dans l'implémentation d'IA avec gardien humain pour les entreprises comme ${companyName}.
+Nous sommes SkillShield AI, spécialisés dans l'implémentation d'IA avec gardien humain pour les entreprises${sectorContext} comme ${companyName}.
 
 Notre solution permet d'automatiser vos processus répétitifs tout en conservant le contrôle humain, vous faisant gagner 10-20h par semaine avec un ROI de 300-520% en 12 mois.
 
@@ -425,18 +512,21 @@ L'équipe SkillShield AI`;
   }
 
   try {
+    const sectorInfo = sector ? `\n- Secteur d'activité: ${sector}` : '';
     const prompt = `Tu es un assistant de prospection B2B professionnel.
 
 Génère un message personnalisé pour cette entreprise:
 - Nom: ${companyName}
-- Site: ${site}
+- Site: ${site}${sectorInfo}
 
 CONTRAINTES STRICTES:
 1. Ton B2B professionnel, humain, clair, respectueux
-2. Inclure UNE phrase émotionnelle sur: le temps perdu, la complexité, ou la peur de rater une opportunité
-3. Pas de promesse mensongère
-4. Pas de pression commerciale
-5. Mention légale OBLIGATOIRE: "Si ce message ne vous concerne pas ou si vous ne souhaitez plus être contacté, faites-le nous savoir et nous supprimerons vos coordonnées."
+2. Inclure UNE phrase émotionnelle adaptée au secteur ${sector ? `(${sector})` : ''} sur: le temps perdu, la complexité, ou la peur de rater une opportunité
+3. Personnaliser le message en fonction du secteur d'activité si fourni
+4. Mentionner des exemples concrets d'automatisation adaptés au secteur si possible
+5. Pas de promesse mensongère
+6. Pas de pression commerciale
+7. Mention légale OBLIGATOIRE: "Si ce message ne vous concerne pas ou si vous ne souhaitez plus être contacté, faites-le nous savoir et nous supprimerons vos coordonnées."
 
 Retourne UNIQUEMENT le message, sans formatage supplémentaire.`;
 
@@ -512,7 +602,7 @@ async function handleSingleProspecting(req: VercelRequest, res: VercelResponse, 
   console.log(`🔍 Analyse d'UN site: ${normalizedSite}`);
 
   try {
-    const { email, companyName } = await findContactEmail(normalizedSite);
+    const { email, companyName, sector } = await findContactEmail(normalizedSite);
 
     if (!email) {
       return res.status(200).json({
@@ -523,7 +613,7 @@ async function handleSingleProspecting(req: VercelRequest, res: VercelResponse, 
       });
     }
 
-    const message = await generatePersonalizedMessage(companyName, normalizedSite);
+    const message = await generatePersonalizedMessage(companyName, normalizedSite, sector);
 
     return res.status(200).json({
       entreprise_nom: companyName || extractCompanyNameFromUrl(normalizedSite),
