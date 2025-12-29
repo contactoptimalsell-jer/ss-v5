@@ -47,6 +47,17 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
     }
     return false;
   });
+  // Mode "Prospection multiple" pour analyser un site contenant plusieurs liens
+  const [prospectingMultiple, setProspectingMultiple] = useState(false);
+  const [multipleSitesResult, setMultipleSitesResult] = useState<Array<{
+    entreprise_nom: string;
+    secteur?: string;
+    site: string;
+    email: string;
+    message_personnalise: string;
+  }>>([]);
+  const [sendingMultipleEmails, setSendingMultipleEmails] = useState<Record<string, boolean>>({});
+  const [sentMultipleEmails, setSentMultipleEmails] = useState<Record<string, boolean>>({});
   const [emailType, setEmailType] = useState<'simple' | 'quiz'>('simple');
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
@@ -502,6 +513,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                       setSearchingEmails(true);
                       setSearchError(null);
                       setProspectingResult(null);
+                      setMultipleSitesResult([]);
 
                       try {
                         const response = await fetch('/api/prospection-automation', {
@@ -509,7 +521,10 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                           headers: {
                             'Content-Type': 'application/json',
                           },
-                          body: JSON.stringify({ mode: 'single', site: singleSite }),
+                          body: JSON.stringify({ 
+                            mode: prospectingMultiple ? 'multiple' : 'single', 
+                            site: singleSite 
+                          }),
                         });
 
                         const data = await response.json();
@@ -518,29 +533,47 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                           throw new Error(data.error || data.message || 'Erreur lors de la prospection');
                         }
 
-                        setProspectingResult(data);
-                        if (!data.email) {
-                          setSearchError('Email non trouvé – prospection manuelle requise');
+                        if (prospectingMultiple) {
+                          // Mode multiple : data est un tableau
+                          setMultipleSitesResult(Array.isArray(data) ? data : []);
+                          if (!Array.isArray(data) || data.length === 0) {
+                            setSearchError('Aucun site trouvé ou analysé avec succès');
+                          }
+                        } else {
+                          // Mode single : data est un objet
+                          setProspectingResult(data);
+                          if (!data.email) {
+                            setSearchError('Email non trouvé – prospection manuelle requise');
+                          }
                         }
                       } catch (error: any) {
-                        console.error('Error prospection single:', error);
+                        console.error('Error prospection:', error);
                         setSearchError(error.message || 'Erreur lors de la prospection');
                       } finally {
                         setSearchingEmails(false);
                       }
                     }}
                     disabled={searchingEmails || !singleSite}
-                    className="w-full bg-green-600 hover:bg-green-500"
+                    className={`w-full ${prospectingMultiple ? 'bg-blue-600 hover:bg-blue-500' : 'bg-green-600 hover:bg-green-500'}`}
                   >
                     {searchingEmails ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Analyse en cours...
+                        {prospectingMultiple ? 'Analyse de plusieurs sites en cours...' : 'Analyse en cours...'}
                       </>
                     ) : (
                       <>
-                        <Target className="w-4 h-4 mr-2" />
-                        Analyser ce site
+                        {prospectingMultiple ? (
+                          <>
+                            <Building2 className="w-4 h-4 mr-2" />
+                            Analyser les sites de cette page
+                          </>
+                        ) : (
+                          <>
+                            <Target className="w-4 h-4 mr-2" />
+                            Analyser ce site
+                          </>
+                        )}
                       </>
                     )}
                   </Button>

@@ -626,6 +626,158 @@ async function handleSingleProspecting(req: VercelRequest, res: VercelResponse, 
 }
 // ===== FIN FONCTIONS DE PROSPECTION UNIQUE =====
 
+// ===== FONCTIONS DE PROSPECTION MULTIPLE =====
+// Fonction pour extraire les liens de sites depuis une page
+async function extractSiteLinksFromPage(url: string): Promise<string[]> {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      },
+      signal: AbortSignal.timeout(15000),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const html = await response.text();
+    const siteLinks: string[] = [];
+    
+    // Extraire tous les liens href
+    const linkRegex = /<a[^>]+href=["']([^"']+)["'][^>]*>/gi;
+    const matches = [...html.matchAll(linkRegex)];
+    
+    const baseUrl = new URL(url);
+    
+    for (const match of matches) {
+      const href = match[1];
+      if (!href) continue;
+      
+      try {
+        // Résoudre l'URL relative ou absolue
+        const absoluteUrl = new URL(href, baseUrl);
+        const hostname = absoluteUrl.hostname;
+        
+        // Ignorer les liens internes (même domaine)
+        if (hostname === baseUrl.hostname) continue;
+        
+        // Ignorer les liens non-HTTP(S)
+        if (!absoluteUrl.protocol.startsWith('http')) continue;
+        
+        // Ignorer les liens vers des services externes (mailto, tel, etc.)
+        if (hostname.includes('facebook.com') || 
+            hostname.includes('twitter.com') || 
+            hostname.includes('linkedin.com') ||
+            hostname.includes('instagram.com') ||
+            hostname.includes('youtube.com') ||
+            hostname.includes('google.com') ||
+            hostname.includes('maps.google')) continue;
+        
+        // Normaliser l'URL (enlever www, trailing slash)
+        const normalizedUrl = `${absoluteUrl.protocol}//${hostname.replace(/^www\./, '')}`;
+        
+        // Éviter les doublons
+        if (!siteLinks.includes(normalizedUrl)) {
+          siteLinks.push(normalizedUrl);
+        }
+      } catch {
+        // Ignorer les URLs invalides
+        continue;
+      }
+    }
+    
+    // Limiter à 20 sites maximum pour éviter la surcharge
+    return siteLinks.slice(0, 20);
+  } catch (error: any) {
+    throw new Error(`Erreur lors de l'extraction des liens: ${error.message}`);
+  }
+}
+
+// Fonction pour analyser plusieurs sites
+async function handleMultipleProspecting(req: VercelRequest, res: VercelResponse, site: string) {
+  if (!site || typeof site !== 'string') {
+    return res.status(400).json({ 
+      error: 'URL invalide',
+      message: 'Veuillez fournir l\'URL d\'une page contenant des liens vers des sites d\'entreprises.'
+    });
+  }
+
+  let normalizedSite = site.trim();
+  if (!normalizedSite.startsWith('http://') && !normalizedSite.startsWith('https://')) {
+    normalizedSite = `https://${normalizedSite}`;
+  }
+
+  try {
+    new URL(normalizedSite);
+  } catch {
+    return res.status(400).json({ 
+      error: 'URL invalide',
+      message: 'Veuillez fournir une URL valide (ex: annuaire-exemple.fr/liste ou https://example.com/annuaire)'
+    });
+  }
+
+  console.log(`🔍 Analyse de plusieurs sites depuis: ${normalizedSite}`);
+
+  try {
+    // Étape 1: Extraire tous les liens de sites
+    const siteLinks = await extractSiteLinksFromPage(normalizedSite);
+    
+    if (siteLinks.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    console.log(`📋 ${siteLinks.length} site(s) trouvé(s), analyse en cours...`);
+
+    // Étape 2: Analyser chaque site individuellement
+    const results = [];
+    
+    for (const siteUrl of siteLinks) {
+      try {
+        const { email, companyName, sector } = await findContactEmail(siteUrl);
+        
+        if (email) {
+          const message = await generatePersonalizedMessage(companyName, siteUrl, sector);
+          
+          results.push({
+            entreprise_nom: companyName || extractCompanyNameFromUrl(siteUrl),
+            secteur: sector || undefined,
+            site: siteUrl,
+            email: email,
+            message_personnalise: message
+          });
+        } else {
+          // Inclure quand même les sites sans email trouvé (pour information)
+          results.push({
+            entreprise_nom: companyName || extractCompanyNameFromUrl(siteUrl),
+            secteur: sector || undefined,
+            site: siteUrl,
+            email: '',
+            message_personnalise: 'Email non trouvé – prospection manuelle requise'
+          });
+        }
+        
+        // Pause entre chaque analyse pour éviter la surcharge
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (error: any) {
+        console.error(`❌ Erreur analyse ${siteUrl}:`, error.message);
+        // Continuer avec les autres sites même en cas d'erreur
+      }
+    }
+
+    console.log(`✅ Analyse terminée: ${results.filter(r => r.email).length} email(s) trouvé(s) sur ${results.length} site(s)`);
+
+    return res.status(200).json(results);
+  } catch (error: any) {
+    console.error('❌ Erreur prospection multiple:', error);
+    return res.status(500).json({ 
+      error: 'Erreur lors de l\'analyse',
+      message: error.message 
+    });
+  }
+}
+// ===== FIN FONCTIONS DE PROSPECTION MULTIPLE =====
+
 // Signature d'email SkillShield
 const EMAIL_SIGNATURE = `
 ---
