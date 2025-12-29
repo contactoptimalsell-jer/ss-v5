@@ -106,23 +106,95 @@ Important:
     }
 
     const data = await response.json();
-    const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    
+    // Vérifier la structure de la réponse
+    if (!data || !data.candidates || !Array.isArray(data.candidates) || data.candidates.length === 0) {
+      console.warn('⚠️ Réponse Gemini invalide, utilisation du fallback');
+      return analyzePageBasic(html, url);
+    }
 
-    // Parser la réponse JSON
+    const content = data.candidates[0]?.content?.parts?.[0]?.text || '';
+    
+    if (!content || content.trim().length === 0) {
+      console.warn('⚠️ Contenu Gemini vide, utilisation du fallback');
+      return analyzePageBasic(html, url);
+    }
+
+    // Parser la réponse JSON avec plusieurs stratégies
     try {
+      // Stratégie 1: Chercher un objet JSON complet
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
+        try {
+          const parsed = JSON.parse(jsonMatch[0]);
+          if (parsed && typeof parsed === 'object') {
+            return {
+              emails: Array.isArray(parsed.emails) 
+                ? parsed.emails.filter((email: string) => 
+                    typeof email === 'string' && /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)
+                  )
+                : [],
+              companyName: typeof parsed.companyName === 'string' && parsed.companyName.trim()
+                ? parsed.companyName.trim()
+                : extractCompanyNameFromUrl(url),
+              sector: typeof parsed.sector === 'string' ? parsed.sector : undefined,
+            };
+          }
+        } catch (jsonError) {
+          console.error('Erreur parsing JSON match:', jsonError);
+        }
+      }
+
+      // Stratégie 2: Essayer de parser directement si le contenu commence par {
+      if (content.trim().startsWith('{')) {
+        try {
+          const parsed = JSON.parse(content.trim());
+          if (parsed && typeof parsed === 'object') {
+            return {
+              emails: Array.isArray(parsed.emails) 
+                ? parsed.emails.filter((email: string) => 
+                    typeof email === 'string' && /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)
+                  )
+                : [],
+              companyName: typeof parsed.companyName === 'string' && parsed.companyName.trim()
+                ? parsed.companyName.trim()
+                : extractCompanyNameFromUrl(url),
+              sector: typeof parsed.sector === 'string' ? parsed.sector : undefined,
+            };
+          }
+        } catch (directParseError) {
+          console.error('Erreur parsing direct:', directParseError);
+        }
+      }
+
+      // Stratégie 3: Extraire les emails directement du texte si JSON invalide
+      const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+      const foundEmails = content.match(emailRegex) || [];
+      const genericEmails = foundEmails
+        .map(email => email.toLowerCase())
+        .filter(email => {
+          const genericPatterns = [
+            'contact@', 'info@', 'commercial@', 'vente@', 'sales@',
+            'service@', 'support@', 'client@', 'clients@', 'hello@',
+            'bonjour@', 'accueil@', 'direction@', 'admin@'
+          ];
+          return genericPatterns.some(pattern => email.includes(pattern));
+        })
+        .filter((email, index, self) => self.indexOf(email) === index);
+
+      if (genericEmails.length > 0) {
+        // Essayer d'extraire le nom de l'entreprise du contenu
+        const companyMatch = content.match(/"companyName"\s*:\s*"([^"]+)"/i) || 
+                            content.match(/entreprise[:\s]+([A-Z][a-zA-Z\s&]+)/i);
+        const companyName = companyMatch ? companyMatch[1] : extractCompanyNameFromUrl(url);
+
         return {
-          emails: (parsed.emails || []).filter((email: string) => 
-            /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)
-          ),
-          companyName: parsed.companyName || extractCompanyNameFromUrl(url),
-          sector: parsed.sector,
+          emails: genericEmails,
+          companyName: companyName.trim(),
         };
       }
-    } catch (parseError) {
-      console.error('Erreur parsing Gemini response:', parseError);
+    } catch (parseError: any) {
+      console.error('Erreur parsing Gemini response:', parseError.message || parseError);
     }
 
     // Fallback: extraction basique
@@ -317,19 +389,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // Récupérer la page
-        const response = await fetch(normalizedUrl, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          },
-          signal: AbortSignal.timeout(10000),
-        });
+        let html: string;
+        try {
+          const response = await fetch(normalizedUrl, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            },
+            signal: AbortSignal.timeout(10000),
+          });
 
-        if (!response.ok) {
-          console.error(`❌ Erreur HTTP ${response.status} pour ${normalizedUrl}`);
+          if (!response.ok) {
+            console.error(`❌ Erreur HTTP ${response.status} pour ${normalizedUrl}`);
+            continue;
+          }
+
+          html = await response.text();
+          
+          if (!html || html.length === 0) {
+            console.error(`❌ Page vide pour ${normalizedUrl}`);
+            continue;
+          }
+        } catch (fetchError: any) {
+          console.error(`❌ Erreur fetch pour ${normalizedUrl}:`, fetchError.message);
           continue;
         }
-
-        const html = await response.text();
 
         // Analyser avec Google Cloud
         const analysis = await analyzePageWithGoogleCloud(html, normalizedUrl);

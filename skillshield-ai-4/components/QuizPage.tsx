@@ -141,10 +141,22 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
         body: JSON.stringify(body),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Erreur lors du scraping web');
+      let data;
+      try {
+        const responseText = await response.text();
+        if (!response.ok) {
+          // Essayer de parser l'erreur
+          try {
+            data = JSON.parse(responseText);
+            throw new Error(data.error || data.message || `Erreur ${response.status}: ${responseText.substring(0, 200)}`);
+          } catch {
+            throw new Error(`Erreur ${response.status}: ${responseText.substring(0, 200)}`);
+          }
+        }
+        data = JSON.parse(responseText);
+      } catch (parseError: any) {
+        console.error('Erreur parsing réponse API:', parseError);
+        throw new Error(parseError.message || 'Erreur lors du parsing de la réponse du serveur');
       }
 
       // Si l'API Google Search est bloquée, afficher un message avec solution
