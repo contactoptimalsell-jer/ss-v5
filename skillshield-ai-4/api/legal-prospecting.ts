@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { JSDOM } from 'jsdom';
 
 interface LegalContact {
   email: string;
@@ -55,14 +54,16 @@ async function analyzePageWithGoogleCloud(html: string, url: string): Promise<{
   }
 
   try {
-    // Utiliser Gemini pour analyser la page de manière intelligente
-    const dom = new JSDOM(html);
-    const textContent = dom.window.document.body.textContent || '';
-    
-    // Extraire le texte principal (sans scripts, styles, etc.)
-    const cleanText = textContent
+    // Extraire le texte principal (sans scripts, styles, etc.) avec regex simple
+    // Supprimer les balises script, style, etc.
+    const cleanHtml = html
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
       .replace(/\s+/g, ' ')
-      .substring(0, 5000); // Limiter pour l'API
+      .trim();
+    
+    const cleanText = cleanHtml.substring(0, 5000); // Limiter pour l'API
 
     const prompt = `Tu es un assistant expert en analyse de pages web professionnelles.
 
@@ -213,20 +214,16 @@ Important:
   }
 }
 
-// Fonction d'analyse basique (fallback)
+// Fonction d'analyse basique (fallback) - sans JSDOM pour compatibilité serverless
 function analyzePageBasic(html: string, url: string): {
   emails: string[];
   companyName: string;
   sector?: string;
 } {
-  const dom = new JSDOM(html);
-  const document = dom.window.document;
-
-  // Extraire le nom de l'entreprise
-  const title = document.querySelector('title')?.textContent || '';
+  // Extraire le nom de l'entreprise depuis l'URL
   const companyName = extractCompanyNameFromUrl(url);
 
-  // Extraire uniquement les emails génériques
+  // Extraire uniquement les emails génériques avec regex
   const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
   const allEmails = html.match(emailRegex) || [];
   
