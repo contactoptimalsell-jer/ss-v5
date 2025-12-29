@@ -383,11 +383,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
+    // Normaliser et valider les données
+    const normalizedDataRetention = typeof dataRetention === 'string' 
+      ? parseInt(dataRetention, 10) 
+      : (typeof dataRetention === 'number' ? dataRetention : 12);
+    
+    const normalizedConsentBasis = consentBasis || 'legitimate_interest';
+    const normalizedSourceUrl = sourceUrl || undefined;
+
     // Log RGPD pour traçabilité
     console.log(`🟢 Prospection légale RGPD:`);
     console.log(`   - Source: ${source} (${sourceName})`);
-    console.log(`   - Base légale: ${consentBasis || 'legitimate_interest'}`);
-    console.log(`   - Conservation: ${dataRetention || 12} mois`);
+    console.log(`   - Base légale: ${normalizedConsentBasis}`);
+    console.log(`   - Conservation: ${normalizedDataRetention} mois`);
     console.log(`   - Sites: ${websites.length}`);
     if (gdprNotes) {
       console.log(`   - Notes: ${gdprNotes}`);
@@ -430,16 +438,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           continue;
         }
 
-        // Analyser avec Google Cloud
-        const analysis = await analyzePageWithGoogleCloud(html, normalizedUrl);
+        // Analyser avec Google Cloud (avec gestion d'erreur)
+        let analysis;
+        try {
+          analysis = await analyzePageWithGoogleCloud(html, normalizedUrl);
+        } catch (analysisError: any) {
+          console.error(`⚠️ Erreur analyse pour ${normalizedUrl}:`, analysisError.message);
+          // Utiliser l'analyse basique en cas d'erreur
+          analysis = analyzePageBasic(html, normalizedUrl);
+        }
 
-        // Scorer l'intérêt avec IA
-        const interestScore = await scoreInterestWithAI(
-          analysis.companyName,
-          sector || 'général',
-          category || 'PME',
-          normalizedUrl
-        );
+        // Scorer l'intérêt avec IA (avec gestion d'erreur)
+        let interestScore = 50; // Score par défaut
+        try {
+          interestScore = await scoreInterestWithAI(
+            analysis.companyName,
+            sector || 'général',
+            category || 'PME',
+            normalizedUrl
+          );
+        } catch (scoreError: any) {
+          console.error(`⚠️ Erreur scoring pour ${analysis.companyName}:`, scoreError.message);
+          // Utiliser le score basique en cas d'erreur
+          interestScore = calculateBasicScore(sector || 'général', category || 'PME');
+        }
 
         // Créer les contacts avec métadonnées RGPD
         for (const email of analysis.emails) {
@@ -452,10 +474,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             source,
             // Métadonnées RGPD pour traçabilité
             metadata: {
-              sourceName,
-              sourceUrl,
-              consentBasis: consentBasis || 'legitimate_interest',
-              dataRetention: dataRetention || 12,
+              sourceName: sourceName || 'Non spécifié',
+              sourceUrl: normalizedSourceUrl,
+              consentBasis: normalizedConsentBasis,
+              dataRetention: normalizedDataRetention,
               processedAt: new Date().toISOString(),
             },
           });
@@ -484,10 +506,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       totalFound: uniqueContacts.length,
       metadata: {
         source,
-        sourceName,
-        sourceUrl,
-        consentBasis: consentBasis || 'legitimate_interest',
-        dataRetention: dataRetention || 12,
+        sourceName: sourceName || 'Non spécifié',
+        sourceUrl: normalizedSourceUrl,
+        consentBasis: normalizedConsentBasis,
+        dataRetention: normalizedDataRetention,
         averageScore: uniqueContacts.length > 0
           ? Math.round(uniqueContacts.reduce((sum, c) => sum + (c.interestScore || 0), 0) / uniqueContacts.length)
           : 0,
@@ -498,10 +520,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error: any) {
     console.error('❌ Erreur prospection légale:', error);
+    console.error('Stack trace:', error.stack);
     return res.status(500).json({ 
       success: false,
       error: 'Erreur interne du serveur',
-      message: error.message 
+      message: error.message || 'Une erreur inattendue s\'est produite',
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
     });
   }
 }
