@@ -2,7 +2,7 @@
 
 ## Variables d'environnement requises dans Vercel
 
-Pour que les emails soient envoyés depuis `info@skillshield-ai.com`, vous devez configurer les variables d'environnement suivantes dans Vercel :
+Pour que les emails soient envoyés depuis `contact@skillshield-ai.com`, vous devez configurer les variables d'environnement suivantes dans Vercel :
 
 ### 1. Accéder aux variables d'environnement
 
@@ -17,7 +17,7 @@ Pour que les emails soient envoyés depuis `info@skillshield-ai.com`, vous devez
 ```
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=info@skillshield-ai.com
+SMTP_USER=contact@skillshield-ai.com
 SMTP_PASS=votre_mot_de_passe_application_gmail
 ```
 
@@ -34,7 +34,7 @@ SMTP_PASS=votre_mot_de_passe_application_gmail
 ```
 SMTP_HOST=smtp.votre-serveur.com
 SMTP_PORT=587 (ou 465 pour SSL)
-SMTP_USER=info@skillshield-ai.com
+SMTP_USER=contact@skillshield-ai.com
 SMTP_PASS=votre_mot_de_passe
 ```
 
@@ -95,7 +95,7 @@ SMTP_USER=apikey
 SMTP_PASS=votre_api_key_sendgrid
 ```
 
-**Note :** Avec SendGrid, le champ `from` dans le code (`info@skillshield-ai.com`) sera utilisé comme expéditeur, mais l'authentification se fait avec `apikey` comme utilisateur.
+**Note :** Avec SendGrid, le champ `from` dans le code (`contact@skillshield-ai.com`) sera utilisé comme expéditeur, mais l'authentification se fait avec `apikey` comme utilisateur.
 
 ---
 
