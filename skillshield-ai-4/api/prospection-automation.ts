@@ -141,15 +141,7 @@ async function sendBulkQuizzes(
     }
 
     try {
-      // Vérifier l'opt-out RGPD avant d'envoyer
-      const tokenData = await getQuizTokenData(token);
-      if (tokenData?.optOut) {
-        console.log(`🔔 Email ${email} a opt-out, skip`);
-        failed++;
-        results.push({ email, success: false, error: 'Opt-out RGPD' });
-        continue;
-      }
-
+      // Vérifier le rate limiting avant d'envoyer
       const rateLimitCheck = await canSendEmail(email);
       if (!rateLimitCheck.canSend) {
         failed++;

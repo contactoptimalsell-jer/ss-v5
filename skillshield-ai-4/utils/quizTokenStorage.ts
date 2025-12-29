@@ -14,6 +14,8 @@ interface QuizTokenData {
   openedAt?: Date | string;
   completed: boolean;
   completedAt?: Date | string;
+  optedOut?: boolean;
+  optOutDate?: Date | string;
 }
 
 // Chemin du fichier de stockage (fallback)
@@ -146,6 +148,8 @@ async function setTokenInSupabase(token: string, data: QuizTokenData): Promise<v
         opened_at: data.openedAt instanceof Date ? data.openedAt.toISOString() : data.openedAt || null,
         completed: data.completed,
         completed_at: data.completedAt instanceof Date ? data.completedAt.toISOString() : data.completedAt || null,
+        opted_out: data.optedOut || false,
+        opt_out_date: data.optOutDate instanceof Date ? data.optOutDate.toISOString() : (data.optOutDate || null),
       }, {
         onConflict: 'token'
       });
@@ -175,6 +179,10 @@ async function updateTokenInSupabase(token: string, updates: Partial<QuizTokenDa
     if (updates.completed !== undefined) updateData.completed = updates.completed;
     if (updates.completedAt !== undefined) {
       updateData.completed_at = updates.completedAt instanceof Date ? updates.completedAt.toISOString() : updates.completedAt;
+    }
+    if (updates.optedOut !== undefined) updateData.opted_out = updates.optedOut;
+    if (updates.optOutDate !== undefined) {
+      updateData.opt_out_date = updates.optOutDate instanceof Date ? updates.optOutDate.toISOString() : updates.optOutDate;
     }
     
     const { error } = await supabase

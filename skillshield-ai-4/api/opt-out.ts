@@ -139,7 +139,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Marquer comme désinscrit dans les métadonnées
       await setQuizTokenData(token, {
         ...tokenData,
-        optOut: true,
+        optedOut: true,
         optOutDate: new Date().toISOString(),
       });
 
