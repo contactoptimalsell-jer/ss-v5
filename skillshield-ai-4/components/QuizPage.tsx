@@ -397,14 +397,17 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                 Utilisez des sources légitimes (annuaires pro, listes d'entreprises) et laissez Google Cloud + IA analyser et scorer les contacts.
               </p>
 
-              {/* Toggle entre mode recherche et mode direct */}
+              {/* Toggle entre modes */}
               <div className="flex justify-center mb-6">
-                <div className="bg-slate-800/50 rounded-lg p-1 flex gap-2">
+                <div className="bg-slate-800/50 rounded-lg p-1 flex gap-2 flex-wrap">
                   <button
                     type="button"
-                    onClick={() => setUseDirectMode(false)}
+                    onClick={() => {
+                      setUseDirectMode(false);
+                      setProspectingSingle(false);
+                    }}
                     className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
-                      !useDirectMode
+                      !useDirectMode && !prospectingSingle
                         ? 'bg-cyan-500 text-white'
                         : 'text-gray-400 hover:text-white'
                     }`}
@@ -414,9 +417,12 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setUseDirectMode(true)}
+                    onClick={() => {
+                      setUseDirectMode(true);
+                      setProspectingSingle(false);
+                    }}
                     className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
-                      useDirectMode
+                      useDirectMode && !prospectingSingle
                         ? 'bg-violet-500 text-white'
                         : 'text-gray-400 hover:text-white'
                     }`}
@@ -424,10 +430,140 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                     <FileText className="w-4 h-4 inline mr-2" />
                     Sites légitimes
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProspectingSingle(true);
+                      setUseDirectMode(false);
+                    }}
+                    className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
+                      prospectingSingle
+                        ? 'bg-green-500 text-white'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <Target className="w-4 h-4 inline mr-2" />
+                    Prospection unique
+                  </button>
                 </div>
               </div>
 
-              {useDirectMode ? (
+              {prospectingSingle ? (
+                <div className="space-y-6">
+                  <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <h3 className="text-green-400 font-semibold mb-2">🟢 Prospection B2B Légale - UNE entreprise</h3>
+                        <div className="text-sm text-gray-300 space-y-1">
+                          <p>✓ Analyse UNIQUEMENT du site fourni</p>
+                          <p>✓ Emails autorisés uniquement : contact@, info@, partenariat@, communication@, hello@, support@</p>
+                          <p>✓ Message personnalisé avec mention légale d'opt-out</p>
+                          <p>✓ Conforme RGPD - France / UE</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      <FileText className="w-4 h-4 inline mr-2" />
+                      Site web de l'entreprise (UN seul site) *
+                    </label>
+                    <input
+                      type="text"
+                      value={singleSite}
+                      onChange={(e) => setSingleSite(e.target.value)}
+                      placeholder="Ex: example.com ou https://example.com"
+                      className="w-full px-4 py-3 bg-slate-800/50 border border-green-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50"
+                      required
+                    />
+                    <p className="text-xs text-gray-400 mt-2">
+                      💡 Entrez UN seul site web. Le système analysera uniquement ce site (page d'accueil et pages de contact).
+                    </p>
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={async () => {
+                      if (!singleSite) return;
+                      setSearchingEmails(true);
+                      setSearchError(null);
+                      setProspectingResult(null);
+
+                      try {
+                        const response = await fetch('/api/prospection-single', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({ site: singleSite }),
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                          throw new Error(data.error || data.message || 'Erreur lors de la prospection');
+                        }
+
+                        setProspectingResult(data);
+                        if (!data.email) {
+                          setSearchError('Email non trouvé – prospection manuelle requise');
+                        }
+                      } catch (error: any) {
+                        console.error('Error prospection single:', error);
+                        setSearchError(error.message || 'Erreur lors de la prospection');
+                      } finally {
+                        setSearchingEmails(false);
+                      }
+                    }}
+                    disabled={searchingEmails || !singleSite}
+                    className="w-full bg-green-600 hover:bg-green-500"
+                  >
+                    {searchingEmails ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Analyse en cours...
+                      </>
+                    ) : (
+                      <>
+                        <Target className="w-4 h-4 mr-2" />
+                        Analyser ce site
+                      </>
+                    )}
+                  </Button>
+
+                  {prospectingResult && (
+                    <div className="mt-6 p-4 bg-slate-800/50 rounded-lg border border-green-500/30">
+                      <h3 className="text-lg font-semibold text-white mb-4">Résultat de la prospection</h3>
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-sm text-gray-400">Entreprise</p>
+                          <p className="text-white font-medium">{prospectingResult.entreprise_nom}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400">Site</p>
+                          <p className="text-white font-medium">{prospectingResult.site}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400">Email</p>
+                          <p className={`font-medium ${prospectingResult.email ? 'text-green-400' : 'text-yellow-400'}`}>
+                            {prospectingResult.email || 'Non trouvé – prospection manuelle requise'}
+                          </p>
+                        </div>
+                        {prospectingResult.message_personnalise && (
+                          <div>
+                            <p className="text-sm text-gray-400 mb-2">Message personnalisé</p>
+                            <div className="p-3 bg-slate-900/50 rounded border border-cyan-500/20">
+                              <p className="text-white text-sm whitespace-pre-line">{prospectingResult.message_personnalise}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : useDirectMode ? (
                 <div className="space-y-6">
                   {/* Section RGPD - Documentation de la source légitime */}
                   <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
