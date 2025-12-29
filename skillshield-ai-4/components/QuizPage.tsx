@@ -32,6 +32,14 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
   const [location, setLocation] = useState('');
   const [directWebsites, setDirectWebsites] = useState('');
   const [useDirectMode, setUseDirectMode] = useState(false);
+  const [singleSite, setSingleSite] = useState('');
+  const [prospectingResult, setProspectingResult] = useState<{
+    entreprise_nom: string;
+    site: string;
+    email: string;
+    message_personnalise: string;
+  } | null>(null);
+  const [prospectingSingle, setProspectingSingle] = useState(false);
   const [searchingEmails, setSearchingEmails] = useState(false);
   const [sendingBulk, setSendingBulk] = useState(false);
   const [foundEmails, setFoundEmails] = useState<ProspectEmail[]>([]);
