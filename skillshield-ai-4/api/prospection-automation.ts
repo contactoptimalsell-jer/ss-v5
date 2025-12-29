@@ -290,9 +290,19 @@ Contact: info@skillshield-ai.com
   return { sent, failed, results };
 }
 
+// Import des fonctions de prospection unique
+import { analyzePage, findContactEmail, generatePersonalizedMessage } from './prospection-single-helpers.js';
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { action, category, sector, prospects, mode, site } = req.body;
+
+  // Mode prospection unique (UNE entreprise à la fois)
+  if (mode === 'single' && site) {
+    return handleSingleProspecting(req, res, site);
   }
 
   const { action, category, sector, prospects } = req.body;

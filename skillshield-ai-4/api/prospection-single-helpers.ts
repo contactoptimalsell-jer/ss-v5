@@ -1,28 +1,7 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-/**
- * 🟢 API de Prospection B2B Légale - UNE entreprise à la fois
- * 
- * ROLE: Assistant de prospection B2B opérant pour une association/entreprise
- * dans un cadre strictement légal (RGPD – France / UE)
- * 
- * CONTRAINTES LÉGALES ABSOLUES:
- * - Analyse UNIQUEMENT le site fourni par l'utilisateur
- * - Ne parcourt PAS Google, LinkedIn, Maps ou annuaires
- * - Traite UNE entreprise à la fois
- * - Ignore toute demande de traitement en masse
- * - Respecte robots.txt implicitement (pas de crawl profond)
- */
-
-interface ProspectionResult {
-  entreprise_nom: string;
-  site: string;
-  email: string;
-  message_personnalise: string;
-}
+// Helpers pour la prospection unique - à utiliser dans prospection-automation.ts
 
 // Emails autorisés UNIQUEMENT
-const ALLOWED_EMAIL_PATTERNS = [
+export const ALLOWED_EMAIL_PATTERNS = [
   'contact@',
   'info@',
   'partenariat@',
@@ -32,7 +11,7 @@ const ALLOWED_EMAIL_PATTERNS = [
 ];
 
 // Pages à analyser (dans l'ordre de priorité)
-const CONTACT_PAGES = [
+export const CONTACT_PAGES = [
   '/contact',
   '/contactez-nous',
   '/nous-contacter',
@@ -43,7 +22,7 @@ const CONTACT_PAGES = [
 ];
 
 // Fonction pour extraire le nom de l'entreprise depuis l'URL
-function extractCompanyNameFromUrl(url: string): string {
+export function extractCompanyNameFromUrl(url: string): string {
   try {
     const urlObj = new URL(url);
     const hostname = urlObj.hostname.replace('www.', '');
@@ -55,7 +34,7 @@ function extractCompanyNameFromUrl(url: string): string {
 }
 
 // Fonction pour extraire uniquement les emails autorisés
-function extractAllowedEmails(html: string): string[] {
+export function extractAllowedEmails(html: string): string[] {
   const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
   const allEmails = html.match(emailRegex) || [];
   
@@ -85,7 +64,7 @@ function extractAllowedEmails(html: string): string[] {
 }
 
 // Fonction pour analyser une page web
-async function analyzePage(url: string): Promise<{ html: string; emails: string[]; companyName: string }> {
+export async function analyzePage(url: string): Promise<{ html: string; emails: string[]; companyName: string }> {
   try {
     const response = await fetch(url, {
       headers: {
@@ -114,7 +93,7 @@ async function analyzePage(url: string): Promise<{ html: string; emails: string[
 }
 
 // Fonction pour analyser les pages de contact
-async function findContactEmail(site: string): Promise<{ email: string; companyName: string }> {
+export async function findContactEmail(site: string): Promise<{ email: string; companyName: string }> {
   const baseUrl = site.startsWith('http') ? site : `https://${site}`;
   const urlObj = new URL(baseUrl);
   const baseDomain = `${urlObj.protocol}//${urlObj.hostname}`;
@@ -148,7 +127,7 @@ async function findContactEmail(site: string): Promise<{ email: string; companyN
 }
 
 // Fonction pour générer un message personnalisé avec IA
-async function generatePersonalizedMessage(
+export async function generatePersonalizedMessage(
   companyName: string,
   site: string,
   activity?: string
@@ -246,75 +225,5 @@ Si ce message ne vous concerne pas ou si vous ne souhaitez plus être contacté,
 
 Cordialement,
 L'équipe SkillShield AI`;
-}
-
-// Fonction principale
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  try {
-    const { site } = req.body;
-
-    // Vérification: UN seul site à la fois
-    if (!site || typeof site !== 'string') {
-      return res.status(400).json({ 
-        error: 'Un seul site web doit être fourni',
-        message: 'Veuillez fournir UN site web à analyser. Le traitement en masse n\'est pas autorisé pour des raisons légales.'
-      });
-    }
-
-    // Normaliser l'URL
-    let normalizedSite = site.trim();
-    if (!normalizedSite.startsWith('http://') && !normalizedSite.startsWith('https://')) {
-      normalizedSite = `https://${normalizedSite}`;
-    }
-
-    // Vérifier que c'est bien une URL valide
-    try {
-      new URL(normalizedSite);
-    } catch {
-      return res.status(400).json({ 
-        error: 'URL invalide',
-        message: 'Veuillez fournir une URL valide (ex: example.com ou https://example.com)'
-      });
-    }
-
-    console.log(`🔍 Analyse d'UN site: ${normalizedSite}`);
-
-    // Analyser le site
-    const { email, companyName } = await findContactEmail(normalizedSite);
-
-    // Si aucun email autorisé trouvé
-    if (!email) {
-      return res.status(200).json({
-        entreprise_nom: companyName || extractCompanyNameFromUrl(normalizedSite),
-        site: normalizedSite,
-        email: '',
-        message_personnalise: 'Email non trouvé – prospection manuelle requise'
-      } as ProspectionResult);
-    }
-
-    // Générer le message personnalisé
-    const message = await generatePersonalizedMessage(companyName, normalizedSite);
-
-    const result: ProspectionResult = {
-      entreprise_nom: companyName || extractCompanyNameFromUrl(normalizedSite),
-      site: normalizedSite,
-      email: email,
-      message_personnalise: message
-    };
-
-    console.log(`✅ Prospection générée pour ${companyName}: ${email}`);
-
-    return res.status(200).json(result);
-  } catch (error: any) {
-    console.error('❌ Erreur prospection:', error);
-    return res.status(500).json({ 
-      error: 'Erreur lors de l\'analyse',
-      message: error.message 
-    });
-  }
 }
 
