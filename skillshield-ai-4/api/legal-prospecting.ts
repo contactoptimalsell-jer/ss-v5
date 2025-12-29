@@ -229,17 +229,39 @@ function analyzePageBasic(html: string, url: string): {
   
   // Filtrer pour garder uniquement les emails génériques
   const genericEmails = allEmails
-    .map(email => email.toLowerCase())
+    .map(email => email.toLowerCase().trim())
     .filter(email => {
-      // Emails génériques acceptés
+      // Exclure les emails évidents à éviter
+      const excludePatterns = [
+        'example@', 'test@', 'noreply@', 'no-reply@', 'donotreply@',
+        'webmaster@', 'postmaster@', 'abuse@', 'privacy@', 'legal@',
+        'copyright@', 'trademark@', 'domain@', 'dns@', 'hostmaster@'
+      ];
+      
+      // Si c'est un email à exclure, le rejeter
+      if (excludePatterns.some(pattern => email.includes(pattern))) {
+        return false;
+      }
+      
+      // Emails génériques acceptés (plus large)
       const genericPatterns = [
         'contact@', 'info@', 'commercial@', 'vente@', 'sales@',
         'service@', 'support@', 'client@', 'clients@', 'hello@',
-        'bonjour@', 'accueil@', 'direction@', 'admin@'
+        'bonjour@', 'accueil@', 'direction@', 'admin@', 'general@',
+        'entreprise@', 'societe@', 'bureau@', 'office@', 'secretariat@',
+        'reception@', 'standard@', 'siege@', 'headquarters@'
       ];
-      return genericPatterns.some(pattern => email.includes(pattern));
+      
+      // Accepter si c'est un email générique OU si c'est un email simple (pas de point dans le nom avant @)
+      const emailLocalPart = email.split('@')[0];
+      const isGeneric = genericPatterns.some(pattern => email.includes(pattern));
+      const isSimpleEmail = !emailLocalPart.includes('.') && emailLocalPart.length <= 15;
+      
+      return isGeneric || isSimpleEmail;
     })
     .filter((email, index, self) => self.indexOf(email) === index); // Supprimer doublons
+
+  console.log(`📧 Emails trouvés pour ${companyName}: ${genericEmails.length} (${allEmails.length} total)`);
 
   return {
     emails: genericEmails,
@@ -348,6 +370,52 @@ function extractCompanyNameFromUrl(url: string): string {
   }
 }
 
+// Extraction agressive d'emails (quand l'analyse standard ne trouve rien)
+function extractEmailsAggressive(html: string): string[] {
+  // Chercher tous les patterns d'emails possibles
+  const emailPatterns = [
+    /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
+    /[a-zA-Z0-9._%+-]+\s*\[at\]\s*[a-zA-Z0-9.-]+\s*\[dot\]\s*[a-zA-Z]{2,}/gi, // email [at] domain [dot] com
+    /[a-zA-Z0-9._%+-]+\s*\(at\)\s*[a-zA-Z0-9.-]+\s*\(dot\)\s*[a-zA-Z]{2,}/gi, // email (at) domain (dot) com
+  ];
+
+  const allEmails: string[] = [];
+  
+  for (const pattern of emailPatterns) {
+    const matches = html.match(pattern) || [];
+    allEmails.push(...matches);
+  }
+
+  // Normaliser les emails avec [at] et [dot]
+  const normalizedEmails = allEmails
+    .map(email => email
+      .replace(/\s*\[at\]\s*/gi, '@')
+      .replace(/\s*\[dot\]\s*/gi, '.')
+      .replace(/\s*\(at\)\s*/gi, '@')
+      .replace(/\s*\(dot\)\s*/gi, '.')
+      .toLowerCase()
+      .trim()
+    )
+    .filter(email => {
+      // Validation basique
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(email)) return false;
+      
+      // Exclure les emails évidents
+      const excludePatterns = [
+        'example@', 'test@', 'noreply@', 'no-reply@', 'donotreply@',
+        'webmaster@', 'postmaster@', 'abuse@', 'privacy@', 'legal@',
+        'copyright@', 'trademark@', 'domain@', 'dns@', 'hostmaster@',
+        '@example.', '@test.', '@localhost'
+      ];
+      
+      return !excludePatterns.some(pattern => email.includes(pattern));
+    })
+    .filter((email, index, self) => self.indexOf(email) === index); // Supprimer doublons
+
+  return normalizedEmails.slice(0, 5); // Limiter à 5 emails max
+}
+
 // Fonction principale de prospection légale
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -439,10 +507,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         let analysis;
         try {
           analysis = await analyzePageWithGoogleCloud(html, normalizedUrl);
+          console.log(`✅ Analyse Gemini pour ${normalizedUrl}: ${analysis.emails.length} email(s) trouvé(s)`);
         } catch (analysisError: any) {
-          console.error(`⚠️ Erreur analyse pour ${normalizedUrl}:`, analysisError.message);
+          console.error(`⚠️ Erreur analyse Gemini pour ${normalizedUrl}:`, analysisError.message);
           // Utiliser l'analyse basique en cas d'erreur
           analysis = analyzePageBasic(html, normalizedUrl);
+          console.log(`✅ Analyse basique pour ${normalizedUrl}: ${analysis.emails.length} email(s) trouvé(s)`);
+        }
+        
+        // Si aucune analyse n'a trouvé d'emails, essayer une extraction plus agressive
+        if (analysis.emails.length === 0) {
+          console.log(`⚠️ Aucun email trouvé avec analyse standard, tentative extraction agressive pour ${normalizedUrl}`);
+          const aggressiveEmails = extractEmailsAggressive(html);
+          if (aggressiveEmails.length > 0) {
+            analysis.emails = aggressiveEmails;
+            console.log(`✅ Extraction agressive: ${aggressiveEmails.length} email(s) trouvé(s)`);
+          }
         }
 
         // Scorer l'intérêt avec IA (avec gestion d'erreur)
