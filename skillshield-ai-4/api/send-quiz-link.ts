@@ -3,37 +3,15 @@ import nodemailer from 'nodemailer';
 import { randomBytes } from 'crypto';
 import { canSendEmail, recordEmailSend, tryLockEmail } from '../utils/emailRateLimit.js';
 import { setQuizTokenData } from '../utils/quizTokenStorage.js';
-import PDFDocument from 'pdfkit';
 
-// Fonction pour générer un PDF avec le logo SkillShield
-async function generateLogoPDF(): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    try {
-      const doc = new PDFDocument({ size: [200, 200], margin: 20 });
-      const buffers: Buffer[] = [];
-
-      doc.on('data', buffers.push.bind(buffers));
-      doc.on('end', () => {
-        const pdfBuffer = Buffer.concat(buffers);
-        resolve(pdfBuffer);
-      });
-      doc.on('error', reject);
-
-      // Ajouter le logo (texte stylisé pour l'instant, peut être remplacé par une image)
-      doc.fontSize(24)
-         .fillColor('#667eea')
-         .text('SkillShield', 20, 60, { align: 'center' });
-      
-      doc.fontSize(16)
-         .fillColor('#764ba2')
-         .text('AI', 20, 90, { align: 'center' });
-
-      doc.end();
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
+// Signature d'email SkillShield
+const EMAIL_SIGNATURE = `
+---
+SkillShield AI
+Implémentation IA avec Gardien Humain
+📧 contact@skillshield-ai.com
+🌐 https://skillshield.app
+`;
 
 function generateSecureToken(): string {
   return randomBytes(32).toString('hex');

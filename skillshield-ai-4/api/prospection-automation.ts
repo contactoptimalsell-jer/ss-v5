@@ -3,7 +3,6 @@ import { canSendEmail, recordEmailSend, tryLockEmail } from '../utils/emailRateL
 import { setQuizTokenData, getQuizTokenData } from '../utils/quizTokenStorage.js';
 import { randomBytes } from 'crypto';
 import nodemailer from 'nodemailer';
-import PDFDocument from 'pdfkit';
 
 function generateSecureToken(): string {
   return randomBytes(32).toString('hex');
@@ -310,7 +309,8 @@ function extractCompanyNameFromUrl(url: string): string {
     const urlObj = new URL(url);
     const hostname = urlObj.hostname.replace('www.', '');
     const domain = hostname.split('.')[0];
-    return domain.charAt(0).toUpperCase() + domain.slice(1);
+    // Capitaliser la première lettre et mettre le reste en minuscule
+    return domain.charAt(0).toUpperCase() + domain.slice(1).toLowerCase();
   } catch {
     return 'Entreprise';
   }
@@ -623,35 +623,14 @@ async function handleSingleProspecting(req: VercelRequest, res: VercelResponse, 
 }
 // ===== FIN FONCTIONS DE PROSPECTION UNIQUE =====
 
-// Fonction pour générer un PDF avec le logo SkillShield
-async function generateLogoPDF(): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    try {
-      const doc = new PDFDocument({ size: [200, 200], margin: 20 });
-      const buffers: Buffer[] = [];
-
-      doc.on('data', buffers.push.bind(buffers));
-      doc.on('end', () => {
-        const pdfBuffer = Buffer.concat(buffers);
-        resolve(pdfBuffer);
-      });
-      doc.on('error', reject);
-
-      // Ajouter le logo (texte stylisé pour l'instant, peut être remplacé par une image)
-      doc.fontSize(24)
-         .fillColor('#667eea')
-         .text('SkillShield', 20, 60, { align: 'center' });
-      
-      doc.fontSize(16)
-         .fillColor('#764ba2')
-         .text('AI', 20, 90, { align: 'center' });
-
-      doc.end();
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
+// Signature d'email SkillShield
+const EMAIL_SIGNATURE = `
+---
+SkillShield AI
+Implémentation IA avec Gardien Humain
+📧 contact@skillshield-ai.com
+🌐 https://skillshield.app
+`;
 
 // Fonction pour envoyer un email de prospection (simple ou quiz)
 async function sendProspectionEmail(
@@ -745,13 +724,7 @@ L'équipe SkillShield AI`;
         </body>
         </html>
       `,
-      text: `${emailMessage}\n\n---\nDécouvrez SkillShield AI : https://skillshield.app\nSkillShield AI - Implémentation IA avec Gardien Humain`,
-      attachments: [
-        {
-          filename: 'skillshield-logo.pdf',
-          content: await generateLogoPDF(),
-        },
-      ],
+      text: `${emailMessage}${EMAIL_SIGNATURE}`,
       });
 
       console.log(`✅ [sendProspectionEmail] Email simple envoyé avec succès:`, {
@@ -858,17 +831,8 @@ Si vous ne souhaitez plus recevoir nos communications :
 ${optOutUrl}
 
 Conformément au RGPD, vous avez le droit de vous opposer au traitement de vos données personnelles.
-
----
-Découvrez SkillShield AI : https://skillshield.app
-SkillShield AI - Implémentation IA avec Gardien Humain
+${EMAIL_SIGNATURE}
       `,
-      attachments: [
-        {
-          filename: 'skillshield-logo.pdf',
-          content: await generateLogoPDF(),
-        },
-      ],
       });
 
       console.log(`✅ [sendProspectionEmail] Email quiz envoyé avec succès:`, {
