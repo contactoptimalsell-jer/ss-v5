@@ -179,9 +179,14 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
         source: contact.source,
       }));
 
+      console.log('📊 Contacts reçus:', contacts.length, contacts);
+      console.log('📊 Métadonnées:', data.metadata);
+
       setFoundEmails(contacts);
       if (contacts.length === 0 && !data.error) {
-        setSearchError(data.message || 'Aucun contact trouvé. Essayez avec des termes plus larges ou utilisez le mode "Sites directs".');
+        const errorMsg = data.message || 'Aucun contact trouvé. Vérifiez que les sites web contiennent des emails de contact (contact@, info@, etc.).';
+        setSearchError(errorMsg);
+        console.warn('⚠️ Aucun contact trouvé:', data);
       } else {
         setSearchError(null);
       }

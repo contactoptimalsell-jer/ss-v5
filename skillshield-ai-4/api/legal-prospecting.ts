@@ -227,15 +227,22 @@ function analyzePageBasic(html: string, url: string): {
   const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
   const allEmails = html.match(emailRegex) || [];
   
-  // Filtrer pour garder uniquement les emails génériques
-  const genericEmails = allEmails
+  // Filtrer les emails - critères plus larges pour trouver plus de contacts
+  const validEmails = allEmails
     .map(email => email.toLowerCase().trim())
     .filter(email => {
+      // Validation basique du format
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(email)) {
+        return false;
+      }
+      
       // Exclure les emails évidents à éviter
       const excludePatterns = [
         'example@', 'test@', 'noreply@', 'no-reply@', 'donotreply@',
         'webmaster@', 'postmaster@', 'abuse@', 'privacy@', 'legal@',
-        'copyright@', 'trademark@', 'domain@', 'dns@', 'hostmaster@'
+        'copyright@', 'trademark@', 'domain@', 'dns@', 'hostmaster@',
+        '@example.', '@test.', '@localhost', '@127.0.0.1'
       ];
       
       // Si c'est un email à exclure, le rejeter
@@ -243,28 +250,19 @@ function analyzePageBasic(html: string, url: string): {
         return false;
       }
       
-      // Emails génériques acceptés (plus large)
-      const genericPatterns = [
-        'contact@', 'info@', 'commercial@', 'vente@', 'sales@',
-        'service@', 'support@', 'client@', 'clients@', 'hello@',
-        'bonjour@', 'accueil@', 'direction@', 'admin@', 'general@',
-        'entreprise@', 'societe@', 'bureau@', 'office@', 'secretariat@',
-        'reception@', 'standard@', 'siege@', 'headquarters@'
-      ];
-      
-      // Accepter si c'est un email générique OU si c'est un email simple (pas de point dans le nom avant @)
-      const emailLocalPart = email.split('@')[0];
-      const isGeneric = genericPatterns.some(pattern => email.includes(pattern));
-      const isSimpleEmail = !emailLocalPart.includes('.') && emailLocalPart.length <= 15;
-      
-      return isGeneric || isSimpleEmail;
+      // Accepter TOUS les emails valides (pas seulement génériques)
+      // C'est plus permissif mais reste légal car on extrait uniquement des emails publics
+      return true;
     })
     .filter((email, index, self) => self.indexOf(email) === index); // Supprimer doublons
 
-  console.log(`📧 Emails trouvés pour ${companyName}: ${genericEmails.length} (${allEmails.length} total)`);
+  console.log(`📧 Emails trouvés pour ${companyName}: ${validEmails.length} (${allEmails.length} total)`);
+  if (validEmails.length > 0) {
+    console.log(`   Emails: ${validEmails.join(', ')}`);
+  }
 
   return {
-    emails: genericEmails,
+    emails: validEmails,
     companyName,
   };
 }
@@ -521,7 +519,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const aggressiveEmails = extractEmailsAggressive(html);
           if (aggressiveEmails.length > 0) {
             analysis.emails = aggressiveEmails;
-            console.log(`✅ Extraction agressive: ${aggressiveEmails.length} email(s) trouvé(s)`);
+            console.log(`✅ Extraction agressive: ${aggressiveEmails.length} email(s) trouvé(s) - ${aggressiveEmails.join(', ')}`);
+          } else {
+            console.log(`❌ Aucun email trouvé même avec extraction agressive pour ${normalizedUrl}`);
+            // Log un échantillon du HTML pour déboguer
+            const htmlSample = html.substring(0, 500).replace(/\s+/g, ' ');
+            console.log(`   Échantillon HTML: ${htmlSample}...`);
           }
         }
 
