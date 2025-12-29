@@ -16,6 +16,7 @@
     "@types/pdfkit": "^0.17.4",
     "@vercel/kv": "^3.0.0",
     "framer-motion": "^12.23.25",
+    "jsdom": "^27.4.0",
     "lucide-react": "^0.556.0",
     "nodemailer": "^7.0.11",
     "pdfkit": "^0.17.2",
