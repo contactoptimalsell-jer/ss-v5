@@ -102,10 +102,18 @@ Important:
     });
 
     if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`Gemini API error: ${response.status} - ${errorText.substring(0, 200)}`);
     }
 
-    const data = await response.json();
+    let data;
+    try {
+      const responseText = await response.text();
+      data = JSON.parse(responseText);
+    } catch (jsonError: any) {
+      console.error('Erreur parsing réponse Gemini (scoring):', jsonError.message);
+      throw new Error(`Erreur de parsing de la réponse Gemini: ${jsonError.message}`);
+    }
     
     // Vérifier la structure de la réponse
     if (!data || !data.candidates || !Array.isArray(data.candidates) || data.candidates.length === 0) {
@@ -289,10 +297,18 @@ Retourne UNIQUEMENT un nombre entre 0 et 100, sans texte supplémentaire.`;
     });
 
     if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`Gemini API error: ${response.status} - ${errorText.substring(0, 200)}`);
     }
 
-    const data = await response.json();
+    let data;
+    try {
+      const responseText = await response.text();
+      data = JSON.parse(responseText);
+    } catch (jsonError: any) {
+      console.error('Erreur parsing réponse Gemini (scoring):', jsonError.message);
+      throw new Error(`Erreur de parsing de la réponse Gemini: ${jsonError.message}`);
+    }
     const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     
     // Extraire le nombre
