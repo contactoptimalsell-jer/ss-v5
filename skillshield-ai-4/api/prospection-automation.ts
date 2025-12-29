@@ -3,8 +3,7 @@ import { canSendEmail, recordEmailSend, tryLockEmail } from '../utils/emailRateL
 import { setQuizTokenData, getQuizTokenData } from '../utils/quizTokenStorage.js';
 import { randomBytes } from 'crypto';
 import nodemailer from 'nodemailer';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import PDFDocument from 'pdfkit';
 
 function generateSecureToken(): string {
   return randomBytes(32).toString('hex');
