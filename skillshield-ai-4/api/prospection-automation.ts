@@ -405,9 +405,12 @@ Important:
             try {
               const parsed = JSON.parse(jsonMatch[0]);
               if (parsed && typeof parsed === 'object') {
-                const companyName = typeof parsed.companyName === 'string' && parsed.companyName.trim()
+                let companyName = typeof parsed.companyName === 'string' && parsed.companyName.trim()
                   ? parsed.companyName.trim()
                   : (html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1]?.split('|')[0]?.split('-')[0]?.trim() || extractCompanyNameFromUrl(url));
+                
+                // Nettoyer le nom : enlever les extensions de domaine si présentes
+                companyName = companyName.replace(/\.(fr|com|net|org|eu)$/i, '').trim();
                 
                 const sector = typeof parsed.sector === 'string' && parsed.sector.trim() && parsed.sector !== 'Non spécifié'
                   ? parsed.sector.trim()
