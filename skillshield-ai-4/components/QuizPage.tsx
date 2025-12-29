@@ -39,10 +39,10 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
     email: string;
     message_personnalise: string;
   } | null>(null);
-  // Mode "Prospection unique" activé par défaut sur /12000
+  // Mode "Prospection unique" activé par défaut sur /120000
   const [prospectingSingle, setProspectingSingle] = useState(() => {
     if (typeof window !== 'undefined') {
-      return window.location.pathname === '/12000';
+      return window.location.pathname === '/120000';
     }
     return false;
   });
@@ -406,8 +406,8 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                 Utilisez des sources légitimes (annuaires pro, listes d'entreprises) et laissez Google Cloud + IA analyser et scorer les contacts.
               </p>
 
-              {/* Toggle entre modes - Masqué sur /12000 si prospection unique active */}
-              {!(typeof window !== 'undefined' && window.location.pathname === '/12000' && prospectingSingle) && (
+              {/* Toggle entre modes - Masqué sur /120000 si prospection unique active */}
+              {!(typeof window !== 'undefined' && window.location.pathname === '/120000' && prospectingSingle) && (
                 <div className="flex justify-center mb-6">
                   <div className="bg-slate-800/50 rounded-lg p-1 flex gap-2 flex-wrap">
                     <button

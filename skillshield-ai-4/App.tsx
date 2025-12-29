@@ -117,8 +117,8 @@ const App: React.FC = () => {
         return;
       }
       
-      // Route /12000 pour l'envoi de quiz (dupliquée de /92300)
-      if (path === '/12000') {
+      // Route /120000 pour l'envoi de quiz (dupliquée de /92300)
+      if (path === '/120000') {
         setCurrentPage('quiz');
         setBlogArticleSlug(null);
         setQuizToken(null);
@@ -437,9 +437,9 @@ const App: React.FC = () => {
           canonicalUrl: "https://skillshield.app/77230"
         };
       case 'quiz':
-        // Utiliser l'URL actuelle comme canonique (peut être /92300 ou /12000)
-        const quizCanonical = window.location.pathname === '/12000' 
-          ? "https://skillshield.app/12000"
+        // Utiliser l'URL actuelle comme canonique (peut être /92300 ou /120000)
+        const quizCanonical = window.location.pathname === '/120000' 
+          ? "https://skillshield.app/120000"
           : "https://skillshield.app/92300";
         return {
           title: "Envoi de Quiz Personnalisé - SkillShield AI | Outil de Qualification",
