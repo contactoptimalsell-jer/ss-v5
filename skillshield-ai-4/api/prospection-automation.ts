@@ -462,7 +462,27 @@ Retourne UNIQUEMENT le message, sans formatage supplémentaire.`;
     console.error('Erreur génération message IA:', error.message);
   }
 
-  return generatePersonalizedMessage(companyName, site);
+  // Retourner le message par défaut en cas d'erreur
+  const emotionalPhrases = [
+    'Chaque jour, des heures précieuses sont perdues dans des tâches répétitives qui pourraient être automatisées.',
+    'La complexité croissante de la gestion quotidienne peut devenir un frein à votre croissance.',
+    'Ne pas automatiser aujourd\'hui, c\'est risquer de prendre du retard sur vos concurrents qui ont déjà fait le pas.'
+  ];
+  const randomEmotional = emotionalPhrases[Math.floor(Math.random() * emotionalPhrases.length)];
+  return `Bonjour,
+
+${randomEmotional}
+
+Nous sommes SkillShield AI, spécialisés dans l'implémentation d'IA avec gardien humain pour les entreprises comme ${companyName}.
+
+Notre solution permet d'automatiser vos processus répétitifs tout en conservant le contrôle humain, vous faisant gagner 10-20h par semaine avec un ROI de 300-520% en 12 mois.
+
+Seriez-vous intéressé par un audit gratuit de votre potentiel d'automatisation ?
+
+Si ce message ne vous concerne pas ou si vous ne souhaitez plus être contacté, faites-le nous savoir et nous supprimerons vos coordonnées.
+
+Cordialement,
+L'équipe SkillShield AI`;
 }
 
 async function handleSingleProspecting(req: VercelRequest, res: VercelResponse, site: string) {
