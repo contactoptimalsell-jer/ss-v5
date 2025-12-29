@@ -26,7 +26,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
   const [quizError, setQuizError] = useState<string | null>(null);
   
   // États pour la prospection automatisée
-  const [automatedMode, setAutomatedMode] = useState(false);
+  const [automatedMode, setAutomatedMode] = useState(true); // Mode automatisé par défaut
   const [category, setCategory] = useState('');
   const [sector, setSector] = useState('');
   const [location, setLocation] = useState('');
@@ -39,7 +39,13 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
     email: string;
     message_personnalise: string;
   } | null>(null);
-  const [prospectingSingle, setProspectingSingle] = useState(false);
+  // Mode "Prospection unique" activé par défaut sur /12000
+  const [prospectingSingle, setProspectingSingle] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.location.pathname === '/12000';
+    }
+    return false;
+  });
   const [emailType, setEmailType] = useState<'simple' | 'quiz'>('simple');
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
