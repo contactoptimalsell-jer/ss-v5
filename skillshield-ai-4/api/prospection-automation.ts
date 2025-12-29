@@ -560,7 +560,7 @@ async function sendProspectionEmail(
   console.log(`   - Pass: ${smtpPass ? '***' : 'NON CONFIGURÉ'}`);
   console.log(`   - Email type: ${emailType}`);
   console.log(`   - To: ${email}`);
-  console.log(`   - From: info@skillshield-ai.com`);
+  console.log(`   - From: contact@skillshield-ai.com`);
 
   if (!smtpUser || !smtpPass) {
     throw new Error('Configuration SMTP manquante. Veuillez configurer SMTP_USER et SMTP_PASS dans Vercel Dashboard → Settings → Environment Variables');
@@ -596,7 +596,7 @@ L'équipe SkillShield AI`;
     
     try {
       const result = await transporter.sendMail({
-        from: '"SkillShield AI" <info@skillshield-ai.com>',
+        from: '"SkillShield AI" <contact@skillshield-ai.com>',
         to: email,
         subject: `🎯 Automatisation IA pour ${companyName} - Gagnez 10-20h par semaine`,
       html: `
@@ -660,7 +660,7 @@ L'équipe SkillShield AI`;
     
     try {
       const result = await transporter.sendMail({
-        from: '"SkillShield AI" <info@skillshield-ai.com>',
+        from: '"SkillShield AI" <contact@skillshield-ai.com>',
         to: email,
         subject: `🎯 Quiz Personnalisé pour ${companyName} - Découvrez votre potentiel d'automatisation`,
       html: `

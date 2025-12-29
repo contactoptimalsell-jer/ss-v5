@@ -662,7 +662,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                             <div>
                               <p className="text-green-400 font-semibold">Email envoyé avec succès !</p>
                               <p className="text-sm text-gray-400 mt-1">
-                                L'email a été envoyé à {prospectingResult.email} depuis info@skillshield-ai.com
+                                L'email a été envoyé à {prospectingResult.email} depuis contact@skillshield-ai.com
                               </p>
                             </div>
                           </div>
