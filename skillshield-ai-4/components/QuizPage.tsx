@@ -40,6 +40,9 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
     message_personnalise: string;
   } | null>(null);
   const [prospectingSingle, setProspectingSingle] = useState(false);
+  const [emailType, setEmailType] = useState<'simple' | 'quiz'>('simple');
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
   const [searchingEmails, setSearchingEmails] = useState(false);
   const [sendingBulk, setSendingBulk] = useState(false);
   const [foundEmails, setFoundEmails] = useState<ProspectEmail[]>([]);
@@ -533,10 +536,10 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                     )}
                   </Button>
 
-                  {prospectingResult && (
+                  {prospectingResult && prospectingResult.email && (
                     <div className="mt-6 p-4 bg-slate-800/50 rounded-lg border border-green-500/30">
                       <h3 className="text-lg font-semibold text-white mb-4">Résultat de la prospection</h3>
-                      <div className="space-y-3">
+                      <div className="space-y-3 mb-6">
                         <div>
                           <p className="text-sm text-gray-400">Entreprise</p>
                           <p className="text-white font-medium">{prospectingResult.entreprise_nom}</p>
@@ -547,18 +550,137 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                         </div>
                         <div>
                           <p className="text-sm text-gray-400">Email</p>
-                          <p className={`font-medium ${prospectingResult.email ? 'text-green-400' : 'text-yellow-400'}`}>
-                            {prospectingResult.email || 'Non trouvé – prospection manuelle requise'}
-                          </p>
+                          <p className="text-green-400 font-medium">{prospectingResult.email}</p>
                         </div>
-                        {prospectingResult.message_personnalise && (
-                          <div>
-                            <p className="text-sm text-gray-400 mb-2">Message personnalisé</p>
-                            <div className="p-3 bg-slate-900/50 rounded border border-cyan-500/20">
-                              <p className="text-white text-sm whitespace-pre-line">{prospectingResult.message_personnalise}</p>
+                      </div>
+
+                      {!emailSent ? (
+                        <>
+                          <div className="mb-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                            <label className="block text-sm font-semibold text-gray-300 mb-3">
+                              Type d'email à envoyer
+                            </label>
+                            <div className="space-y-2">
+                              <label className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg border border-cyan-500/30 cursor-pointer hover:border-cyan-500/50 transition-colors">
+                                <input
+                                  type="radio"
+                                  name="emailType"
+                                  value="simple"
+                                  checked={emailType === 'simple'}
+                                  onChange={(e) => setEmailType(e.target.value as 'simple' | 'quiz')}
+                                  className="w-4 h-4 text-cyan-500"
+                                />
+                                <div className="flex-1">
+                                  <p className="text-white font-medium">Message simple</p>
+                                  <p className="text-xs text-gray-400">Message de prospection personnalisé</p>
+                                </div>
+                              </label>
+                              <label className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg border border-violet-500/30 cursor-pointer hover:border-violet-500/50 transition-colors">
+                                <input
+                                  type="radio"
+                                  name="emailType"
+                                  value="quiz"
+                                  checked={emailType === 'quiz'}
+                                  onChange={(e) => setEmailType(e.target.value as 'simple' | 'quiz')}
+                                  className="w-4 h-4 text-violet-500"
+                                />
+                                <div className="flex-1">
+                                  <p className="text-white font-medium">Quiz complet</p>
+                                  <p className="text-xs text-gray-400">Quiz personnalisé comme sur /92300</p>
+                                </div>
+                              </label>
                             </div>
                           </div>
-                        )}
+
+                          {emailType === 'simple' && prospectingResult.message_personnalise && (
+                            <div className="mb-4">
+                              <p className="text-sm text-gray-400 mb-2">Aperçu du message</p>
+                              <div className="p-3 bg-slate-900/50 rounded border border-cyan-500/20 max-h-48 overflow-y-auto">
+                                <p className="text-white text-sm whitespace-pre-line">{prospectingResult.message_personnalise}</p>
+                              </div>
+                            </div>
+                          )}
+
+                          <Button
+                            type="button"
+                            onClick={async () => {
+                              if (!prospectingResult.email) return;
+                              
+                              setSendingEmail(true);
+                              setSearchError(null);
+
+                              try {
+                                const response = await fetch('/api/prospection-automation', {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                  },
+                                  body: JSON.stringify({
+                                    mode: 'send-email',
+                                    email: prospectingResult.email,
+                                    companyName: prospectingResult.entreprise_nom,
+                                    site: prospectingResult.site,
+                                    emailType: emailType,
+                                    message: emailType === 'simple' ? prospectingResult.message_personnalise : null,
+                                  }),
+                                });
+
+                                const data = await response.json();
+
+                                if (!response.ok) {
+                                  throw new Error(data.error || data.message || 'Erreur lors de l\'envoi');
+                                }
+
+                                setEmailSent(true);
+                              } catch (error: any) {
+                                console.error('Error sending email:', error);
+                                setSearchError(error.message || 'Erreur lors de l\'envoi de l\'email');
+                              } finally {
+                                setSendingEmail(false);
+                              }
+                            }}
+                            disabled={sendingEmail}
+                            className="w-full bg-gradient-to-r from-green-600 to-cyan-600 hover:from-green-500 hover:to-cyan-500"
+                          >
+                            {sendingEmail ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Envoi en cours...
+                              </>
+                            ) : (
+                              <>
+                                <Mail className="w-4 h-4 mr-2" />
+                                Envoyer l'email à {prospectingResult.email}
+                              </>
+                            )}
+                          </Button>
+                        </>
+                      ) : (
+                        <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <CheckCircle2 className="w-6 h-6 text-green-400" />
+                            <div>
+                              <p className="text-green-400 font-semibold">Email envoyé avec succès !</p>
+                              <p className="text-sm text-gray-400 mt-1">
+                                L'email a été envoyé à {prospectingResult.email} depuis info@skillshield-ai.com
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {prospectingResult && !prospectingResult.email && (
+                    <div className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <AlertCircle className="w-5 h-5 text-yellow-400" />
+                        <div>
+                          <p className="text-yellow-400 font-semibold">Email non trouvé</p>
+                          <p className="text-sm text-gray-400 mt-1">
+                            Aucun email autorisé trouvé sur {prospectingResult.site}. Prospection manuelle requise.
+                          </p>
+                        </div>
                       </div>
                     </div>
                   )}

@@ -539,16 +539,193 @@ async function handleSingleProspecting(req: VercelRequest, res: VercelResponse, 
 }
 // ===== FIN FONCTIONS DE PROSPECTION UNIQUE =====
 
+// Fonction pour envoyer un email de prospection (simple ou quiz)
+async function sendProspectionEmail(
+  email: string,
+  companyName: string,
+  site: string,
+  emailType: 'simple' | 'quiz',
+  message?: string
+): Promise<{ success: boolean; quizUrl?: string }> {
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: false,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
+  if (emailType === 'simple') {
+    const emailMessage = message || `Bonjour,
+
+Chaque jour, des heures précieuses sont perdues dans des tâches répétitives qui pourraient être automatisées.
+
+Nous sommes SkillShield AI, spécialisés dans l'implémentation d'IA avec gardien humain pour les entreprises comme ${companyName}.
+
+Notre solution permet d'automatiser vos processus répétitifs tout en conservant le contrôle humain, vous faisant gagner 10-20h par semaine avec un ROI de 300-520% en 12 mois.
+
+Seriez-vous intéressé par un audit gratuit de votre potentiel d'automatisation ?
+
+Si ce message ne vous concerne pas ou si vous ne souhaitez plus être contacté, faites-le nous savoir et nous supprimerons vos coordonnées.
+
+Cordialement,
+L'équipe SkillShield AI`;
+
+    await transporter.sendMail({
+      from: '"SkillShield AI" <info@skillshield-ai.com>',
+      to: email,
+      subject: `🎯 Automatisation IA pour ${companyName} - Gagnez 10-20h par semaine`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 10px; }
+            .opt-out { background: #fff3cd; padding: 15px; border-radius: 5px; margin-top: 20px; border-left: 4px solid #ffc107; font-size: 12px; color: #856404; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="content">
+              <p style="white-space: pre-line;">${emailMessage.replace(/\n/g, '<br>')}</p>
+              <div class="opt-out">
+                <p><strong>🔔 Désinscription</strong></p>
+                <p>Si vous ne souhaitez plus recevoir nos communications, répondez à cet email avec "DÉSINSCRIPTION" et nous supprimerons vos coordonnées.</p>
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+      text: emailMessage,
+    });
+
+    return { success: true };
+  } else {
+    // Envoi du quiz complet
+    const token = generateSecureToken();
+    const quizUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://skillshield.app'}/quiz/${token}`;
+    const optOutUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://skillshield.app'}/opt-out?email=${encodeURIComponent(email)}&token=${token}`;
+
+    await setQuizTokenData(token, {
+      token,
+      prospectName: companyName,
+      prospectEmail: email,
+      prospectProblem: `Entreprise: ${companyName} - Site: ${site}`,
+      createdAt: new Date().toISOString(),
+      opened: false,
+      completed: false,
+    });
+
+    await transporter.sendMail({
+      from: '"SkillShield AI" <info@skillshield-ai.com>',
+      to: email,
+      subject: `🎯 Quiz Personnalisé pour ${companyName} - Découvrez votre potentiel d'automatisation`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+            .button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: 600; }
+            .opt-out { background: #fff3cd; padding: 15px; border-radius: 5px; margin-top: 20px; border-left: 4px solid #ffc107; font-size: 12px; color: #856404; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🎯 Quiz Personnalisé SkillShield AI</h1>
+            </div>
+            <div class="content">
+              <p>Bonjour,</p>
+              <p>Nous avons préparé un <strong>quiz personnalisé</strong> pour vous aider à identifier les opportunités d'automatisation dans votre entreprise <strong>${companyName}</strong>.</p>
+              <p>Ce quiz vous permettra de :</p>
+              <ul>
+                <li>✅ Découvrir votre potentiel d'automatisation</li>
+                <li>✅ Identifier les processus à optimiser</li>
+                <li>✅ Recevoir des recommandations personnalisées</li>
+              </ul>
+              <p style="text-align: center;">
+                <a href="${quizUrl}" class="button">Commencer le Quiz</a>
+              </p>
+              <p><small>Ce lien est unique et personnel. Il expire dans 30 jours.</small></p>
+              <div class="opt-out">
+                <p><strong>🔔 Désinscription</strong></p>
+                <p>Si vous ne souhaitez plus recevoir nos communications, vous pouvez vous désinscrire à tout moment :</p>
+                <p style="text-align: center;">
+                  <a href="${optOutUrl}" style="color: #856404; text-decoration: underline;">Me désinscrire de cette liste</a>
+                </p>
+                <p style="font-size: 11px; margin-top: 10px;">
+                  Conformément au RGPD, vous avez le droit de vous opposer au traitement de vos données personnelles.
+                </p>
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+      text: `
+Bonjour,
+
+Nous avons préparé un quiz personnalisé pour vous aider à identifier les opportunités d'automatisation dans votre entreprise ${companyName}.
+
+Commencer le quiz : ${quizUrl}
+
+Ce lien est unique et personnel. Il expire dans 30 jours.
+
+🔔 Désinscription
+Si vous ne souhaitez plus recevoir nos communications :
+${optOutUrl}
+
+Conformément au RGPD, vous avez le droit de vous opposer au traitement de vos données personnelles.
+
+SkillShield AI - Implémentation IA avec Gardien Humain
+      `,
+    });
+
+    return { success: true, quizUrl };
+  }
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { action, category, sector, prospects, mode, site } = req.body;
+  const { action, category, sector, prospects, mode, site, email, companyName, emailType, message } = req.body;
 
   // Mode prospection unique (UNE entreprise à la fois)
   if (mode === 'single' && site) {
     return handleSingleProspecting(req, res, site);
+  }
+
+  // Mode envoi email de prospection
+  if (mode === 'send-email' && email && companyName && emailType) {
+    try {
+      const result = await sendProspectionEmail(email, companyName, site || '', emailType, message);
+      return res.status(200).json({
+        success: true,
+        message: 'Email envoyé avec succès',
+        type: emailType,
+        quizUrl: result.quizUrl,
+      });
+    } catch (error: any) {
+      console.error('❌ Erreur envoi email prospection:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Erreur lors de l\'envoi de l\'email',
+        message: error.message,
+      });
+    }
   }
 
   try {
