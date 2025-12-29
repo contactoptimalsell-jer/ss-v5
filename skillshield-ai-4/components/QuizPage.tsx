@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Loader2, CheckCircle2, FileText, Mail, User, MessageSquare, Sparkles, Search, Building2, Target, AlertCircle, ShieldCheck, BookOpen, Users, Link as LinkIcon, FileCheck } from 'lucide-react';
 import { Button } from './ui/Button';
@@ -406,56 +406,58 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                 Utilisez des sources légitimes (annuaires pro, listes d'entreprises) et laissez Google Cloud + IA analyser et scorer les contacts.
               </p>
 
-              {/* Toggle entre modes */}
-              <div className="flex justify-center mb-6">
-                <div className="bg-slate-800/50 rounded-lg p-1 flex gap-2 flex-wrap">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUseDirectMode(false);
-                      setProspectingSingle(false);
-                    }}
-                    className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
-                      !useDirectMode && !prospectingSingle
-                        ? 'bg-cyan-500 text-white'
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    <Search className="w-4 h-4 inline mr-2" />
-                    Recherche
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUseDirectMode(true);
-                      setProspectingSingle(false);
-                    }}
-                    className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
-                      useDirectMode && !prospectingSingle
-                        ? 'bg-violet-500 text-white'
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    <FileText className="w-4 h-4 inline mr-2" />
-                    Sites légitimes
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProspectingSingle(true);
-                      setUseDirectMode(false);
-                    }}
-                    className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
-                      prospectingSingle
-                        ? 'bg-green-500 text-white'
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    <Target className="w-4 h-4 inline mr-2" />
-                    Prospection unique
-                  </button>
+              {/* Toggle entre modes - Masqué sur /12000 si prospection unique active */}
+              {!(typeof window !== 'undefined' && window.location.pathname === '/12000' && prospectingSingle) && (
+                <div className="flex justify-center mb-6">
+                  <div className="bg-slate-800/50 rounded-lg p-1 flex gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUseDirectMode(false);
+                        setProspectingSingle(false);
+                      }}
+                      className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
+                        !useDirectMode && !prospectingSingle
+                          ? 'bg-cyan-500 text-white'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <Search className="w-4 h-4 inline mr-2" />
+                      Recherche
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUseDirectMode(true);
+                        setProspectingSingle(false);
+                      }}
+                      className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
+                        useDirectMode && !prospectingSingle
+                          ? 'bg-violet-500 text-white'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <FileText className="w-4 h-4 inline mr-2" />
+                      Sites légitimes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProspectingSingle(true);
+                        setUseDirectMode(false);
+                      }}
+                      className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
+                        prospectingSingle
+                          ? 'bg-green-500 text-white'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <Target className="w-4 h-4 inline mr-2" />
+                      Prospection unique
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {prospectingSingle ? (
                 <div className="space-y-6">
