@@ -75,6 +75,15 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
   const [dataRetention, setDataRetention] = useState('12'); // mois
   const [gdprNotes, setGdprNotes] = useState('');
 
+  // Effet pour forcer automatedMode à true sur /120000
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.pathname === '/120000') {
+      setAutomatedMode(true);
+      setProspectingSingle(true);
+      setUseDirectMode(false);
+    }
+  }, []);
+
   const handleSendQuiz = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prospectEmail || !prospectName) return;
@@ -293,37 +302,40 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
           </p>
         </div>
 
-        {/* Toggle entre mode manuel et automatisé */}
-        <div className="flex justify-center mb-8">
-          <div className="bg-slate-800/50 rounded-lg p-1 flex gap-2">
-            <button
-              type="button"
-              onClick={() => setAutomatedMode(false)}
-              className={`px-6 py-2 rounded-md font-semibold transition-all ${
-                !automatedMode
-                  ? 'bg-violet-500 text-white'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <User className="w-4 h-4 inline mr-2" />
-              Manuel
-            </button>
-            <button
-              type="button"
-              onClick={() => setAutomatedMode(true)}
-              className={`px-6 py-2 rounded-md font-semibold transition-all ${
-                automatedMode
-                  ? 'bg-cyan-500 text-white'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <Target className="w-4 h-4 inline mr-2" />
-              Automatisé
-            </button>
+        {/* Toggle entre mode manuel et automatisé - Masqué sur /120000 */}
+        {!(typeof window !== 'undefined' && window.location.pathname === '/120000') && (
+          <div className="flex justify-center mb-8">
+            <div className="bg-slate-800/50 rounded-lg p-1 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setAutomatedMode(false)}
+                className={`px-6 py-2 rounded-md font-semibold transition-all ${
+                  !automatedMode
+                    ? 'bg-violet-500 text-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <User className="w-4 h-4 inline mr-2" />
+                Manuel
+              </button>
+              <button
+                type="button"
+                onClick={() => setAutomatedMode(true)}
+                className={`px-6 py-2 rounded-md font-semibold transition-all ${
+                  automatedMode
+                    ? 'bg-cyan-500 text-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <Target className="w-4 h-4 inline mr-2" />
+                Automatisé
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
-        {!automatedMode ? (
+        {/* Section Manuel - Masquée sur /120000 */}
+        {!automatedMode && !(typeof window !== 'undefined' && window.location.pathname === '/120000') ? (
           <Card className="border-violet-500/30" highlight>
             <form onSubmit={handleSendQuiz} className="space-y-6">
             <div>
