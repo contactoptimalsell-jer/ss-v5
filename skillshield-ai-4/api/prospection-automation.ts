@@ -1017,6 +1017,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return handleSingleProspecting(req, res, site);
   }
 
+  // Mode prospection multiple (analyse d'une page contenant plusieurs liens)
+  if (mode === 'multiple' && site) {
+    return handleMultipleProspecting(req, res, site);
+  }
+
   // Mode envoi email de prospection
   if (mode === 'send-email' && email && companyName && emailType) {
     console.log(`🚀 [prospection-automation] Mode send-email activé`);
