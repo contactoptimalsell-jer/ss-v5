@@ -2015,7 +2015,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                 </div>
               </div>
               )}
-                </>
+                </div>
               )}
             </div>
           </Card>
