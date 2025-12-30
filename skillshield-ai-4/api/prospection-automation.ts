@@ -1022,6 +1022,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return handleMultipleProspecting(req, res, site);
   }
 
+  // Mode génération de message personnalisé (sans analyse de site)
+  if (mode === 'generate-message' && email && companyName) {
+    const { sector } = req.body;
+    console.log(`🚀 [prospection-automation] Mode generate-message activé`);
+    console.log(`   - Email: ${email}`);
+    console.log(`   - Company: ${companyName}`);
+    console.log(`   - Sector: ${sector || 'Non spécifié'}`);
+    
+    try {
+      const message = await generatePersonalizedMessage(companyName, '', sector);
+      return res.status(200).json({
+        success: true,
+        message: message,
+      });
+    } catch (error: any) {
+      console.error('❌ [prospection-automation] Erreur génération message:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la génération du message',
+        message: error.message,
+      });
+    }
+  }
+
   // Mode envoi email de prospection
   if (mode === 'send-email' && email && companyName && emailType) {
     console.log(`🚀 [prospection-automation] Mode send-email activé`);
