@@ -84,6 +84,20 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
     }
   }, []);
 
+  // Réinitialiser les états quand on change le site à analyser
+  useEffect(() => {
+    if (singleSite) {
+      // Réinitialiser les résultats et états d'envoi quand on change le site
+      setProspectingResult(null);
+      setMultipleSitesResult([]);
+      setEmailSent(false);
+      setEmailType('simple');
+      setSearchError(null);
+      setSentMultipleEmails({});
+      setSendingMultipleEmails({});
+    }
+  }, [singleSite]);
+
   const handleSendQuiz = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prospectEmail || !prospectName) return;
@@ -605,6 +619,10 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                       setSearchError(null);
                       setProspectingResult(null);
                       setMultipleSitesResult([]);
+                      setEmailSent(false);
+                      setEmailType('simple');
+                      setSentMultipleEmails({});
+                      setSendingMultipleEmails({});
 
                       try {
                         const response = await fetch('/api/prospection-automation', {
@@ -899,6 +917,13 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                                 }
 
                                 setEmailSent(true);
+                                // Réinitialiser après un court délai pour permettre une nouvelle analyse
+                                setTimeout(() => {
+                                  setProspectingResult(null);
+                                  setEmailSent(false);
+                                  setEmailType('simple');
+                                  setSingleSite('');
+                                }, 2000);
                               } catch (error: any) {
                                 console.error('Error sending email:', error);
                                 setSearchError(error.message || 'Erreur lors de l\'envoi de l\'email');
@@ -930,6 +955,9 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                               <p className="text-green-400 font-semibold">Email envoyé avec succès !</p>
                               <p className="text-sm text-gray-400 mt-1">
                                 L'email a été envoyé à {prospectingResult.email} depuis contact@skillshield-ai.com
+                              </p>
+                              <p className="text-xs text-gray-500 mt-2">
+                                Vous pouvez maintenant analyser un nouveau site en entrant une nouvelle URL ci-dessus.
                               </p>
                             </div>
                           </div>
