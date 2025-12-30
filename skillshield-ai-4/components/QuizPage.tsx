@@ -534,6 +534,55 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                 </div>
               )}
 
+              {/* Sur /120000, afficher directement le toggle Site web / Email */}
+              {typeof window !== 'undefined' && window.location.pathname === '/120000' && prospectingSingle ? (
+                <div className="space-y-6">
+                  {/* Toggle entre Site web et Email direct */}
+                  <div className="flex justify-center mb-6">
+                    <div className="bg-slate-800/50 rounded-lg p-1 flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDirectEmailMode(false);
+                          setProspectingMultiple(false);
+                          setMultipleSitesResult([]);
+                          setSingleSite('');
+                          setDirectEmail('');
+                          setDirectCompanyName('');
+                          setDirectSector('');
+                        }}
+                        className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
+                          !directEmailMode
+                            ? 'bg-cyan-500 text-white'
+                            : 'text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        <FileText className="w-4 h-4 inline mr-2" />
+                        Site web
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDirectEmailMode(true);
+                          setProspectingMultiple(false);
+                          setProspectingResult(null);
+                          setSingleSite('');
+                          setMultipleSitesResult([]);
+                        }}
+                        className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
+                          directEmailMode
+                            ? 'bg-violet-500 text-white'
+                            : 'text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        <Mail className="w-4 h-4 inline mr-2" />
+                        Email
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
               {prospectingSingle ? (
                 <div className="space-y-6">
                   {/* Toggle entre Site web et Email direct */}
@@ -897,8 +946,8 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                       )}
 
                       {!prospectingMultiple ? (
-                    <>
-                      {/* Toggle entre Site web et Email direct - Visible sur /120000 */}
+                        <>
+                          {/* Toggle entre Site web et Email direct - Visible sur /120000 */}
                       <div className="flex justify-center mb-6">
                         <div className="bg-slate-800/50 rounded-lg p-1 flex gap-2">
                           <button
@@ -1215,77 +1264,81 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                         </div>
                       ) : (
                         <>
-                          <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-                            <div className="flex items-start gap-3">
-                              <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <h3 className="text-green-400 font-semibold mb-2">🟢 Prospection B2B Légale - UNE entreprise</h3>
-                                <div className="text-sm text-gray-300 space-y-1">
-                                  <p>✓ Analyse UNIQUEMENT du site fourni</p>
-                                  <p>✓ Détection automatique du nom et secteur précis via IA</p>
-                                  <p>✓ Emails autorisés uniquement : contact@, info@, partenariat@, communication@, hello@, support@</p>
-                                  <p>✓ Message personnalisé avec mention légale d'opt-out</p>
-                                  <p>✓ Conforme RGPD - France / UE</p>
+                          {!prospectingMultiple ? (
+                            <>
+                              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+                                <div className="flex items-start gap-3">
+                                  <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                                  <div className="flex-1">
+                                    <h3 className="text-green-400 font-semibold mb-2">🟢 Prospection B2B Légale - UNE entreprise</h3>
+                                    <div className="text-sm text-gray-300 space-y-1">
+                                      <p>✓ Analyse UNIQUEMENT du site fourni</p>
+                                      <p>✓ Détection automatique du nom et secteur précis via IA</p>
+                                      <p>✓ Emails autorisés uniquement : contact@, info@, partenariat@, communication@, hello@, support@</p>
+                                      <p>✓ Message personnalisé avec mention légale d'opt-out</p>
+                                      <p>✓ Conforme RGPD - France / UE</p>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </div>
 
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-300 mb-2">
-                              <FileText className="w-4 h-4 inline mr-2" />
-                              Site web de l'entreprise (UN seul site) *
-                            </label>
-                            <input
-                              type="text"
-                              value={singleSite}
-                              onChange={(e) => setSingleSite(e.target.value)}
-                              placeholder="Ex: example.com ou https://example.com"
-                              className="w-full px-4 py-3 bg-slate-800/50 border border-green-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50"
-                              required
-                            />
-                            <p className="text-xs text-gray-400 mt-2">
-                              💡 Entrez UN seul site web. Le système analysera uniquement ce site (page d'accueil et pages de contact).
-                            </p>
-                          </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                                  <FileText className="w-4 h-4 inline mr-2" />
+                                  Site web de l'entreprise (UN seul site) *
+                                </label>
+                                <input
+                                  type="text"
+                                  value={singleSite}
+                                  onChange={(e) => setSingleSite(e.target.value)}
+                                  placeholder="Ex: example.com ou https://example.com"
+                                  className="w-full px-4 py-3 bg-slate-800/50 border border-green-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50"
+                                  required
+                                />
+                                <p className="text-xs text-gray-400 mt-2">
+                                  💡 Entrez UN seul site web. Le système analysera uniquement ce site (page d'accueil et pages de contact).
+                                </p>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                                <div className="flex items-start gap-3">
+                                  <CheckCircle2 className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                                  <div className="flex-1">
+                                    <h3 className="text-blue-400 font-semibold mb-2">🔵 Prospection B2B Légale - MULTIPLES entreprises</h3>
+                                    <div className="text-sm text-gray-300 space-y-1">
+                                      <p>✓ Analyse d'une page contenant plusieurs liens de sites</p>
+                                      <p>✓ Extraction automatique de tous les sites référencés</p>
+                                      <p>✓ Analyse intelligente de chaque site (nom, secteur, email)</p>
+                                      <p>✓ Envoi d'emails personnalisés un par un selon les caractéristiques</p>
+                                      <p>✓ Conforme RGPD - France / UE</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                                  <FileText className="w-4 h-4 inline mr-2" />
+                                  Page contenant plusieurs liens de sites (annuaire, liste, etc.) *
+                                </label>
+                                <input
+                                  type="text"
+                                  value={singleSite}
+                                  onChange={(e) => setSingleSite(e.target.value)}
+                                  placeholder="Ex: annuaire-exemple.fr/liste-entreprises ou https://example.com/annuaire"
+                                  className="w-full px-4 py-3 bg-slate-800/50 border border-blue-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                  required
+                                />
+                                <p className="text-xs text-gray-400 mt-2">
+                                  💡 Entrez l'URL d'une page qui contient plusieurs liens vers des sites d'entreprises. Le système extraira tous les liens et analysera chaque site individuellement.
+                                </p>
+                              </div>
+                            </>
+                          )}
                         </>
-                      ) : (
-                    <>
-                      <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                        <div className="flex items-start gap-3">
-                          <CheckCircle2 className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                          <div className="flex-1">
-                            <h3 className="text-blue-400 font-semibold mb-2">🔵 Prospection B2B Légale - MULTIPLES entreprises</h3>
-                            <div className="text-sm text-gray-300 space-y-1">
-                              <p>✓ Analyse d'une page contenant plusieurs liens de sites</p>
-                              <p>✓ Extraction automatique de tous les sites référencés</p>
-                              <p>✓ Analyse intelligente de chaque site (nom, secteur, email)</p>
-                              <p>✓ Envoi d'emails personnalisés un par un selon les caractéristiques</p>
-                              <p>✓ Conforme RGPD - France / UE</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">
-                          <FileText className="w-4 h-4 inline mr-2" />
-                          Page contenant plusieurs liens de sites (annuaire, liste, etc.) *
-                        </label>
-                        <input
-                          type="text"
-                          value={singleSite}
-                          onChange={(e) => setSingleSite(e.target.value)}
-                          placeholder="Ex: annuaire-exemple.fr/liste-entreprises ou https://example.com/annuaire"
-                          className="w-full px-4 py-3 bg-slate-800/50 border border-blue-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                          required
-                        />
-                        <p className="text-xs text-gray-400 mt-2">
-                          💡 Entrez l'URL d'une page qui contient plusieurs liens vers des sites d'entreprises. Le système extraira tous les liens et analysera chaque site individuellement.
-                        </p>
-                      </div>
-                    </>
-                  )}
+                      )}
 
                   <Button
                     type="button"
@@ -1654,8 +1707,6 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                         </div>
                       </div>
                     </div>
-                  )}
-                    </>
                   )}
                 </div>
               ) : useDirectMode ? (
