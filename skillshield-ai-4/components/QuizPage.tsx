@@ -1967,6 +1967,8 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                     <p className="text-red-400">❌ {bulkResults.failed} échec{bulkResults.failed > 1 ? 's' : ''}</p>
                   )}
                 </div>
+              ) : null}
+                </div>
               )}
             </div>
           </Card>
