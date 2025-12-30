@@ -856,81 +856,400 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                     </div>
                   ) : (
                     <>
-                      {/* Toggle entre prospection unique et multiple */}
+                      {/* Toggle entre prospection unique et multiple - Masqué sur /120000 */}
+                      {!(typeof window !== 'undefined' && window.location.pathname === '/120000') && (
+                        <div className="flex justify-center mb-6">
+                          <div className="bg-slate-800/50 rounded-lg p-1 flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setProspectingMultiple(false);
+                                setMultipleSitesResult([]);
+                                setSingleSite('');
+                              }}
+                              className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
+                                !prospectingMultiple
+                                  ? 'bg-green-500 text-white'
+                                  : 'text-gray-400 hover:text-white'
+                              }`}
+                            >
+                              <Target className="w-4 h-4 inline mr-2" />
+                              Prospection unique
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setProspectingMultiple(true);
+                                setProspectingResult(null);
+                                setSingleSite('');
+                              }}
+                              className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
+                                prospectingMultiple
+                                  ? 'bg-blue-500 text-white'
+                                  : 'text-gray-400 hover:text-white'
+                              }`}
+                            >
+                              <Building2 className="w-4 h-4 inline mr-2" />
+                              Prospection multiple
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {!prospectingMultiple ? (
+                    <>
+                      {/* Toggle entre Site web et Email direct - Visible sur /120000 */}
                       <div className="flex justify-center mb-6">
                         <div className="bg-slate-800/50 rounded-lg p-1 flex gap-2">
                           <button
                             type="button"
                             onClick={() => {
-                              setProspectingMultiple(false);
-                              setMultipleSitesResult([]);
+                              setDirectEmailMode(false);
+                              setProspectingResult(null);
                               setSingleSite('');
+                              setDirectEmail('');
+                              setDirectCompanyName('');
+                              setDirectSector('');
                             }}
                             className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
-                              !prospectingMultiple
-                                ? 'bg-green-500 text-white'
+                              !directEmailMode
+                                ? 'bg-cyan-500 text-white'
                                 : 'text-gray-400 hover:text-white'
                             }`}
                           >
-                            <Target className="w-4 h-4 inline mr-2" />
-                            Prospection unique
+                            <FileText className="w-4 h-4 inline mr-2" />
+                            Site web
                           </button>
                           <button
                             type="button"
                             onClick={() => {
-                              setProspectingMultiple(true);
+                              setDirectEmailMode(true);
                               setProspectingResult(null);
                               setSingleSite('');
+                              setMultipleSitesResult([]);
                             }}
                             className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
-                              prospectingMultiple
-                                ? 'bg-blue-500 text-white'
+                              directEmailMode
+                                ? 'bg-violet-500 text-white'
                                 : 'text-gray-400 hover:text-white'
                             }`}
                           >
-                            <Building2 className="w-4 h-4 inline mr-2" />
-                            Prospection multiple
+                            <Mail className="w-4 h-4 inline mr-2" />
+                            Email
                           </button>
                         </div>
                       </div>
 
-                      {!prospectingMultiple ? (
-                    <>
-                      <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-                        <div className="flex items-start gap-3">
-                          <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                          <div className="flex-1">
-                            <h3 className="text-green-400 font-semibold mb-2">🟢 Prospection B2B Légale - UNE entreprise</h3>
-                            <div className="text-sm text-gray-300 space-y-1">
-                              <p>✓ Analyse UNIQUEMENT du site fourni</p>
-                              <p>✓ Détection automatique du nom et secteur précis via IA</p>
-                              <p>✓ Emails autorisés uniquement : contact@, info@, partenariat@, communication@, hello@, support@</p>
-                              <p>✓ Message personnalisé avec mention légale d'opt-out</p>
-                              <p>✓ Conforme RGPD - France / UE</p>
+                      {/* Mode Email direct */}
+                      {directEmailMode ? (
+                        <div className="space-y-6">
+                          <div className="bg-violet-500/10 border border-violet-500/30 rounded-lg p-4">
+                            <div className="flex items-start gap-3">
+                              <CheckCircle2 className="w-5 h-5 text-violet-400 flex-shrink-0 mt-0.5" />
+                              <div className="flex-1">
+                                <h3 className="text-violet-400 font-semibold mb-2">📧 Envoi Email Direct</h3>
+                                <div className="text-sm text-gray-300 space-y-1">
+                                  <p>✓ Entrez directement l'email et le nom de l'entreprise</p>
+                                  <p>✓ Message personnalisé généré automatiquement</p>
+                                  <p>✓ Choix entre message simple ou quiz complet</p>
+                                  <p>✓ Envoi depuis contact@skillshield-ai.com</p>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">
-                          <FileText className="w-4 h-4 inline mr-2" />
-                          Site web de l'entreprise (UN seul site) *
-                        </label>
-                        <input
-                          type="text"
-                          value={singleSite}
-                          onChange={(e) => setSingleSite(e.target.value)}
-                          placeholder="Ex: example.com ou https://example.com"
-                          className="w-full px-4 py-3 bg-slate-800/50 border border-green-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50"
-                          required
-                        />
-                        <p className="text-xs text-gray-400 mt-2">
-                          💡 Entrez UN seul site web. Le système analysera uniquement ce site (page d'accueil et pages de contact).
-                        </p>
-                      </div>
-                    </>
-                  ) : (
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">
+                              <Mail className="w-4 h-4 inline mr-2" />
+                              Email de l'entreprise *
+                            </label>
+                            <input
+                              type="email"
+                              value={directEmail}
+                              onChange={(e) => setDirectEmail(e.target.value)}
+                              placeholder="Ex: contact@example.com"
+                              className="w-full px-4 py-3 bg-slate-800/50 border border-violet-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                              required
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">
+                              <Building2 className="w-4 h-4 inline mr-2" />
+                              Nom de l'entreprise *
+                            </label>
+                            <input
+                              type="text"
+                              value={directCompanyName}
+                              onChange={(e) => setDirectCompanyName(e.target.value)}
+                              placeholder="Ex: Example Corp"
+                              className="w-full px-4 py-3 bg-slate-800/50 border border-violet-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                              required
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">
+                              <Target className="w-4 h-4 inline mr-2" />
+                              Secteur d'activité <span className="text-gray-500 text-xs">(optionnel)</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={directSector}
+                              onChange={(e) => setDirectSector(e.target.value)}
+                              placeholder="Ex: Immobilier - Agence immobilière"
+                              className="w-full px-4 py-3 bg-slate-800/50 border border-violet-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                            />
+                            <p className="text-xs text-gray-400 mt-2">
+                              💡 Le secteur permet de personnaliser davantage le message.
+                            </p>
+                          </div>
+
+                          <Button
+                            type="button"
+                            onClick={async () => {
+                              if (!directEmail || !directCompanyName) return;
+                              
+                              setSearchingEmails(true);
+                              setSearchError(null);
+                              setProspectingResult(null);
+                              setEmailSent(false);
+                              setEmailType('simple');
+
+                              try {
+                                // Générer un message personnalisé
+                                const response = await fetch('/api/prospection-automation', {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                  },
+                                  body: JSON.stringify({
+                                    mode: 'generate-message',
+                                    email: directEmail,
+                                    companyName: directCompanyName,
+                                    sector: directSector || undefined,
+                                  }),
+                                });
+
+                                const data = await response.json();
+
+                                if (!response.ok) {
+                                  throw new Error(data.error || data.message || 'Erreur lors de la génération du message');
+                                }
+
+                                setProspectingResult({
+                                  entreprise_nom: directCompanyName,
+                                  secteur: directSector || undefined,
+                                  site: '',
+                                  email: directEmail,
+                                  message_personnalise: data.message || '',
+                                });
+                              } catch (error: any) {
+                                console.error('Error generating message:', error);
+                                setSearchError(error.message || 'Erreur lors de la génération du message');
+                              } finally {
+                                setSearchingEmails(false);
+                              }
+                            }}
+                            disabled={searchingEmails || !directEmail || !directCompanyName}
+                            className="w-full bg-violet-600 hover:bg-violet-500"
+                          >
+                            {searchingEmails ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Génération du message...
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="w-4 h-4 mr-2" />
+                                Générer le message personnalisé
+                              </>
+                            )}
+                          </Button>
+
+                          {/* Affichage résultat email direct - réutiliser le même code que pour prospectingResult */}
+                          {prospectingResult && prospectingResult.email && (
+                            <div className="mt-6 p-4 bg-slate-800/50 rounded-lg border border-violet-500/30">
+                              <h3 className="text-lg font-semibold text-white mb-4">Résultat de la prospection</h3>
+                              <div className="mb-6">
+                                <p className="text-sm text-gray-400 mb-2">Nom, secteur et email</p>
+                                <div className="p-3 bg-slate-900/50 rounded border border-violet-500/20">
+                                  <p className="text-white font-medium">
+                                    <span className="text-cyan-400">{prospectingResult.entreprise_nom}</span>
+                                    {prospectingResult.secteur && (
+                                      <> - <span className="text-violet-400">{prospectingResult.secteur}</span></>
+                                    )}
+                                    <br />
+                                    <span className="text-green-400">{prospectingResult.email}</span>
+                                  </p>
+                                </div>
+                              </div>
+
+                              {!emailSent ? (
+                                <>
+                                  <div className="mb-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                                    <label className="block text-sm font-semibold text-gray-300 mb-3">
+                                      Type d'email à envoyer
+                                    </label>
+                                    <div className="space-y-2">
+                                      <label className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg border border-cyan-500/30 cursor-pointer hover:border-cyan-500/50 transition-colors">
+                                        <input
+                                          type="radio"
+                                          name="emailTypeDirect"
+                                          value="simple"
+                                          checked={emailType === 'simple'}
+                                          onChange={(e) => setEmailType(e.target.value as 'simple' | 'quiz')}
+                                          className="w-4 h-4 text-cyan-500"
+                                        />
+                                        <div className="flex-1">
+                                          <p className="text-white font-medium">Message simple</p>
+                                          <p className="text-xs text-gray-400">Message de prospection personnalisé</p>
+                                        </div>
+                                      </label>
+                                      <label className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg border border-violet-500/30 cursor-pointer hover:border-violet-500/50 transition-colors">
+                                        <input
+                                          type="radio"
+                                          name="emailTypeDirect"
+                                          value="quiz"
+                                          checked={emailType === 'quiz'}
+                                          onChange={(e) => setEmailType(e.target.value as 'simple' | 'quiz')}
+                                          className="w-4 h-4 text-violet-500"
+                                        />
+                                        <div className="flex-1">
+                                          <p className="text-white font-medium">Quiz complet</p>
+                                          <p className="text-xs text-gray-400">Quiz personnalisé comme sur /92300</p>
+                                        </div>
+                                      </label>
+                                    </div>
+                                  </div>
+
+                                  {emailType === 'simple' && prospectingResult.message_personnalise && (
+                                    <div className="mb-4">
+                                      <p className="text-sm text-gray-400 mb-2">Aperçu du message</p>
+                                      <div className="p-3 bg-slate-900/50 rounded border border-cyan-500/20 max-h-48 overflow-y-auto">
+                                        <p className="text-white text-sm whitespace-pre-line">{prospectingResult.message_personnalise}</p>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  <Button
+                                    type="button"
+                                    onClick={async () => {
+                                      if (!prospectingResult.email) return;
+                                      
+                                      setSendingEmail(true);
+                                      setSearchError(null);
+
+                                      try {
+                                        const response = await fetch('/api/prospection-automation', {
+                                          method: 'POST',
+                                          headers: {
+                                            'Content-Type': 'application/json',
+                                          },
+                                          body: JSON.stringify({
+                                            mode: 'send-email',
+                                            email: prospectingResult.email,
+                                            companyName: prospectingResult.entreprise_nom,
+                                            site: '',
+                                            emailType: emailType,
+                                            message: emailType === 'simple' ? prospectingResult.message_personnalise : null,
+                                          }),
+                                        });
+
+                                        const data = await response.json();
+
+                                        if (!response.ok) {
+                                          throw new Error(data.error || data.message || 'Erreur lors de l\'envoi');
+                                        }
+
+                                        setEmailSent(true);
+                                        setTimeout(() => {
+                                          setProspectingResult(null);
+                                          setEmailSent(false);
+                                          setEmailType('simple');
+                                          setDirectEmail('');
+                                          setDirectCompanyName('');
+                                          setDirectSector('');
+                                        }, 2000);
+                                      } catch (error: any) {
+                                        console.error('Error sending email:', error);
+                                        setSearchError(error.message || 'Erreur lors de l\'envoi de l\'email');
+                                      } finally {
+                                        setSendingEmail(false);
+                                      }
+                                    }}
+                                    disabled={sendingEmail || !prospectingResult.email}
+                                    className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500"
+                                  >
+                                    {sendingEmail ? (
+                                      <>
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                        Envoi en cours...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Mail className="w-4 h-4 mr-2" />
+                                        Envoyer l'email à {prospectingResult.email}
+                                      </>
+                                    )}
+                                  </Button>
+                                </>
+                              ) : (
+                                <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                                  <div className="flex items-center gap-3">
+                                    <CheckCircle2 className="w-6 h-6 text-green-400" />
+                                    <div>
+                                      <p className="text-green-400 font-semibold">Email envoyé avec succès !</p>
+                                      <p className="text-sm text-gray-400 mt-1">
+                                        L'email a été envoyé à {prospectingResult.email} depuis contact@skillshield-ai.com
+                                      </p>
+                                      <p className="text-xs text-gray-500 mt-2">
+                                        Vous pouvez maintenant envoyer un email à une autre entreprise en entrant de nouvelles informations ci-dessus.
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <>
+                          <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+                            <div className="flex items-start gap-3">
+                              <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                              <div className="flex-1">
+                                <h3 className="text-green-400 font-semibold mb-2">🟢 Prospection B2B Légale - UNE entreprise</h3>
+                                <div className="text-sm text-gray-300 space-y-1">
+                                  <p>✓ Analyse UNIQUEMENT du site fourni</p>
+                                  <p>✓ Détection automatique du nom et secteur précis via IA</p>
+                                  <p>✓ Emails autorisés uniquement : contact@, info@, partenariat@, communication@, hello@, support@</p>
+                                  <p>✓ Message personnalisé avec mention légale d'opt-out</p>
+                                  <p>✓ Conforme RGPD - France / UE</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">
+                              <FileText className="w-4 h-4 inline mr-2" />
+                              Site web de l'entreprise (UN seul site) *
+                            </label>
+                            <input
+                              type="text"
+                              value={singleSite}
+                              onChange={(e) => setSingleSite(e.target.value)}
+                              placeholder="Ex: example.com ou https://example.com"
+                              className="w-full px-4 py-3 bg-slate-800/50 border border-green-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50"
+                              required
+                            />
+                            <p className="text-xs text-gray-400 mt-2">
+                              💡 Entrez UN seul site web. Le système analysera uniquement ce site (page d'accueil et pages de contact).
+                            </p>
+                          </div>
+                        </>
+                      ) : (
                     <>
                       <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
                         <div className="flex items-start gap-3">
