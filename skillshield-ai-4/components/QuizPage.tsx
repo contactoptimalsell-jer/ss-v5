@@ -1661,7 +1661,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                   )}
                 </div>
               ) : (
-                <>
+                <div>
                   {useDirectMode ? (
                 <div className="space-y-6">
                   {/* Section RGPD - Documentation de la source légitime */}
