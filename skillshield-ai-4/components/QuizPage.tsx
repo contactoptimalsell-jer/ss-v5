@@ -534,8 +534,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                 </div>
               )}
 
-              {/* Sur /120000, afficher directement le toggle Site web / Email */}
-              {typeof window !== 'undefined' && window.location.pathname === '/120000' && prospectingSingle ? (
+              {prospectingSingle ? (
                 <div className="space-y-6">
                   {/* Toggle entre Site web et Email direct */}
                   <div className="flex justify-center mb-6">
@@ -580,56 +579,6 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                       </button>
                     </div>
                   </div>
-                </div>
-              ) : null}
-
-              {prospectingSingle ? (
-                <div className="space-y-6">
-                  {/* Toggle entre Site web et Email direct - Masqué sur /120000 car déjà affiché avant */}
-                  {!(typeof window !== 'undefined' && window.location.pathname === '/120000') && (
-                    <div className="flex justify-center mb-6">
-                      <div className="bg-slate-800/50 rounded-lg p-1 flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setDirectEmailMode(false);
-                            setProspectingMultiple(false);
-                            setMultipleSitesResult([]);
-                            setSingleSite('');
-                            setDirectEmail('');
-                            setDirectCompanyName('');
-                            setDirectSector('');
-                          }}
-                          className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
-                            !directEmailMode
-                              ? 'bg-cyan-500 text-white'
-                              : 'text-gray-400 hover:text-white'
-                          }`}
-                        >
-                          <FileText className="w-4 h-4 inline mr-2" />
-                          Site web
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setDirectEmailMode(true);
-                            setProspectingMultiple(false);
-                            setProspectingResult(null);
-                            setSingleSite('');
-                            setMultipleSitesResult([]);
-                          }}
-                          className={`px-4 py-2 rounded-md font-semibold transition-all text-sm ${
-                            directEmailMode
-                              ? 'bg-violet-500 text-white'
-                              : 'text-gray-400 hover:text-white'
-                          }`}
-                        >
-                          <Mail className="w-4 h-4 inline mr-2" />
-                          Email
-                        </button>
-                      </div>
-                    </div>
-                  )}
 
                   {/* Mode Email direct */}
                   {directEmailMode ? (
