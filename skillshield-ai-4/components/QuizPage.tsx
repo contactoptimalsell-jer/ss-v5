@@ -1968,8 +1968,6 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                   )}
                 </div>
               ) : null}
-                </div>
-              )}
             </div>
           </Card>
         )}
