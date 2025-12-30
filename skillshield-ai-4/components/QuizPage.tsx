@@ -86,6 +86,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
       setAutomatedMode(true);
       setProspectingSingle(true);
       setUseDirectMode(false);
+      setDirectEmailMode(false); // Par défaut, mode "Site web" sur /120000
     }
   }, []);
 
