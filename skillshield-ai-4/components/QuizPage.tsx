@@ -103,6 +103,25 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
     }
   }, [singleSite]);
 
+  // Réinitialiser les états quand on change le mode (Site web / Email)
+  useEffect(() => {
+    if (directEmailMode) {
+      setProspectingResult(null);
+      setMultipleSitesResult([]);
+      setEmailSent(false);
+      setEmailType('simple');
+      setSearchError(null);
+      setSingleSite('');
+    } else {
+      setDirectEmail('');
+      setDirectCompanyName('');
+      setDirectSector('');
+      setProspectingResult(null);
+      setEmailSent(false);
+      setEmailType('simple');
+    }
+  }, [directEmailMode]);
+
   // Réinitialiser les états quand on change le mode ou l'email direct
   useEffect(() => {
     if (directEmailMode) {
