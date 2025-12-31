@@ -1660,7 +1660,9 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                     </div>
                   )}
                 </div>
-              ) : useDirectMode ? (
+              ) : null}
+              
+              {!prospectingSingle && (
                 <div className="space-y-6">
                   {/* Section RGPD - Documentation de la source légitime */}
                   <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
@@ -1790,54 +1792,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                     </p>
                   </div>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">
-                    <Building2 className="w-4 h-4 inline mr-2" />
-                    Secteur
-                  </label>
-                  <input
-                    type="text"
-                    value={sector}
-                    onChange={(e) => setSector(e.target.value)}
-                    placeholder="Ex: Construction, Immobilier"
-                    className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
-                    required={!useDirectMode}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">
-                    <Target className="w-4 h-4 inline mr-2" />
-                    Lieu
-                  </label>
-                  <input
-                    type="text"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="Ex: Paris, Lyon, Marseille"
-                    className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
-                    required={!useDirectMode}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">
-                    <Building2 className="w-4 h-4 inline mr-2" />
-                    Catégorie
-                  </label>
-                  <input
-                    type="text"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    placeholder="Ex: PME, Startup, TPE"
-                    className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
-                    required={!useDirectMode}
-                  />
-                </div>
-              </div>
-              )}
+              ) : null}
               
               {!prospectingSingle && !useDirectMode && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -2058,7 +2013,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                     required={!useDirectMode}
                   />
                 </div>
-                </div>
+              </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
@@ -2106,8 +2061,6 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                   />
                 </div>
               </div>
-              )}
-                </div>
               )}
             </div>
           </Card>
