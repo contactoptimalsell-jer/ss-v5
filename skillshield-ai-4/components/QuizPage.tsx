@@ -535,6 +535,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
               )}
 
               {prospectingSingle ? (
+                <>
                 <div className="space-y-6">
                   {/* Toggle entre Site web et Email direct */}
                   <div className="flex justify-center mb-6">
@@ -1660,6 +1661,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                     </div>
                   )}
                 </div>
+                </>
               ) : null}
               
               {!prospectingSingle && !directEmailMode && (
