@@ -2060,7 +2060,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                     required={!useDirectMode}
                   />
                 </div>
-              </div>
+                </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
@@ -2108,6 +2108,8 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                   />
                 </div>
               </div>
+              )}
+                </div>
               )}
             </div>
           </Card>
