@@ -1662,7 +1662,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigateHome }) => {
                 </div>
               ) : null}
               
-              {!prospectingSingle && (
+              {!prospectingSingle && !directEmailMode && (
                 <div className="space-y-6">
                   {/* Section RGPD - Documentation de la source légitime */}
                   <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
