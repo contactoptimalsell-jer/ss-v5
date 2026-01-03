@@ -11,24 +11,24 @@ export const GuardianModeSection: React.FC = () => {
   const layers = [
     {
       icon: Bot,
-      title: "IA qui exécute",
-      description: "Des agents IA autonomes qui gèrent vos tâches répétitives avec précision et rapidité.",
+      title: "1. Audit IA",
+      description: "Cartographie de vos usages IA actuels. Identification des risques RGPD, données sensibles, shadow AI. Opportunités d'automatisation chiffrées.",
       color: "text-cyan-400",
       bg: "bg-cyan-500/10",
       border: "border-cyan-500/20"
     },
     {
       icon: Eye,
-      title: "IA qui surveille l'IA",
-      description: "Un système de monitoring intelligent qui détecte automatiquement les anomalies et les dérives.",
+      title: "2. Implémentation IA",
+      description: "Automatisations concrètes sur-mesure. Outils internes et workflows métiers. Pas de SaaS générique, mais des solutions adaptées à votre entreprise.",
       color: "text-violet-400",
       bg: "bg-violet-500/10",
       border: "border-violet-500/20"
     },
     {
       icon: UserCheck,
-      title: "Expert humain qui vérifie",
-      description: "Un expert vérifie chaque mois, en temps réel, que chaque fonctionnalité délivre ce qu'elle doit délivrer.",
+      title: "3. Accompagnement mensuel",
+      description: "Amélioration continue. Nouvelles automatisations selon vos besoins. Cadre d'usage sécurisé et conforme RGPD.",
       color: "text-orange-400",
       bg: "bg-orange-500/10",
       border: "border-orange-500/20"
@@ -38,18 +38,18 @@ export const GuardianModeSection: React.FC = () => {
   const protections = [
     {
       icon: AlertTriangle,
-      text: "Si un workflow déraille",
-      result: "→ l'IA le détecte"
+      text: "Risques RGPD identifiés",
+      result: "→ Cadre d'usage sécurisé mis en place"
     },
     {
       icon: Eye,
-      text: "Si quelque chose échappe à l'IA",
-      result: "→ l'expert humain le voit"
+      text: "Opportunités d'automatisation",
+      result: "→ Implémentées avec ROI mesurable"
     },
     {
       icon: CheckCircle2,
-      text: "Si une fonctionnalité ne délivre plus",
-      result: "→ elle est corrigée avant même que l'entreprise ne s'en aperçoive"
+      text: "Résultats en 30 jours",
+      result: "→ 20 à 40% de tâches automatisées"
     }
   ];
 
@@ -70,18 +70,18 @@ export const GuardianModeSection: React.FC = () => {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 mb-6 backdrop-blur-sm">
             <Shield className="w-4 h-4 text-violet-400" />
-            <span className="text-sm font-bold text-violet-300 tracking-wide uppercase">Guardian Mode™</span>
+            <span className="text-sm font-bold text-violet-300 tracking-wide uppercase">Solution SkillShield</span>
           </div>
           
           <h2 className="text-3xl md:text-5xl font-bold font-display text-white mb-6">
-            Le Paradoxe de la <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">Fiabilité</span>
+            Audit IA rapide. <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">Implémentation ciblée.</span>
           </h2>
           
           <p className="text-gray-300 text-lg max-w-3xl mx-auto mb-4">
-            L'IA est moins fiable que l'humain ?
+            Nous aidons les PME à réduire les risques liés à l'IA
           </p>
           <p className="text-gray-400 text-base max-w-3xl mx-auto">
-            C'est l'argument préféré de ceux qui... n'ont jamais mesuré la fiabilité humaine.
+            et à automatiser 20 à 40% de leurs tâches internes en 30 jours.
           </p>
         </motion.div>
 
@@ -93,30 +93,30 @@ export const GuardianModeSection: React.FC = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="max-w-4xl mx-auto mb-16"
         >
-          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-8 backdrop-blur-sm">
+          <div className="bg-violet-500/10 border border-violet-500/20 rounded-2xl p-8 backdrop-blur-sm">
             <p className="text-gray-300 text-lg leading-relaxed mb-4">
-              <span className="font-bold text-white">L'humain se trompe. Souvent.</span>
+              <span className="font-bold text-white">Intervention humaine + IA. Sur-mesure. Pas de SaaS générique.</span>
             </p>
             <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-400">
               <div className="flex items-start gap-2">
-                <span className="text-red-400 mt-1">•</span>
-                <span>Fatigue, distraction, surcharge</span>
+                <span className="text-violet-400 mt-1">•</span>
+                <span>Audit rapide de vos usages IA actuels</span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="text-red-400 mt-1">•</span>
-                <span>Routine, biais, erreurs de reporting</span>
+                <span className="text-violet-400 mt-1">•</span>
+                <span>Identification des risques RGPD et données</span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="text-red-400 mt-1">•</span>
-                <span>Oublis, incohérences</span>
+                <span className="text-violet-400 mt-1">•</span>
+                <span>Opportunités d'automatisation chiffrées</span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="text-red-400 mt-1">•</span>
-                <span>Et pourtant, on lui fait confiance les yeux fermés</span>
+                <span className="text-violet-400 mt-1">•</span>
+                <span>Implémentation concrète, pas de théorie</span>
               </div>
             </div>
-            <p className="text-violet-300 font-semibold mt-6 text-center">
-              Le vrai paradoxe : on exige de l'IA une perfection qu'on n'a jamais exigée de l'humain.
+            <p className="text-cyan-300 font-semibold mt-6 text-center">
+              Résultats visibles en 30 jours. ROI mesurable dès le premier mois.
             </p>
           </div>
         </motion.div>
@@ -131,10 +131,10 @@ export const GuardianModeSection: React.FC = () => {
         >
           <div className="text-center mb-12">
             <h3 className="text-2xl md:text-4xl font-bold font-display text-white mb-4">
-              C'est précisément pour ça que <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">SkillShield AI</span> existe
+              Comment <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">SkillShield</span> fonctionne
             </h3>
             <p className="text-gray-400 text-lg">
-              Un système où l'erreur n'a pas d'endroit où se cacher.
+              Service premium d'audit et d'implémentation IA pour PME de services.
             </p>
           </div>
 
@@ -178,7 +178,7 @@ export const GuardianModeSection: React.FC = () => {
           <div className="max-w-3xl mx-auto">
             <div className="bg-gradient-to-br from-violet-500/10 to-cyan-500/10 border border-violet-500/20 rounded-2xl p-8 backdrop-blur-sm">
               <h4 className="text-xl font-bold text-white mb-6 text-center">
-                Comment ça fonctionne en pratique
+                Ce que vous obtenez
               </h4>
               <div className="space-y-4">
                 {protections.map((protection, index) => {
@@ -221,20 +221,20 @@ export const GuardianModeSection: React.FC = () => {
         >
           <div className="max-w-3xl mx-auto bg-gradient-to-br from-green-500/10 to-cyan-500/10 border border-green-500/20 rounded-2xl p-8 backdrop-blur-sm">
             <h3 className="text-2xl md:text-3xl font-bold font-display text-white mb-6">
-              Résultat ?
+              Résultats mesurables
             </h3>
             <div className="space-y-3 text-lg">
               <p className="text-gray-300">
-                Les process deviennent <span className="font-bold text-green-400">plus fiables que l'humain</span>.
+                <span className="font-bold text-green-400">20 à 40% de tâches automatisées</span> en 30 jours.
               </p>
               <p className="text-gray-300">
-                Plus fiables que <span className="font-bold text-cyan-400">l'IA seule</span>.
+                <span className="font-bold text-cyan-400">Risques RGPD identifiés et sécurisés</span> dès l'audit.
               </p>
               <p className="text-gray-300">
-                Plus fiables que <span className="font-bold text-violet-400">les deux séparés</span>.
+                <span className="font-bold text-violet-400">ROI mesurable</span> dès le premier mois.
               </p>
               <p className="text-white font-bold text-xl mt-6">
-                C'est la combinaison qui change tout.
+                Implémentation concrète, pas de théorie.
               </p>
             </div>
           </div>
@@ -249,22 +249,22 @@ export const GuardianModeSection: React.FC = () => {
           className="text-center"
         >
           <p className="text-gray-400 text-lg mb-6 max-w-2xl mx-auto">
-            La vraie question n'est plus : <span className="text-gray-300 italic">"L'IA est-elle moins fiable que l'humain ?"</span>
+            Service premium pour PME de services : agences immobilières, cabinets comptables, ESN, PME B2B.
           </p>
           <p className="text-white font-bold text-xl mb-8">
-            La vraie question est : <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">"Combien de temps allez-vous accepter de dépendre d'un système SANS filet de sécurité ?"</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">Audit rapide. Implémentation ciblée. Résultats en 30 jours.</span>
           </p>
           
           <div className="flex flex-col items-center gap-4">
             <p className="text-gray-300 text-sm mb-2">
-              Parce que nous, on est suffisamment confiants pour être payés uniquement quand ça marche.
+              Intervention humaine + IA. Sur-mesure. Pas de formation inutile.
             </p>
             <Button 
               onClick={openCalendly} 
               icon={<Shield className="w-5 h-5"/>}
               className="shadow-violet-500/20 hover:shadow-violet-500/40 border border-white/10"
             >
-              Votre Guardian Mode™ en 5 minutes
+              Demander un audit IA
             </Button>
           </div>
         </motion.div>

@@ -96,16 +96,16 @@ export const AuditTool: React.FC = () => {
       <div className="container mx-auto px-6 max-w-4xl">
         <div className="text-center mb-12">
           <span className="inline-block px-4 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-sm font-bold mb-4">
-            🎯 Test Gratuit • 2 Minutes
+            🎯 Diagnostic Rapide • 3 Minutes
           </span>
           <h2 className="text-3xl md:text-5xl font-bold font-display text-white mb-4">
-            Découvrez ce que vous pouvez <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">automatiser dès aujourd'hui</span>
+            Évaluez en 3 minutes le <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">potentiel et les risques IA</span> de votre entreprise
           </h2>
           <p className="text-gray-300 text-lg font-medium mb-2">
-            Décrivez une tâche chronophage. Notre IA vous montre <span className="text-cyan-300">exactement</span> comment l'automatiser et combien de temps vous gagnerez.
+            Outil de pré-qualification pour dirigeants. Diagnostic rapide de vos opportunités d'automatisation et identification des risques.
           </p>
           <p className="text-gray-500 text-sm">
-            <span className="text-violet-300 font-semibold">Gratuit</span> • <span className="text-cyan-300 font-semibold">Sans engagement</span> • <span className="text-green-300 font-semibold">Résultats en 30 secondes</span>
+            <span className="text-violet-300 font-semibold">Diagnostic rapide</span> • <span className="text-cyan-300 font-semibold">Aide à la décision</span> • <span className="text-green-300 font-semibold">Résultats en 3 minutes</span>
           </p>
         </div>
 

@@ -7,32 +7,32 @@ export const ProcessSection: React.FC = () => {
   const steps = [
     {
       icon: Search,
-      title: "L'Audit de Clarté",
-      desc: "On pose tout à plat. Nous identifions précisément où se perd votre temps et où se cache votre marge.",
+      title: "1. Diagnostic",
+      desc: "Audit rapide de vos usages IA. Identification des risques RGPD et opportunités d'automatisation. Rapport clair et actionnable.",
       color: "text-blue-400",
       bg: "bg-blue-500/10",
       border: "border-blue-500/20"
     },
     {
       icon: Compass,
-      title: "La Feuille de Route",
-      desc: "Nous concevons une stratégie sur mesure pour intégrer l'IA sans perturber votre ADN d'entreprise.",
+      title: "2. Décisions",
+      desc: "Priorisation des automatisations selon ROI. Validation des choix avec vous. Feuille de route sur 30 jours.",
       color: "text-yellow-400",
       bg: "bg-yellow-500/10",
       border: "border-yellow-500/20"
     },
     {
       icon: Bot,
-      title: "Vos Nouveaux Alliés",
-      desc: "Mise en place d'agents IA qui travaillent en binôme avec vos équipes pour les soulager du répétitif.",
+      title: "3. Implémentation",
+      desc: "Mise en place des automatisations concrètes. Outils internes et workflows métiers. Accompagnement pas à pas.",
       color: "text-violet-400",
       bg: "bg-violet-500/10",
       border: "border-violet-500/20"
     },
     {
       icon: Rocket,
-      title: "L'Expansion Sereine",
-      desc: "Vous pilotez enfin votre entreprise avec recul. Votre CA augmente, mais votre charge mentale diminue.",
+      title: "4. Résultats",
+      desc: "20 à 40% de tâches automatisées. Risques sécurisés. ROI mesurable dès le premier mois. Amélioration continue.",
       color: "text-green-400",
       bg: "bg-green-500/10",
       border: "border-green-500/20"
@@ -44,10 +44,10 @@ export const ProcessSection: React.FC = () => {
       <div className="container mx-auto px-6">
         <div className="text-center mb-20">
           <h2 className="text-3xl md:text-5xl font-bold font-display text-white mb-6">
-            Une transition <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">fluide et maîtrisée</span>
+            Comment <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">ça marche</span>
           </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto italic">
-            "L'objectif n'est pas de tout changer, mais de tout améliorer."
+          <p className="text-gray-400 max-w-2xl mx-auto">
+            Processus simple et rassurant pour dirigeants pressés. Résultats visibles en 30 jours.
           </p>
         </div>
 

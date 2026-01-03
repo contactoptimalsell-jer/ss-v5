@@ -240,10 +240,10 @@ export const AutomationLevelQuiz: React.FC = () => {
             📊 Diagnostic Rapide
           </span>
           <h2 className="text-3xl md:text-5xl font-bold font-display text-white mb-4">
-            Votre niveau d'<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">automatisation</span> aujourd'hui
+            Évaluez en 3 minutes le <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">potentiel et les risques IA</span> de votre entreprise
           </h2>
           <p className="text-gray-300 text-lg max-w-2xl mx-auto">
-            Répondez à 5 questions simples sur votre quotidien. En 2 minutes, découvrez où vous en êtes et ce que vous pouvez améliorer.
+            Outil de pré-qualification pour dirigeants. Répondez à 5 questions simples. Diagnostic rapide de vos opportunités d'automatisation et identification des risques.
           </p>
         </div>
 

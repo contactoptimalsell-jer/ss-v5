@@ -3,6 +3,8 @@ import { Hero } from './components/Hero';
 import { HeroContent } from './components/HeroContent';
 import { ProblemSection } from './components/ProblemSection';
 import { GuardianModeSection } from './components/GuardianModeSection';
+import { OfferSection } from './components/OfferSection';
+import { TargetAudienceSection } from './components/TargetAudienceSection';
 import { ProcessSection } from './components/ProcessSection';
 import { AuditTool } from './components/AuditTool';
 import { AutomationLevelQuiz } from './components/AutomationLevelQuiz';
@@ -224,6 +226,8 @@ const App: React.FC = () => {
             <HeroContent />
             <ProblemSection />
             <GuardianModeSection />
+            <OfferSection />
+            <TargetAudienceSection />
             
             <section className="py-20 bg-slate-800/30 border-y border-white/5">
                <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
@@ -232,16 +236,24 @@ const App: React.FC = () => {
                         Avant <span className="text-violet-400">/</span> Après
                      </h2>
                      <p className="text-gray-400 text-lg">
-                        La différence ne se mesure pas qu'en chiffres, mais en qualité de vie.
+                        Résultats mesurables en 30 jours. ROI visible dès le premier mois.
                      </p>
                      <div className="space-y-4">
                         <div className="flex items-center gap-4 text-gray-400">
                            <span className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 shrink-0">✕</span>
-                           <span>Finit à 21h, stressé et épuisé</span>
+                           <span>Données sensibles exposées, shadow AI non maîtrisé</span>
                         </div>
                         <div className="flex items-center gap-4 text-gray-300">
                            <span className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 shrink-0">✓</span>
-                           <span className="font-medium text-white">Rentre à 17h30, serein</span>
+                           <span className="font-medium text-white">Risques RGPD identifiés et sécurisés</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-gray-400">
+                           <span className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 shrink-0">✕</span>
+                           <span>Aucune vision des opportunités d'automatisation</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-gray-300">
+                           <span className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 shrink-0">✓</span>
+                           <span className="font-medium text-white">20 à 40% de tâches automatisées</span>
                         </div>
                      </div>
                   </div>
@@ -279,18 +291,18 @@ const App: React.FC = () => {
                <div className="absolute inset-0 bg-gradient-to-b from-midnight via-violet-900/10 to-midnight" />
                <div className="container mx-auto px-6 relative z-10 text-center">
                   <h2 className="text-4xl md:text-6xl font-display font-bold text-white mb-8">
-                     Prêt à retrouver <br/>
-                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-violet-400">votre vie ?</span>
+                     Prêt à identifier <br/>
+                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-violet-400">vos risques et gains IA ?</span>
                   </h2>
                   <div className="flex flex-col items-center gap-6">
                      <button onClick={openCalendly} className="bg-white text-midnight font-bold py-4 px-12 rounded-full hover:scale-105 transition-transform shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)]">
-                        Réserver mon audit gratuit
+                        Demander un audit IA
                      </button>
                      <div className="flex flex-col items-center gap-2">
-                        <p className="text-gray-400 text-sm font-medium">15 minutes. Sans engagement. 100% Humain.</p>
+                        <p className="text-gray-400 text-sm font-medium">Audit rapide. Implémentation ciblée. Résultats en 30 jours.</p>
                         <div className="flex items-center gap-2 text-xs text-violet-300 bg-violet-500/10 px-3 py-1.5 rounded-full border border-violet-500/20">
                             <ShieldCheck className="w-3 h-3" />
-                            <span>Si aucun bénéfice le 1er mois, <span className="font-bold text-violet-200">remboursé à 90%</span>. Cet appel peut tout changer.</span>
+                            <span>Service premium sur-mesure. <span className="font-bold text-violet-200">Pas de SaaS générique</span>. ROI mesurable.</span>
                         </div>
                      </div>
                      

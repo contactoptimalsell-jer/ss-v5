@@ -23,12 +23,12 @@ export const HeroContent: React.FC = () => {
             className="text-center mb-8 md:mb-12"
           >
             <h1 className="font-display font-bold text-4xl md:text-6xl lg:text-7xl tracking-tight mb-4 md:mb-6 leading-[1.1]">
-              <span className="block text-white">Reprenez le contrôle</span>
+              <span className="block text-white">Stoppez les risques IA.</span>
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-300 to-orange-400">
-                de votre temps
+                Automatisez ce qui vous coûte du temps.
               </span>
               <span className="block text-xl md:text-3xl lg:text-4xl font-normal text-gray-300 mt-3 md:mt-4 font-sans">
-                avec l'IA qui <span className="text-cyan-300 font-semibold">garantit</span> ses résultats
+                Réduisez les risques et automatisez <span className="text-cyan-300 font-semibold">20 à 40%</span> de vos tâches en 30 jours
               </span>
             </h1>
           </motion.div>
@@ -42,13 +42,13 @@ export const HeroContent: React.FC = () => {
             className="text-center mb-8 md:mb-12"
           >
             <p className="max-w-3xl mx-auto text-lg md:text-xl text-gray-200 leading-relaxed font-medium mb-4">
-              <span className="text-white font-semibold">Imaginez :</span> Vous rentrez à 17h30, vous dînez avec vos enfants, vous avez retrouvé votre vie. 
-              <span className="text-cyan-300 font-semibold"> C'est ce que font nos clients.</span>
+              <span className="text-white font-semibold">Service premium d'audit et d'implémentation IA</span> pour PME de services (10-100 salariés). 
+              <span className="text-cyan-300 font-semibold"> Agences immobilières, cabinets comptables, ESN, PME B2B.</span>
             </p>
             <p className="max-w-2xl mx-auto text-base md:text-lg text-gray-300 leading-relaxed">
-              <span className="text-violet-300 font-bold text-xl">Surveillé.</span>{' '}
-              <span className="text-cyan-300 font-bold text-xl">Garanti.</span>{' '}
-              <span className="text-orange-300 font-bold text-xl">Performant.</span>
+              <span className="text-violet-300 font-bold text-xl">Audit rapide.</span>{' '}
+              <span className="text-cyan-300 font-bold text-xl">Implémentation ciblée.</span>{' '}
+              <span className="text-orange-300 font-bold text-xl">Résultats mesurables.</span>
             </p>
           </motion.div>
 
@@ -64,33 +64,33 @@ export const HeroContent: React.FC = () => {
               whileHover={{ scale: 1.05, y: -5 }}
               className="bg-gradient-to-br from-violet-900/60 to-violet-800/40 rounded-xl p-5 md:p-6 border border-violet-400/30 text-center shadow-xl"
             >
-              <div className="text-3xl md:text-4xl font-bold text-white mb-2">20+</div>
-              <div className="text-sm md:text-base text-violet-200 font-medium">Dirigeants libérés</div>
-              <div className="text-xs md:text-sm text-violet-300/70 mt-1">Ils ont retrouvé leur vie</div>
+              <div className="text-3xl md:text-4xl font-bold text-white mb-2">20-40%</div>
+              <div className="text-sm md:text-base text-violet-200 font-medium">Tâches automatisées</div>
+              <div className="text-xs md:text-sm text-violet-300/70 mt-1">En 30 jours</div>
             </motion.div>
             <motion.div
               whileHover={{ scale: 1.05, y: -5 }}
               className="bg-gradient-to-br from-cyan-900/60 to-cyan-800/40 rounded-xl p-5 md:p-6 border border-cyan-400/30 text-center shadow-xl"
             >
-              <div className="text-3xl md:text-4xl font-bold text-white mb-2">15h</div>
-              <div className="text-sm md:text-base text-cyan-200 font-medium">Par semaine</div>
-              <div className="text-xs md:text-sm text-cyan-300/70 mt-1">Temps récupéré</div>
+              <div className="text-3xl md:text-4xl font-bold text-white mb-2">30 jours</div>
+              <div className="text-sm md:text-base text-cyan-200 font-medium">Premiers résultats</div>
+              <div className="text-xs md:text-sm text-cyan-300/70 mt-1">Visibles et mesurables</div>
             </motion.div>
             <motion.div
               whileHover={{ scale: 1.05, y: -5 }}
               className="bg-gradient-to-br from-orange-900/60 to-orange-800/40 rounded-xl p-5 md:p-6 border border-orange-400/30 text-center shadow-xl"
             >
-              <div className="text-3xl md:text-4xl font-bold text-white mb-2">420%</div>
-              <div className="text-sm md:text-base text-orange-200 font-medium">ROI moyen</div>
-              <div className="text-xs md:text-sm text-orange-300/70 mt-1">En 12 mois</div>
+              <div className="text-3xl md:text-4xl font-bold text-white mb-2">RGPD</div>
+              <div className="text-sm md:text-base text-orange-200 font-medium">Risques identifiés</div>
+              <div className="text-xs md:text-sm text-orange-300/70 mt-1">Et sécurisés</div>
             </motion.div>
             <motion.div
               whileHover={{ scale: 1.05, y: -5 }}
               className="bg-gradient-to-br from-green-900/60 to-green-800/40 rounded-xl p-5 md:p-6 border border-green-400/30 text-center shadow-xl"
             >
-              <div className="text-3xl md:text-4xl font-bold text-white mb-2">90%</div>
-              <div className="text-sm md:text-base text-green-200 font-medium">Garantie</div>
-              <div className="text-xs md:text-sm text-green-300/70 mt-1">Remboursement</div>
+              <div className="text-3xl md:text-4xl font-bold text-white mb-2">Sur-mesure</div>
+              <div className="text-sm md:text-base text-green-200 font-medium">Pas de SaaS générique</div>
+              <div className="text-xs md:text-sm text-green-300/70 mt-1">Implémentation ciblée</div>
             </motion.div>
           </motion.div>
 
@@ -108,13 +108,13 @@ export const HeroContent: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <Button 
-                  onClick={() => document.getElementById(SectionId.AUDIT_TOOL)?.scrollIntoView({ behavior: 'smooth' })} 
+                  onClick={openCalendly} 
                   icon={<Sparkles className="w-6 h-6"/>} 
                   className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white border-0 text-lg md:text-xl px-8 md:px-10 py-5 md:py-6 rounded-2xl shadow-2xl shadow-violet-500/40 font-bold transition-all duration-300"
                 >
                   <span className="flex items-center gap-2">
                     <Rocket className="w-5 h-5" />
-                    Découvrir mon potentiel (Gratuit)
+                    Demander un audit IA
                   </span>
                 </Button>
               </motion.div>
@@ -124,12 +124,12 @@ export const HeroContent: React.FC = () => {
               >
                 <Button 
                   variant="secondary" 
-                  onClick={openCalendly} 
+                  onClick={() => document.getElementById(SectionId.AUDIT_TOOL)?.scrollIntoView({ behavior: 'smooth' })} 
                   icon={<Zap className="w-6 h-6"/>}
                   className="bg-white/10 hover:bg-white/20 backdrop-blur-md border-2 border-white/20 text-white text-lg md:text-xl px-8 md:px-10 py-5 md:py-6 rounded-2xl font-bold transition-all duration-300"
                 >
                   <span className="flex items-center gap-2">
-                    Parler à un expert
+                    Voir comment ça marche
                     <ArrowRight className="w-5 h-5" />
                   </span>
                 </Button>
@@ -140,15 +140,15 @@ export const HeroContent: React.FC = () => {
             <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 text-sm">
               <div className="flex items-center gap-2 text-cyan-300 bg-cyan-500/10 px-4 py-2 rounded-full border border-cyan-500/20">
                 <CheckCircle2 className="w-4 h-4" />
-                <span className="font-semibold">100% Gratuit • Sans engagement</span>
+                <span className="font-semibold">Audit rapide • 30 jours pour résultats</span>
               </div>
               <div className="flex items-center gap-2 text-violet-300 bg-violet-500/10 px-4 py-2 rounded-full border border-violet-500/20">
                 <ShieldCheck className="w-4 h-4" />
-                <span className="font-semibold">Remboursé à 90% si non performant</span>
+                <span className="font-semibold">Risques RGPD identifiés et sécurisés</span>
               </div>
               <div className="flex items-center gap-2 text-orange-300 bg-orange-500/10 px-4 py-2 rounded-full border border-orange-500/20">
                 <Timer className="w-4 h-4" />
-                <span className="font-semibold">Résultats en 2 minutes</span>
+                <span className="font-semibold">ROI mesurable dès le premier mois</span>
               </div>
             </div>
           </motion.div>
@@ -175,10 +175,10 @@ export const HeroContent: React.FC = () => {
                     ))}
                   </div>
                   <p className="text-white text-lg font-medium mb-2 italic">
-                    "Je dîne avec mes enfants tous les soirs maintenant. L'IA gère les réservations, et je garde le contrôle sur les cas complexes."
+                    "En 30 jours, on a automatisé 35% de nos tâches administratives. Les risques RGPD sont identifiés et sécurisés. ROI visible dès le premier mois."
                   </p>
                   <p className="text-cyan-300 text-sm font-semibold">
-                    — Marc, CEO dans le BTP en Charente-Maritime
+                    — Dirigeant PME, Cabinet comptable
                   </p>
                 </div>
               </div>
@@ -199,7 +199,7 @@ export const HeroContent: React.FC = () => {
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <span className="text-sm font-medium">Découvrez comment ça marche</span>
+              <span className="text-sm font-medium">Évaluez votre potentiel IA</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-y-1 transition-transform" />
             </motion.button>
           </motion.div>
