@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0F172A;
+  --foreground: #F1F5F9;
+}
+
+@theme {
+  /* Couleurs principales - Utilisation des couleurs Tailwind standard avec valeurs personnalisées */
+  --color-navy-warm-900: #0F172A;
+  --color-navy-warm-800: #1E293B;
+  --color-cyan-vivid-500: #06B6D4;
+  --color-cyan-vivid-400: #22D3EE;
+  --color-violet-soft-500: #8B5CF6;
+  --color-violet-soft-400: #A78BFA;
+  
+  /* Couleurs secondaires */
+  --color-slate-organic-700: #334155;
+  --color-slate-organic-600: #475569;
+  --color-slate-organic-500: #64748B;
+  --color-orange-warm-500: #F59E0B;
+  --color-orange-warm-400: #FBBF24;
+  --color-green-calm-500: #10B981;
+  --color-green-calm-400: #34D399;
+  --color-pink-empathy-500: #EC4899;
+  --color-pink-empathy-400: #F472B6;
+  --color-beige-200: #FEF3C7;
+  --color-beige-300: #FDE68A;
+}
+
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+@keyframes flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes heartbeat {
+  0%, 40%, 100% {
+    transform: scale(1);
+  }
+  10% {
+    transform: scale(1.1);
+  }
+  20% {
+    transform: scale(1.05);
+  }
+  30% {
+    transform: scale(1.15);
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
