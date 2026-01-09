@@ -4,11 +4,11 @@
   "rewrites": [
     {
       "source": "/training/:path*",
-      "destination": "https://ss-v5-ochre.vercel.app/training/:path*"
+      "destination": "https://ss-v5-ochre.vercel.app/:path*"
     },
     {
       "source": "/training",
-      "destination": "https://ss-v5-ochre.vercel.app/training"
+      "destination": "https://ss-v5-ochre.vercel.app/"
     },
     {
       "source": "/((?!api/|robots.txt|sitemap.xml|training).*)",
