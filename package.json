@@ -4,6 +4,9 @@
   "private": true,
   "description": "SkillShield monorepo - AI and Training",
   "scripts": {
-    "build": "echo 'Monorepo build handled by vercel.json'"
+    "build": "echo 'Builds are handled by vercel.json builds array'"
+  },
+  "engines": {
+    "node": ">=18.x"
   }
 }
