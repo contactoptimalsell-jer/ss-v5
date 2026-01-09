@@ -3,7 +3,15 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/((?!api/|robots.txt|sitemap.xml).*)",
+      "source": "/training/:path*",
+      "destination": "https://skillshield-training.vercel.app/training/:path*"
+    },
+    {
+      "source": "/training",
+      "destination": "https://skillshield-training.vercel.app/training"
+    },
+    {
+      "source": "/((?!api/|robots.txt|sitemap.xml|training).*)",
       "destination": "/index.html"
     }
   ],
