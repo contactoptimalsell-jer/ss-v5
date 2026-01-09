@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "skillshield-ai-4/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    },
+    {
+      "src": "skillshield-training/package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/training/(.*)",
+      "dest": "/skillshield-training/training/$1"
+    },
+    {
+      "src": "/training",
+      "dest": "/skillshield-training/training"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/skillshield-ai-4/$1"
+    }
+  ]
+}

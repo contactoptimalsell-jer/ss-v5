@@ -1,0 +1,9 @@
+{
+  "name": "ss-v5-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SkillShield monorepo - AI and Training",
+  "scripts": {
+    "build": "echo 'Monorepo build handled by vercel.json'"
+  }
+}
