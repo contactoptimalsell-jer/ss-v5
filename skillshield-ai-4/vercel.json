@@ -4,11 +4,11 @@
   "rewrites": [
     {
       "source": "/training/:path*",
-      "destination": "https://skillshield-training.vercel.app/training/:path*"
+      "destination": "https://ss-v5-ochre.vercel.app/training/:path*"
     },
     {
       "source": "/training",
-      "destination": "https://skillshield-training.vercel.app/training"
+      "destination": "https://ss-v5-ochre.vercel.app/training"
     },
     {
       "source": "/((?!api/|robots.txt|sitemap.xml|training).*)",
