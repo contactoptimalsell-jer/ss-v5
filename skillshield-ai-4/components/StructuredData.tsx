@@ -16,7 +16,14 @@ export const StructuredData: React.FC<StructuredDataProps> = ({ type, data }) =>
           '@type': 'Organization',
           name: 'SkillShield AI',
           url: 'https://skillshield.app',
-          logo: 'https://skillshield.app/logo.png',
+          logo: {
+            '@type': 'ImageObject',
+            url: 'https://skillshield.app/logo.png',
+            width: 1200,
+            height: 1200,
+            caption: 'SkillShield AI Logo - Bouclier bleu avec cerveau'
+          },
+          image: 'https://skillshield.app/logo.png',
           description: "Agence française d'implémentation d'intelligence artificielle pour entreprises. Système de gardien humain, remboursement 90% si non performant.",
           address: {
             '@type': 'PostalAddress',
