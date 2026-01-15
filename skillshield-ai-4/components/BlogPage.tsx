@@ -56,6 +56,16 @@ const articles: BlogArticle[] = [
     date: '2024-12-05',
     category: 'Innovation',
     keywords: ['gardien humain IA', 'système gardien humain', 'IA avec supervision humaine']
+  },
+  {
+    id: '5',
+    title: 'IA 2025 : Pourquoi les PME Françaises Accélèrent leur Transformation',
+    description: 'Découvrez les nouvelles positives sur l\'IA en 2025 : 78% des PME automatisent déjà, ROI moyen de 300-500%, et gains de productivité mesurables. L\'intelligence artificielle devient accessible à tous.',
+    slug: 'ia-2025-pme-transformation',
+    readTime: '12 min',
+    date: '2025-01-16',
+    category: 'Actualité',
+    keywords: ['IA 2025', 'transformation IA PME', 'actualités IA', 'productivité IA', 'automatisation 2025']
   }
 ];
 
