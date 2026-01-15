@@ -8,11 +8,11 @@ export const OfferSection: React.FC = () => {
     {
       icon: Search,
       title: "1. Audit IA",
-      description: "Cartographie complète de vos usages IA actuels. Identification des risques RGPD, données sensibles, shadow AI. Opportunités d'automatisation chiffrées avec ROI estimé.",
+      description: "Cartographie de vos usages IA. Identification des risques RGPD. Opportunités d'automatisation chiffrées.",
       bullets: [
-        "Cartographie des usages IA dans votre entreprise",
-        "Identification des risques RGPD et données",
-        "Opportunités d'automatisation chiffrées"
+        "Cartographie des usages IA",
+        "Risques RGPD identifiés",
+        "Opportunités chiffrées avec ROI"
       ],
       color: "text-cyan-400",
       bg: "bg-cyan-500/10",
@@ -21,11 +21,11 @@ export const OfferSection: React.FC = () => {
     {
       icon: Bot,
       title: "2. Implémentation IA",
-      description: "Automatisations concrètes sur-mesure. Outils internes et workflows métiers adaptés à votre entreprise. Pas de SaaS générique, mais des solutions ciblées.",
+      description: "Automatisations sur-mesure. Outils internes adaptés à votre entreprise. Pas de SaaS générique.",
       bullets: [
         "Automatisations concrètes",
-        "Outils internes et workflows métiers",
-        "Sur-mesure, pas de SaaS générique"
+        "Outils internes sur-mesure",
+        "Pas de SaaS générique"
       ],
       color: "text-violet-400",
       bg: "bg-violet-500/10",
@@ -34,11 +34,11 @@ export const OfferSection: React.FC = () => {
     {
       icon: UserCheck,
       title: "3. Accompagnement mensuel",
-      description: "Amélioration continue avec nouvelles automatisations selon vos besoins. Cadre d'usage sécurisé et conforme RGPD. Suivi des résultats et optimisation.",
+      description: "Amélioration continue. Nouvelles automatisations selon vos besoins. Cadre sécurisé et conforme RGPD.",
       bullets: [
         "Amélioration continue",
         "Nouvelles automatisations",
-        "Cadre d'usage sécurisé"
+        "Cadre sécurisé RGPD"
       ],
       color: "text-orange-400",
       bg: "bg-orange-500/10",
@@ -66,12 +66,12 @@ export const OfferSection: React.FC = () => {
             <span className="text-sm font-bold text-violet-300 tracking-wide uppercase">Notre Offre</span>
           </div>
           
-          <h2 className="text-3xl md:text-5xl font-bold font-display text-white mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold font-display text-white mb-4">
             Les 3 briques de <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">SkillShield</span>
           </h2>
           
-          <p className="text-gray-300 text-lg max-w-3xl mx-auto">
-            Service premium d'audit et d'implémentation IA. Intervention humaine + IA. Sur-mesure pour votre entreprise.
+          <p className="text-gray-300 text-base max-w-2xl mx-auto">
+            Audit IA • Implémentation sur-mesure • Accompagnement continu
           </p>
         </motion.div>
 
@@ -128,12 +128,9 @@ export const OfferSection: React.FC = () => {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="text-center"
         >
-          <div className="max-w-3xl mx-auto bg-gradient-to-br from-violet-500/10 to-cyan-500/10 border border-violet-500/20 rounded-2xl p-8 backdrop-blur-sm">
-            <p className="text-gray-300 text-lg mb-4">
-              <span className="font-bold text-white">Résultats visibles en 30 jours.</span> ROI mesurable dès le premier mois.
-            </p>
-            <p className="text-gray-400">
-              Pas de formation inutile. Pas de SaaS générique. Implémentation concrète, orientée résultats.
+          <div className="max-w-2xl mx-auto bg-violet-500/10 border border-violet-500/20 rounded-xl p-6 backdrop-blur-sm">
+            <p className="text-gray-300 text-base">
+              <span className="font-bold text-white">Résultats visibles en 30 jours.</span> ROI mesurable dès le premier mois. Implémentation concrète, orientée résultats.
             </p>
           </div>
         </motion.div>

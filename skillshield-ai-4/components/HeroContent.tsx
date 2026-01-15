@@ -14,83 +14,74 @@ export const HeroContent: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-7xl mx-auto">
           
-          {/* Headline principale */}
+          {/* Headline principale - Simplifiée et claire */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="text-center mb-8 md:mb-12"
+            className="text-center mb-12 md:mb-16"
           >
-            <h1 className="font-display font-bold text-4xl md:text-6xl lg:text-7xl tracking-tight mb-4 md:mb-6 leading-[1.1]">
-              <span className="block text-white">Stoppez les risques IA.</span>
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-300 to-orange-400">
-                Automatisez ce qui vous coûte du temps.
-              </span>
-              <span className="block text-xl md:text-3xl lg:text-4xl font-normal text-gray-300 mt-3 md:mt-4 font-sans">
-                Réduisez les risques et automatisez <span className="text-cyan-300 font-semibold">20 à 40%</span> de vos tâches en 30 jours
+            <h1 className="font-display font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight mb-6 md:mb-8 leading-[1.1]">
+              <span className="block text-white mb-2">Sécurisez vos usages IA.</span>
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-300 to-violet-400">
+                Automatisez 20-40% de vos tâches.
               </span>
             </h1>
+            <p className="max-w-2xl mx-auto text-lg md:text-xl text-gray-300 leading-relaxed font-medium">
+              Audit IA • Implémentation sur-mesure • Résultats en 30 jours
+            </p>
           </motion.div>
 
-          {/* Value proposition */}
+          {/* Value proposition - Plus concise */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-center mb-8 md:mb-12"
+            className="text-center mb-10 md:mb-12"
           >
-            <p className="max-w-3xl mx-auto text-lg md:text-xl text-gray-200 leading-relaxed font-medium mb-4">
-              <span className="text-white font-semibold">Service premium d'audit et d'implémentation IA</span> pour PME de services (10-100 salariés). 
-              <span className="text-cyan-300 font-semibold"> Agences immobilières, cabinets comptables, ESN, PME B2B.</span>
-            </p>
             <p className="max-w-2xl mx-auto text-base md:text-lg text-gray-300 leading-relaxed">
-              <span className="text-violet-300 font-bold text-xl">Audit rapide.</span>{' '}
-              <span className="text-cyan-300 font-bold text-xl">Implémentation ciblée.</span>{' '}
-              <span className="text-orange-300 font-bold text-xl">Résultats mesurables.</span>
+              Pour <span className="text-white font-semibold">PME de services</span> (10-100 salariés) : 
+              <span className="text-cyan-300"> agences immobilières, cabinets comptables, ESN, PME B2B</span>
             </p>
           </motion.div>
 
-          {/* Stats */}
+          {/* Stats - Simplifiées et plus lisibles */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto mb-8 md:mb-12"
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto mb-10 md:mb-12"
           >
             <motion.div
-              whileHover={{ scale: 1.05, y: -5 }}
-              className="bg-gradient-to-br from-violet-900/60 to-violet-800/40 rounded-xl p-5 md:p-6 border border-violet-400/30 text-center shadow-xl"
+              whileHover={{ scale: 1.05 }}
+              className="bg-violet-500/10 rounded-xl p-6 border border-violet-400/20 text-center backdrop-blur-sm"
             >
-              <div className="text-3xl md:text-4xl font-bold text-white mb-2">20-40%</div>
-              <div className="text-sm md:text-base text-violet-200 font-medium">Tâches automatisées</div>
-              <div className="text-xs md:text-sm text-violet-300/70 mt-1">En 30 jours</div>
+              <div className="text-3xl md:text-4xl font-bold text-white mb-1">20-40%</div>
+              <div className="text-sm text-violet-200">Tâches automatisées</div>
             </motion.div>
             <motion.div
-              whileHover={{ scale: 1.05, y: -5 }}
-              className="bg-gradient-to-br from-cyan-900/60 to-cyan-800/40 rounded-xl p-5 md:p-6 border border-cyan-400/30 text-center shadow-xl"
+              whileHover={{ scale: 1.05 }}
+              className="bg-cyan-500/10 rounded-xl p-6 border border-cyan-400/20 text-center backdrop-blur-sm"
             >
-              <div className="text-3xl md:text-4xl font-bold text-white mb-2">30 jours</div>
-              <div className="text-sm md:text-base text-cyan-200 font-medium">Premiers résultats</div>
-              <div className="text-xs md:text-sm text-cyan-300/70 mt-1">Visibles et mesurables</div>
+              <div className="text-3xl md:text-4xl font-bold text-white mb-1">30 jours</div>
+              <div className="text-sm text-cyan-200">Premiers résultats</div>
             </motion.div>
             <motion.div
-              whileHover={{ scale: 1.05, y: -5 }}
-              className="bg-gradient-to-br from-orange-900/60 to-orange-800/40 rounded-xl p-5 md:p-6 border border-orange-400/30 text-center shadow-xl"
+              whileHover={{ scale: 1.05 }}
+              className="bg-orange-500/10 rounded-xl p-6 border border-orange-400/20 text-center backdrop-blur-sm"
             >
-              <div className="text-3xl md:text-4xl font-bold text-white mb-2">RGPD</div>
-              <div className="text-sm md:text-base text-orange-200 font-medium">Risques identifiés</div>
-              <div className="text-xs md:text-sm text-orange-300/70 mt-1">Et sécurisés</div>
+              <div className="text-3xl md:text-4xl font-bold text-white mb-1">RGPD</div>
+              <div className="text-sm text-orange-200">Risques sécurisés</div>
             </motion.div>
             <motion.div
-              whileHover={{ scale: 1.05, y: -5 }}
-              className="bg-gradient-to-br from-green-900/60 to-green-800/40 rounded-xl p-5 md:p-6 border border-green-400/30 text-center shadow-xl"
+              whileHover={{ scale: 1.05 }}
+              className="bg-green-500/10 rounded-xl p-6 border border-green-400/20 text-center backdrop-blur-sm"
             >
-              <div className="text-3xl md:text-4xl font-bold text-white mb-2">Sur-mesure</div>
-              <div className="text-sm md:text-base text-green-200 font-medium">Pas de SaaS générique</div>
-              <div className="text-xs md:text-sm text-green-300/70 mt-1">Implémentation ciblée</div>
+              <div className="text-3xl md:text-4xl font-bold text-white mb-1">Sur-mesure</div>
+              <div className="text-sm text-green-200">Pas de SaaS générique</div>
             </motion.div>
           </motion.div>
 
@@ -153,35 +144,21 @@ export const HeroContent: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* Témoignage */}
+          {/* Témoignage - Simplifié */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="max-w-3xl mx-auto mb-8 md:mb-12"
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="max-w-2xl mx-auto mb-10 md:mb-12"
           >
-            <div className="bg-gradient-to-r from-slate-800/60 to-slate-900/60 rounded-2xl p-6 md:p-8 border border-white/10 backdrop-blur-md">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center">
-                    <Heart className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                    ))}
-                  </div>
-                  <p className="text-white text-lg font-medium mb-2 italic">
-                    "En 30 jours, on a automatisé 35% de nos tâches administratives. Les risques RGPD sont identifiés et sécurisés. ROI visible dès le premier mois."
-                  </p>
-                  <p className="text-cyan-300 text-sm font-semibold">
-                    — Dirigeant PME, Cabinet comptable
-                  </p>
-                </div>
-              </div>
+            <div className="bg-slate-800/40 rounded-xl p-6 md:p-8 border border-white/10 backdrop-blur-sm">
+              <p className="text-white text-base md:text-lg font-medium mb-3 italic">
+                "En 30 jours, 35% de nos tâches automatisées. Risques RGPD sécurisés. ROI visible dès le premier mois."
+              </p>
+              <p className="text-cyan-300 text-sm">
+                — Dirigeant PME, Cabinet comptable
+              </p>
             </div>
           </motion.div>
 

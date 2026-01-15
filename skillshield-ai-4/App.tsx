@@ -229,42 +229,38 @@ const App: React.FC = () => {
             <OfferSection />
             <TargetAudienceSection />
             
-            <section className="py-20 bg-slate-800/30 border-y border-white/5">
-               <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-                  <div className="space-y-6">
-                     <h2 className="text-3xl font-bold font-display text-white">
+            <section className="py-16 bg-slate-800/20 border-y border-white/5">
+               <div className="container mx-auto px-6">
+                  <div className="max-w-4xl mx-auto text-center mb-12">
+                     <h2 className="text-3xl md:text-4xl font-bold font-display text-white mb-4">
                         Avant <span className="text-violet-400">/</span> Après
                      </h2>
-                     <p className="text-gray-400 text-lg">
-                        Résultats mesurables en 30 jours. ROI visible dès le premier mois.
+                     <p className="text-gray-300 text-base">
+                        Résultats mesurables en 30 jours
                      </p>
+                  </div>
+                  
+                  <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                      <div className="space-y-4">
-                        <div className="flex items-center gap-4 text-gray-400">
-                           <span className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 shrink-0">✕</span>
-                           <span>Données sensibles exposées, shadow AI non maîtrisé</span>
+                        <div className="flex items-center gap-3 text-gray-400">
+                           <span className="w-6 h-6 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 shrink-0 text-sm">✕</span>
+                           <span className="text-sm">Données sensibles exposées</span>
                         </div>
-                        <div className="flex items-center gap-4 text-gray-300">
-                           <span className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 shrink-0">✓</span>
-                           <span className="font-medium text-white">Risques RGPD identifiés et sécurisés</span>
+                        <div className="flex items-center gap-3 text-gray-300">
+                           <span className="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 shrink-0 text-sm">✓</span>
+                           <span className="text-sm font-medium text-white">Risques RGPD sécurisés</span>
                         </div>
-                        <div className="flex items-center gap-4 text-gray-400">
-                           <span className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 shrink-0">✕</span>
-                           <span>Aucune vision des opportunités d'automatisation</span>
+                        <div className="flex items-center gap-3 text-gray-400">
+                           <span className="w-6 h-6 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 shrink-0 text-sm">✕</span>
+                           <span className="text-sm">Aucune vision des opportunités</span>
                         </div>
-                        <div className="flex items-center gap-4 text-gray-300">
-                           <span className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 shrink-0">✓</span>
-                           <span className="font-medium text-white">20 à 40% de tâches automatisées</span>
+                        <div className="flex items-center gap-3 text-gray-300">
+                           <span className="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 shrink-0 text-sm">✓</span>
+                           <span className="text-sm font-medium text-white">20-40% de tâches automatisées</span>
                         </div>
                      </div>
-                  </div>
-                  <div className="relative h-64 md:h-80 rounded-3xl overflow-hidden border border-white/10">
-                     <div className="absolute inset-0 bg-gradient-to-br from-violet-600/20 to-cyan-600/20" />
-                     <img 
-                        src="https://picsum.photos/800/600?grayscale" 
-                        alt="Serene professional" 
-                        className="w-full h-full object-cover opacity-60 mix-blend-luminosity hover:mix-blend-normal hover:opacity-80 transition-all duration-700" 
-                     />
-                     <div className="absolute bottom-6 left-6 right-6 p-4 bg-black/40 backdrop-blur-md rounded-xl border border-white/10 min-h-[120px] flex items-center">
+                     
+                     <div className="bg-slate-800/40 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
                         <AnimatePresence mode="wait">
                           <motion.div
                             key={currentTestimonialIndex}
@@ -272,10 +268,9 @@ const App: React.FC = () => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
                             transition={{ duration: 0.5 }}
-                            className="w-full"
                           >
-                            <p className="text-white italic">"{testimonials[currentTestimonialIndex].quote}"</p>
-                            <p className="text-cyan-300 text-sm mt-1">— {testimonials[currentTestimonialIndex].author}</p>
+                            <p className="text-white text-base italic mb-3">"{testimonials[currentTestimonialIndex].quote}"</p>
+                            <p className="text-cyan-300 text-sm">— {testimonials[currentTestimonialIndex].author}</p>
                           </motion.div>
                         </AnimatePresence>
                      </div>
@@ -287,36 +282,28 @@ const App: React.FC = () => {
             <AuditTool />
             <AutomationLevelQuiz />
 
-            <section className="py-32 relative overflow-hidden">
-               <div className="absolute inset-0 bg-gradient-to-b from-midnight via-violet-900/10 to-midnight" />
+            <section className="py-24 relative overflow-hidden bg-gradient-to-b from-midnight via-violet-900/10 to-midnight">
                <div className="container mx-auto px-6 relative z-10 text-center">
-                  <h2 className="text-4xl md:text-6xl font-display font-bold text-white mb-8">
+                  <h2 className="text-3xl md:text-5xl font-display font-bold text-white mb-6">
                      Prêt à identifier <br/>
                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-violet-400">vos risques et gains IA ?</span>
                   </h2>
-                  <div className="flex flex-col items-center gap-6">
-                     <button onClick={openCalendly} className="bg-white text-midnight font-bold py-4 px-12 rounded-full hover:scale-105 transition-transform shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)]">
+                  <div className="flex flex-col items-center gap-6 max-w-2xl mx-auto">
+                     <button onClick={openCalendly} className="bg-white text-midnight font-bold py-4 px-10 rounded-full hover:scale-105 transition-transform shadow-lg">
                         Demander un audit IA
                      </button>
-                     <div className="flex flex-col items-center gap-2">
-                        <p className="text-gray-400 text-sm font-medium">Audit rapide. Implémentation ciblée. Résultats en 30 jours.</p>
-                        <div className="flex items-center gap-2 text-xs text-violet-300 bg-violet-500/10 px-3 py-1.5 rounded-full border border-violet-500/20">
-                            <ShieldCheck className="w-3 h-3" />
-                            <span>Service premium sur-mesure. <span className="font-bold text-violet-200">Pas de SaaS générique</span>. ROI mesurable.</span>
-                        </div>
-                     </div>
+                     <p className="text-gray-300 text-sm">Audit rapide • Implémentation ciblée • Résultats en 30 jours</p>
                      
-                     {/* Contact Email - Transparence */}
-                     <div className="mt-6 pt-6 border-t border-white/10 w-full max-w-md">
+                     <div className="mt-4 pt-6 border-t border-white/10 w-full">
                         <a 
                           href="mailto:contact@skillshield-ai.com?subject=Question%20sur%20SkillShield%20AI"
-                          className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm text-gray-300 hover:text-cyan-400 transition-colors border border-white/10 hover:border-cyan-500/30 rounded-full bg-white/5 hover:bg-white/10 backdrop-blur-sm w-full md:w-auto"
+                          className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm text-gray-300 hover:text-cyan-400 transition-colors border border-white/10 hover:border-cyan-500/30 rounded-full bg-white/5 hover:bg-white/10 backdrop-blur-sm"
                         >
                           <Mail className="w-4 h-4" />
-                          <span>Nous contacter directement</span>
+                          <span>Nous contacter</span>
                         </a>
-                        <p className="text-xs text-gray-500 mt-3 text-center">
-                          💬 Transparence totale • contact@skillshield-ai.com • Réponse sous 24h
+                        <p className="text-xs text-gray-500 mt-3">
+                          contact@skillshield-ai.com • Réponse sous 24h
                         </p>
                      </div>
                   </div>
