@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Clock, AlertTriangle } from 'lucide-react';
+import { AnimatedStat } from './ui/AnimatedStat';
 
 export const Hero: React.FC = () => {
   const [timeWasted, setTimeWasted] = useState(0);
@@ -139,29 +140,26 @@ export const Hero: React.FC = () => {
               </h2>
               
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-green-500/20">
-                  <div>
-                    <p className="text-gray-300 text-sm">Temps récupéré</p>
-                    <p className="text-green-400 font-bold text-xl">12-20h / semaine</p>
-                  </div>
-                  <TrendingUp className="w-8 h-8 text-green-400" />
-                </div>
+                <AnimatedStat
+                  label="Temps récupéré"
+                  value="12-20h / semaine"
+                  color="green"
+                  delay={0.1}
+                />
                 
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-violet-500/20">
-                  <div>
-                    <p className="text-gray-300 text-sm">Tâches automatisées</p>
-                    <p className="text-violet-400 font-bold text-xl">20-40%</p>
-                  </div>
-                  <TrendingUp className="w-8 h-8 text-violet-400" />
-                </div>
+                <AnimatedStat
+                  label="Tâches automatisées"
+                  value="20-40%"
+                  color="violet"
+                  delay={0.3}
+                />
                 
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-cyan-500/20">
-                  <div>
-                    <p className="text-gray-300 text-sm">ROI moyen</p>
-                    <p className="text-cyan-400 font-bold text-xl">300-500%</p>
-                  </div>
-                  <TrendingUp className="w-8 h-8 text-cyan-400" />
-                </div>
+                <AnimatedStat
+                  label="ROI moyen"
+                  value="300-500%"
+                  color="cyan"
+                  delay={0.5}
+                />
               </div>
 
               <div className="mt-6 pt-6 border-t border-white/10">
