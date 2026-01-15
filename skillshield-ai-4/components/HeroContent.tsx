@@ -14,7 +14,7 @@ export const HeroContent: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-7xl mx-auto">
           
-          {/* Headline principale - Simplifiée et claire */}
+          {/* Headline principale - Suite du message psychologique */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -22,6 +22,10 @@ export const HeroContent: React.FC = () => {
             transition={{ duration: 0.8 }}
             className="text-center mb-12 md:mb-16"
           >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 mb-6">
+              <ShieldCheck className="w-4 h-4 text-violet-400" />
+              <span className="text-violet-300 text-sm font-bold">La solution existe</span>
+            </div>
             <h1 className="font-display font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight mb-6 md:mb-8 leading-[1.1]">
               <span className="block text-white mb-2">Sécurisez vos usages IA.</span>
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-300 to-violet-400">
@@ -30,6 +34,9 @@ export const HeroContent: React.FC = () => {
             </h1>
             <p className="max-w-2xl mx-auto text-lg md:text-xl text-gray-300 leading-relaxed font-medium">
               Audit IA • Implémentation sur-mesure • Résultats en 30 jours
+            </p>
+            <p className="max-w-xl mx-auto text-sm text-gray-400 mt-4">
+              <span className="text-orange-300 font-semibold">73% de vos concurrents</span> ont déjà commencé. Ne restez pas le dernier.
             </p>
           </motion.div>
 
