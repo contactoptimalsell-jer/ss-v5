@@ -21,17 +21,16 @@ export const Hero: React.FC = () => {
     <main className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-cyan-950 via-midnight to-cyan-950">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Logo en arrière-plan (sans fond blanc) */}
+        {/* Logo en arrière-plan */}
         <div 
-          className="absolute inset-0 opacity-[0.03] mix-blend-screen"
+          className="absolute inset-0 opacity-[0.08] mix-blend-soft-light"
           style={{
             backgroundImage: 'url(/images/skillshield-logo.png)',
-            backgroundSize: '60%',
+            backgroundSize: '50%',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-            filter: 'brightness(0) invert(1)',
-            maskImage: 'radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 70%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 70%)'
+            maskImage: 'radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 70%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 70%)'
           }}
         />
         
