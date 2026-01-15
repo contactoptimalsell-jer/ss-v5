@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Button } from './ui/Button';
 import { Sparkles, ArrowRight, Zap, ShieldCheck, CheckCircle2, Star, Rocket, Heart, Timer } from 'lucide-react';
 import { SectionId } from '../types';
+import { AnimatedText } from './ui/AnimatedText';
 
 export const HeroContent: React.FC = () => {
   const openCalendly = () => {
@@ -27,16 +28,23 @@ export const HeroContent: React.FC = () => {
               <span className="text-violet-300 text-sm font-bold">La solution existe</span>
             </div>
             <h1 className="font-display font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight mb-6 md:mb-8 leading-[1.1]">
-              <span className="block text-white mb-2">Sécurisez vos usages IA.</span>
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-300 to-violet-400">
+              <AnimatedText type="wordByWord" delay={0.1} className="block text-white mb-2" highlightWords={['Sécurisez', 'usages', 'IA']} highlightColor="text-cyan-400">
+                Sécurisez vos usages IA.
+              </AnimatedText>
+              <AnimatedText type="gradient" delay={0.8} className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-300 to-violet-400">
                 Automatisez 20-40% de vos tâches.
-              </span>
+              </AnimatedText>
             </h1>
-            <p className="max-w-2xl mx-auto text-lg md:text-xl text-gray-300 leading-relaxed font-medium">
+            <AnimatedText type="fadeInUp" delay={1.2} className="max-w-2xl mx-auto text-lg md:text-xl text-gray-300 leading-relaxed font-medium block">
               Audit IA • Implémentation sur-mesure • Résultats en 30 jours
-            </p>
+            </AnimatedText>
             <p className="max-w-xl mx-auto text-sm text-gray-400 mt-4">
-              <span className="text-orange-300 font-semibold">78% de vos concurrents</span> ont déjà commencé. Ne restez pas le dernier.
+              <AnimatedText type="highlight" delay={1.5} highlightWords={['78%', 'concurrents', 'déjà']} highlightColor="text-orange-300 font-semibold">
+                78% de vos concurrents ont déjà commencé.
+              </AnimatedText>
+              <AnimatedText type="pulse" delay={1.8} className="block mt-1">
+                Ne restez pas le dernier.
+              </AnimatedText>
             </p>
             <p className="max-w-xl mx-auto text-gray-400/60 text-[10px] mt-2 italic">Source: Elementor Blog</p>
           </motion.div>
@@ -49,10 +57,9 @@ export const HeroContent: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="text-center mb-10 md:mb-12"
           >
-            <p className="max-w-2xl mx-auto text-base md:text-lg text-gray-300 leading-relaxed">
-              Pour <span className="text-white font-semibold">PME de services</span> (10-100 salariés) : 
-              <span className="text-cyan-300"> agences immobilières, cabinets comptables, ESN, PME B2B</span>
-            </p>
+            <AnimatedText type="wordByWord" delay={0.2} className="max-w-2xl mx-auto text-base md:text-lg text-gray-300 leading-relaxed block" highlightWords={['PME', 'services', '10-100', 'agences', 'cabinets', 'ESN']} highlightColor="text-cyan-300 font-semibold">
+              Pour PME de services (10-100 salariés) : agences immobilières, cabinets comptables, ESN, PME B2B
+            </AnimatedText>
           </motion.div>
 
           {/* Stats - Simplifiées et plus lisibles */}

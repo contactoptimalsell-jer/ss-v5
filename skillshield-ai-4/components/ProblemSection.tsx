@@ -1,7 +1,9 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Card } from './ui/Card';
 import { Clock, BatteryWarning, TrendingUp } from 'lucide-react';
 import { SectionId } from '../types';
+import { AnimatedText } from './ui/AnimatedText';
 
 export const ProblemSection: React.FC = () => {
   return (
@@ -9,11 +11,17 @@ export const ProblemSection: React.FC = () => {
       <div className="container mx-auto px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold font-display text-white mb-4">
-            Vos employés utilisent ChatGPT <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-violet-400">sans cadre</span>
+            <AnimatedText type="wordByWord" delay={0.1} highlightWords={['employés', 'ChatGPT', 'sans cadre']} highlightColor="text-orange-400">
+              Vos employés utilisent ChatGPT
+            </AnimatedText>
+            {' '}
+            <AnimatedText type="gradient" delay={0.6} className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-violet-400">
+              sans cadre
+            </AnimatedText>
           </h2>
-          <p className="text-gray-300 text-base md:text-lg max-w-2xl mx-auto">
+          <AnimatedText type="highlight" delay={0.8} className="text-gray-300 text-base md:text-lg max-w-2xl mx-auto block" highlightWords={['Données sensibles', 'RGPD', 'automatisation']} highlightColor="text-red-400 font-semibold">
             Données sensibles exposées • Risques RGPD non maîtrisés • Opportunités d'automatisation perdues
-          </p>
+          </AnimatedText>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

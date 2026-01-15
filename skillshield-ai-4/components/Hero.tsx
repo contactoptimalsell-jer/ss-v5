@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Clock, AlertTriangle } from 'lucide-react';
 import { AnimatedStat } from './ui/AnimatedStat';
+import { AnimatedText } from './ui/AnimatedText';
 
 export const Hero: React.FC = () => {
   const [timeWasted, setTimeWasted] = useState(0);
@@ -84,10 +85,12 @@ export const Hero: React.FC = () => {
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-tight">
-              <span className="block mb-2">Vos concurrents</span>
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-400 to-orange-400">
+              <AnimatedText type="wordByWord" delay={0.1} className="block mb-2" highlightWords={['concurrents']} highlightColor="text-red-400 font-bold">
+                Vos concurrents
+              </AnimatedText>
+              <AnimatedText type="gradient" delay={0.6} className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-400 to-orange-400">
                 automatisent déjà.
-              </span>
+              </AnimatedText>
             </h1>
 
             {/* Real-time loss counter - Psychological trigger */}

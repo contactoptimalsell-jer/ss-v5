@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Search, Bot, UserCheck, CheckCircle2, TrendingUp, ShieldCheck, Zap } from 'lucide-react';
 import { Card } from './ui/Card';
+import { AnimatedText } from './ui/AnimatedText';
 
 export const OfferSection: React.FC = () => {
   const offers = [
@@ -67,12 +68,18 @@ export const OfferSection: React.FC = () => {
           </div>
           
           <h2 className="text-3xl md:text-4xl font-bold font-display text-white mb-4">
-            Les 3 briques de <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">SkillShield</span>
+            <AnimatedText type="wordByWord" delay={0.2} highlightWords={['3', 'briques', 'SkillShield']} highlightColor="text-violet-400 font-bold">
+              Les 3 briques de
+            </AnimatedText>
+            {' '}
+            <AnimatedText type="gradient" delay={0.8} className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
+              SkillShield
+            </AnimatedText>
           </h2>
           
-          <p className="text-gray-300 text-base max-w-2xl mx-auto">
+          <AnimatedText type="highlight" delay={1.0} className="text-gray-300 text-base max-w-2xl mx-auto block" highlightWords={['Audit IA', 'Implémentation', 'sur-mesure', 'Accompagnement']} highlightColor="text-cyan-300 font-semibold">
             Audit IA • Implémentation sur-mesure • Accompagnement continu
-          </p>
+          </AnimatedText>
         </motion.div>
 
         {/* Offers Grid */}
