@@ -36,8 +36,9 @@ export const HeroContent: React.FC = () => {
               Audit IA • Implémentation sur-mesure • Résultats en 30 jours
             </p>
             <p className="max-w-xl mx-auto text-sm text-gray-400 mt-4">
-              <span className="text-orange-300 font-semibold">73% de vos concurrents</span> ont déjà commencé. Ne restez pas le dernier.
+              <span className="text-orange-300 font-semibold">78% de vos concurrents</span> ont déjà commencé. Ne restez pas le dernier.
             </p>
+            <p className="max-w-xl mx-auto text-gray-400/60 text-[10px] mt-2 italic">Source: Elementor Blog</p>
           </motion.div>
 
           {/* Value proposition - Plus concise */}

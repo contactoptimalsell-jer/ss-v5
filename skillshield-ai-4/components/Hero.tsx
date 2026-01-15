@@ -100,8 +100,9 @@ export const Hero: React.FC = () => {
               </div>
               <div className="mt-4 pt-4 border-t border-red-500/20">
                 <p className="text-red-200 text-xs">
-                  💡 <span className="font-semibold">73% des PME de votre secteur</span> ont déjà commencé leur automatisation IA
+                  💡 <span className="font-semibold">78% des PME de votre secteur</span> ont déjà commencé leur automatisation IA
                 </p>
+                <p className="text-red-300/60 text-[10px] mt-1 italic">Source: Elementor Blog</p>
               </div>
             </div>
           </motion.div>
@@ -171,8 +172,9 @@ export const Hero: React.FC = () => {
               Êtes-vous prêt à rester en arrière ?
             </p>
             <p className="text-gray-300 text-sm md:text-base">
-              Ou préférez-vous rejoindre les 73% qui ont déjà pris de l'avance ?
+              Ou préférez-vous rejoindre les 78% qui ont déjà pris de l'avance ?
             </p>
+            <p className="text-gray-400/60 text-[10px] mt-2 italic">Source: Elementor Blog</p>
           </div>
         </motion.div>
       </div>
