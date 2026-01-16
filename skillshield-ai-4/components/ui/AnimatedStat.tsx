@@ -20,6 +20,7 @@ export const AnimatedStat: React.FC<AnimatedStatProps> = ({
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [displayValue, setDisplayValue] = useState(value);
+  const [isAnimationComplete, setIsAnimationComplete] = useState(false);
   
   // Extraire les chiffres pour l'animation
   const extractNumbers = (str: string): { prefix: string; numbers: string[]; suffix: string } => {
@@ -52,6 +53,7 @@ export const AnimatedStat: React.FC<AnimatedStatProps> = ({
   useEffect(() => {
     if (!isInView || numbers.length === 0) {
       setDisplayValue(value);
+      setIsAnimationComplete(true);
       return;
     }
 
@@ -75,6 +77,13 @@ export const AnimatedStat: React.FC<AnimatedStatProps> = ({
         const num2 = Math.floor(start2 + (end2 - start2) * eased);
         
         setDisplayValue(`${prefix}${num1}-${num2}${suffix}`);
+        
+        // Vérifier si on a atteint les valeurs maximales (le deuxième nombre doit atteindre sa valeur max)
+        if (num2 >= parseInt(numbers[1])) {
+          setDisplayValue(value); // Valeur finale exacte
+          setIsAnimationComplete(true);
+          return;
+        }
       } else {
         const num = value.match(/(\d+)/)?.[1];
         if (num) {
@@ -83,6 +92,13 @@ export const AnimatedStat: React.FC<AnimatedStatProps> = ({
           const end = numValue;
           const current = Math.floor(start + (end - start) * eased);
           setDisplayValue(value.replace(/\d+/, current.toString()));
+          
+          // Vérifier si on a atteint la valeur maximale
+          if (current >= numValue) {
+            setDisplayValue(value); // Valeur finale exacte
+            setIsAnimationComplete(true);
+            return;
+          }
         }
       }
 
@@ -90,6 +106,7 @@ export const AnimatedStat: React.FC<AnimatedStatProps> = ({
         requestAnimationFrame(animate);
       } else {
         setDisplayValue(value); // Valeur finale exacte
+        setIsAnimationComplete(true);
       }
     };
 
@@ -170,7 +187,7 @@ export const AnimatedStat: React.FC<AnimatedStatProps> = ({
           </motion.p>
           <motion.p 
             className={`${colors.text} font-bold text-xl relative inline-block`}
-            animate={isInView ? {
+            animate={isInView && !isAnimationComplete ? {
               textShadow: [
                 `0 0 0px ${colors.hex}`,
                 `0 0 15px ${colors.hex}`,
@@ -179,7 +196,7 @@ export const AnimatedStat: React.FC<AnimatedStatProps> = ({
             } : {}}
             transition={{
               duration: 2,
-              repeat: Infinity,
+              repeat: isAnimationComplete ? 0 : Infinity,
               repeatType: "reverse",
               ease: "easeInOut"
             }}
@@ -199,8 +216,8 @@ export const AnimatedStat: React.FC<AnimatedStatProps> = ({
               {displayValue}
             </motion.span>
             
-            {/* Effet de brillance qui traverse */}
-            {isInView && (
+            {/* Effet de brillance qui traverse - s'arrête quand l'animation est terminée */}
+            {isInView && !isAnimationComplete && (
               <motion.span
                 className={`absolute inset-0 ${colors.bg} blur-xl opacity-30 pointer-events-none`}
                 initial={{ x: "-100%" }}
@@ -229,8 +246,8 @@ export const AnimatedStat: React.FC<AnimatedStatProps> = ({
           className={`relative ${colors.icon}`}
         >
           {icon || <TrendingUp className="w-8 h-8" />}
-          {/* Particules animées autour de l'icône */}
-          {isInView && (
+          {/* Particules animées autour de l'icône - s'arrêtent quand l'animation est terminée */}
+          {isInView && !isAnimationComplete && (
             <>
               {[...Array(3)].map((_, i) => (
                 <motion.div
