@@ -20,7 +20,7 @@ export const Hero: React.FC = () => {
   }, []);
 
   return (
-    <main className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-cyan-950 via-midnight to-cyan-950">
+    <main className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-cyan-950 via-midnight to-cyan-950 py-12 sm:py-20">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Logo en arrière-plan - bien fondu avec le fond */}
@@ -70,7 +70,7 @@ export const Hero: React.FC = () => {
       </div>
 
       {/* Psychological Trigger: Comparison & Urgency */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-20">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
         <div className="grid md:grid-cols-2 gap-8 items-center">
           {/* Left: The Problem - What you're losing */}
           <motion.div
@@ -84,7 +84,7 @@ export const Hero: React.FC = () => {
               <span className="text-red-300 text-sm font-bold">Pendant que vous lisez ceci...</span>
             </div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-tight">
               <AnimatedText type="wordByWord" delay={0.1} className="block mb-2" highlightWords={['concurrents']} highlightColor="text-red-400 font-bold">
                 Vos concurrents
               </AnimatedText>
@@ -94,7 +94,7 @@ export const Hero: React.FC = () => {
             </h1>
 
             {/* Real-time loss counter - Psychological trigger */}
-            <div className="bg-slate-900/60 backdrop-blur-sm rounded-xl p-6 border border-red-500/20">
+            <div className="bg-slate-900/60 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-red-500/20">
               <p className="text-gray-400 text-sm mb-4">Coût de l'inaction (depuis votre arrivée) :</p>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -138,7 +138,7 @@ export const Hero: React.FC = () => {
             </div>
 
             <div className="bg-gradient-to-br from-violet-500/10 to-cyan-500/10 backdrop-blur-sm rounded-xl p-8 border border-violet-500/20">
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4 sm:mb-6">
                 Ils ont récupéré en moyenne :
               </h2>
               
@@ -183,7 +183,7 @@ export const Hero: React.FC = () => {
           className="mt-12 text-center"
         >
           <div className="bg-gradient-to-r from-orange-500/10 via-red-500/10 to-orange-500/10 rounded-xl p-6 border border-orange-500/20 backdrop-blur-sm max-w-3xl mx-auto">
-            <p className="text-white text-lg md:text-xl font-bold mb-2">
+            <p className="text-white text-base sm:text-lg md:text-xl font-bold mb-2">
               Êtes-vous prêt à rester en arrière ?
             </p>
             <p className="text-gray-300 text-sm md:text-base">

@@ -148,7 +148,7 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="text-3xl font-display font-bold text-white mb-2"
+                        className="text-2xl sm:text-3xl font-display font-bold text-white mb-2"
                       >
                         Offre Spéciale 🎁
                       </motion.h2>
@@ -157,7 +157,7 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
-                        className="text-gray-300 text-base leading-relaxed"
+                        className="text-gray-300 text-sm sm:text-base leading-relaxed"
                       >
                         Vous arrivez <span className="text-cyan-400 font-semibold">au bon moment</span> !
                       </motion.p>

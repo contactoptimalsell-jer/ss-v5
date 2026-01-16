@@ -48,26 +48,26 @@ export const OfferSection: React.FC = () => {
   ];
 
   return (
-    <section className="py-24 relative overflow-hidden bg-cyan-950">
+    <section className="py-12 sm:py-16 md:py-24 relative overflow-hidden bg-cyan-950">
       {/* Background Effects */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-violet-600/10 rounded-full mix-blend-screen filter blur-[120px] animate-blob" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000" />
 
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-12 md:mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 mb-6 backdrop-blur-sm">
-            <ShieldCheck className="w-4 h-4 text-violet-400" />
-            <span className="text-sm font-bold text-violet-300 tracking-wide uppercase">Notre Offre</span>
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-violet-500/10 border border-violet-500/20 mb-4 sm:mb-6 backdrop-blur-sm">
+            <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-violet-400" />
+            <span className="text-xs sm:text-sm font-bold text-violet-300 tracking-wide uppercase">Notre Offre</span>
           </div>
           
-          <h2 className="text-3xl md:text-4xl font-bold font-display text-white mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-display text-white mb-3 sm:mb-4 px-4">
             <AnimatedText type="wordByWord" delay={0.2} highlightWords={['3', 'briques', 'SkillShield']} highlightColor="text-violet-400 font-bold">
               Les 3 briques de
             </AnimatedText>
@@ -77,7 +77,7 @@ export const OfferSection: React.FC = () => {
             </AnimatedText>
           </h2>
           
-          <AnimatedText type="highlight" delay={1.0} className="text-gray-300 text-base max-w-2xl mx-auto block" highlightWords={['Audit IA', 'Implémentation', 'sur-mesure', 'Accompagnement']} highlightColor="text-cyan-300 font-semibold">
+          <AnimatedText type="highlight" delay={1.0} className="text-gray-300 text-sm sm:text-base max-w-2xl mx-auto block px-4" highlightWords={['Audit IA', 'Implémentation', 'sur-mesure', 'Accompagnement']} highlightColor="text-cyan-300 font-semibold">
             Audit IA • Implémentation sur-mesure • Accompagnement continu
           </AnimatedText>
         </motion.div>
@@ -95,28 +95,28 @@ export const OfferSection: React.FC = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
               >
                 <Card className={`${offer.bg} ${offer.border} border-2 h-full`}>
-                  <div className="p-8">
+                  <div className="p-5 sm:p-6 md:p-8">
                     {/* Icon */}
-                    <div className={`w-16 h-16 ${offer.bg} ${offer.border} border rounded-2xl flex items-center justify-center mb-6 ${offer.color}`}>
-                      <Icon className="w-8 h-8" />
+                    <div className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 ${offer.bg} ${offer.border} border rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 ${offer.color}`}>
+                      <Icon className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
                     </div>
                     
                     {/* Title */}
-                    <h3 className={`text-2xl font-bold mb-4 ${offer.color}`}>
+                    <h3 className={`text-xl sm:text-2xl font-bold mb-3 sm:mb-4 ${offer.color}`}>
                       {offer.title}
                     </h3>
                     
                     {/* Description */}
-                    <p className="text-gray-300 mb-6 leading-relaxed">
+                    <p className="text-gray-300 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed">
                       {offer.description}
                     </p>
                     
                     {/* Bullets */}
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       {offer.bullets.map((bullet, bulletIndex) => (
-                        <div key={bulletIndex} className="flex items-start gap-3">
-                          <CheckCircle2 className={`w-5 h-5 ${offer.color} shrink-0 mt-0.5`} />
-                          <span className="text-gray-400 text-sm">{bullet}</span>
+                        <div key={bulletIndex} className="flex items-start gap-2 sm:gap-3">
+                          <CheckCircle2 className={`w-4 h-4 sm:w-5 sm:h-5 ${offer.color} shrink-0 mt-0.5`} />
+                          <span className="text-gray-400 text-xs sm:text-sm leading-relaxed">{bullet}</span>
                         </div>
                       ))}
                     </div>
@@ -135,8 +135,8 @@ export const OfferSection: React.FC = () => {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="text-center"
         >
-          <div className="max-w-2xl mx-auto bg-violet-500/10 border border-violet-500/20 rounded-xl p-6 backdrop-blur-sm">
-            <p className="text-gray-300 text-base">
+          <div className="max-w-2xl mx-auto bg-violet-500/10 border border-violet-500/20 rounded-xl p-4 sm:p-6 backdrop-blur-sm px-4">
+            <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
               <span className="font-bold text-white">Résultats visibles en 30 jours.</span> ROI mesurable dès le premier mois. Implémentation concrète, orientée résultats.
             </p>
           </div>

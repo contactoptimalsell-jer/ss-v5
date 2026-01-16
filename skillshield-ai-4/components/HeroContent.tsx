@@ -11,8 +11,8 @@ export const HeroContent: React.FC = () => {
   };
 
   return (
-    <section className="relative py-20 md:py-24 bg-cyan-950">
-      <div className="container mx-auto px-4 md:px-6">
+    <section className="relative py-12 sm:py-16 md:py-24 bg-cyan-950">
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
           
           {/* Headline principale - Suite du message psychologique */}
@@ -21,13 +21,13 @@ export const HeroContent: React.FC = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="text-center mb-12 md:mb-16"
+            className="text-center mb-8 sm:mb-12 md:mb-16"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 mb-6">
-              <ShieldCheck className="w-4 h-4 text-violet-400" />
-              <span className="text-violet-300 text-sm font-bold">La solution existe</span>
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-violet-500/10 border border-violet-500/20 mb-4 sm:mb-6">
+              <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-violet-400" />
+              <span className="text-violet-300 text-xs sm:text-sm font-bold">La solution existe</span>
             </div>
-            <h1 className="font-display font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight mb-6 md:mb-8 leading-[1.1]">
+            <h1 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight mb-4 sm:mb-6 md:mb-8 leading-tight sm:leading-[1.1]">
               <AnimatedText type="wordByWord" delay={0.1} className="block text-white mb-2" highlightWords={['Sécurisez', 'usages', 'IA']} highlightColor="text-cyan-400">
                 Sécurisez vos usages IA.
               </AnimatedText>
@@ -35,10 +35,10 @@ export const HeroContent: React.FC = () => {
                 Automatisez 20-40% de vos tâches.
               </AnimatedText>
             </h1>
-            <AnimatedText type="fadeInUp" delay={1.2} className="max-w-2xl mx-auto text-lg md:text-xl text-gray-300 leading-relaxed font-medium block">
+            <AnimatedText type="fadeInUp" delay={1.2} className="max-w-2xl mx-auto text-base sm:text-lg md:text-xl text-gray-300 leading-relaxed font-medium block px-4">
               Audit IA • Implémentation sur-mesure • Résultats en 30 jours
             </AnimatedText>
-            <p className="max-w-xl mx-auto text-sm text-gray-400 mt-4">
+            <p className="max-w-xl mx-auto text-xs sm:text-sm text-gray-400 mt-3 sm:mt-4 px-4">
               <AnimatedText type="highlight" delay={1.5} highlightWords={['78%', 'concurrents', 'déjà']} highlightColor="text-orange-300 font-semibold">
                 78% de vos concurrents ont déjà commencé.
               </AnimatedText>
@@ -57,7 +57,7 @@ export const HeroContent: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="text-center mb-10 md:mb-12"
           >
-            <AnimatedText type="wordByWord" delay={0.2} className="max-w-2xl mx-auto text-base md:text-lg text-gray-300 leading-relaxed block" highlightWords={['PME', 'services', '10-100', 'agences', 'cabinets', 'ESN']} highlightColor="text-cyan-300 font-semibold">
+            <AnimatedText type="wordByWord" delay={0.2} className="max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-gray-300 leading-relaxed block px-4" highlightWords={['PME', 'services', '10-100', 'agences', 'cabinets', 'ESN']} highlightColor="text-cyan-300 font-semibold">
               Pour PME de services (10-100 salariés) : agences immobilières, cabinets comptables, ESN, PME B2B
             </AnimatedText>
           </motion.div>
@@ -68,14 +68,14 @@ export const HeroContent: React.FC = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto mb-10 md:mb-12"
+            className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 max-w-4xl mx-auto mb-8 sm:mb-10 md:mb-12 px-4"
           >
             <motion.div
               whileHover={{ scale: 1.05 }}
-              className="bg-violet-500/10 rounded-xl p-6 border border-violet-400/20 text-center backdrop-blur-sm"
+              className="bg-violet-500/10 rounded-xl p-3 sm:p-4 md:p-6 border border-violet-400/20 text-center backdrop-blur-sm"
             >
-              <div className="text-3xl md:text-4xl font-bold text-white mb-1">20-40%</div>
-              <div className="text-sm text-violet-200">Tâches automatisées</div>
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1">20-40%</div>
+              <div className="text-xs sm:text-sm text-violet-200">Tâches automatisées</div>
             </motion.div>
             <motion.div
               whileHover={{ scale: 1.05 }}
