@@ -1,5 +1,5 @@
 import React from 'react';
-import { Linkedin, Mail } from 'lucide-react';
+import { Linkedin, Mail, MapPin } from 'lucide-react';
 import { Logo } from './ui/Logo';
 
 interface FooterProps {
@@ -38,6 +38,77 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, customLogo }) => {
           </div>
         </div>
         
+        {/* Adresse et Contact */}
+        <div className="grid md:grid-cols-2 gap-8 mb-12">
+          {/* Adresse */}
+          <div className="bg-slate-900/50 rounded-xl p-6 border border-white/5">
+            <h3 className="text-white font-bold mb-4 flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-cyan-400" />
+              Notre Adresse
+            </h3>
+            <address className="text-gray-300 not-italic leading-relaxed">
+              <p className="font-semibold text-white mb-1">SkillShield AI</p>
+              <p>113 Rue Jean Jaurès</p>
+              <p>92300 Levallois-Perret</p>
+              <p className="mt-2">France</p>
+            </address>
+            <a 
+              href="https://www.google.com/maps/search/?api=1&query=113+Rue+Jean+Jaurès+92300+Levallois-Perret"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 mt-4 text-cyan-400 hover:text-cyan-300 text-sm transition-colors"
+            >
+              <MapPin className="w-4 h-4" />
+              Voir sur Google Maps
+            </a>
+          </div>
+
+          {/* Contact */}
+          <div className="bg-slate-900/50 rounded-xl p-6 border border-white/5">
+            <h3 className="text-white font-bold mb-4">Contact</h3>
+            <div className="space-y-3 text-gray-300">
+              <a 
+                href="mailto:contact@skillshield-ai.com" 
+                className="flex items-center gap-2 hover:text-cyan-400 transition-colors"
+              >
+                <Mail className="w-4 h-4" />
+                contact@skillshield-ai.com
+              </a>
+              <div className="flex items-center gap-4 pt-2">
+                <a 
+                  href="https://www.linkedin.com/in/j%C3%A9r%C3%B4me-karr-394027206?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition-all"
+                >
+                  <Linkedin className="w-5 h-5" />
+                </a>
+                <a 
+                  href="mailto:contact@skillshield-ai.com" 
+                  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition-all"
+                >
+                  <Mail className="w-5 h-5" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Google Maps Embed */}
+        <div className="mb-12 rounded-xl overflow-hidden border border-white/5 bg-slate-900/30">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2623.1!2d2.2875!3d48.8946!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66f5c8e6b8c5d%3A0x0!2s113%20Rue%20Jean%20Jaur%C3%A8s%2C%2092300%20Levallois-Perret%2C%20France!5e0!3m2!1sfr!2sfr!4v1707123456789!5m2!1sfr!2sfr"
+            width="100%"
+            height="400"
+            style={{ border: 0, filter: 'invert(0.9) hue-rotate(180deg)' }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Localisation SkillShield AI - 113 Rue Jean Jaurès, 92300 Levallois-Perret, France"
+            className="w-full"
+          />
+        </div>
+
         <div className="flex justify-center gap-6 mb-8">
             <a 
               href="https://www.linkedin.com/in/j%C3%A9r%C3%B4me-karr-394027206?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" 

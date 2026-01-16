@@ -480,6 +480,7 @@ const App: React.FC = () => {
       {currentPage === 'home' && (
         <>
           <StructuredData type="Organization" />
+          <StructuredData type="LocalBusiness" />
           <StructuredData type="Service" />
           <StructuredData type="WebSite" />
         </>
