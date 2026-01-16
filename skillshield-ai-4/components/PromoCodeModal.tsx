@@ -20,13 +20,26 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      
+      // Fermer avec la touche Escape
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          onClose();
+        }
+      };
+      
+      document.addEventListener('keydown', handleEscape);
+      return () => {
+        document.removeEventListener('keydown', handleEscape);
+        document.body.style.overflow = 'unset';
+      };
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,9 +111,12 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none"
           >
-            <div className="relative w-full max-w-md">
+            <div 
+              className="relative w-full max-w-md pointer-events-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
               {/* Background effects */}
               <div className="absolute inset-0 bg-gradient-to-br from-violet-500/20 via-cyan-500/20 to-violet-500/20 rounded-3xl blur-2xl" />
               
@@ -213,6 +229,16 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
                         Vous pouvez vous désabonner à tout moment.
                       </p>
                     </form>
+
+                    {/* Bouton fermer / plus tard */}
+                    <div className="mt-6 text-center">
+                      <button
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-white text-sm underline underline-offset-4 transition-colors"
+                      >
+                        Plus tard
+                      </button>
+                    </div>
                   </>
                 ) : (
                   /* Success state */
@@ -242,6 +268,17 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
                       <p className="text-white font-bold text-lg mb-1">Votre code promo :</p>
                       <p className="font-mono text-2xl font-bold text-cyan-400">{promoCode}</p>
                       <p className="text-gray-300 text-sm mt-2">{discount} de réduction sur votre première implémentation IA</p>
+                    </div>
+
+                    {/* Bouton fermer */}
+                    <div className="mt-6 text-center">
+                      <Button
+                        onClick={onClose}
+                        variant="secondary"
+                        className="w-full"
+                      >
+                        Fermer
+                      </Button>
                     </div>
                   </motion.div>
                 )}
