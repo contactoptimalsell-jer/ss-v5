@@ -2447,6 +2447,60 @@ export const BlogArticlePage: React.FC<BlogArticlePageProps> = ({ slug, onNaviga
     );
   }
 
+  // Extraire les étapes HowTo du contenu markdown
+  const extractHowToSteps = (content: string) => {
+    const lines = content.split('\n');
+    const steps: any[] = [];
+    let currentStep: any = null;
+    let stepNumber = 0;
+
+    lines.forEach((line) => {
+      // Détecter les titres de section (Étape X:)
+      const stepMatch = line.match(/^## Étape (\d+)[:.]\s*(.+)$/);
+      if (stepMatch) {
+        if (currentStep) {
+          steps.push(currentStep);
+        }
+        stepNumber = parseInt(stepMatch[1]);
+        currentStep = {
+          '@type': 'HowToStep',
+          position: stepNumber,
+          name: stepMatch[2].trim(),
+          text: ''
+        };
+      } else if (currentStep && line.trim() && !line.startsWith('#') && !line.startsWith('---')) {
+        // Accumuler le texte de l'étape (première phrase)
+        if (!currentStep.text && line.trim().length > 10) {
+          currentStep.text = line.trim().substring(0, 200);
+        }
+      }
+    });
+
+    if (currentStep) {
+      steps.push(currentStep);
+    }
+
+    // Si pas d'étapes trouvées au format "Étape X:", chercher les titres ##
+    if (steps.length === 0) {
+      lines.forEach((line, index) => {
+        if (line.startsWith('## ') && !line.includes('Résumé') && !line.includes('Conclusion')) {
+          const title = line.replace('## ', '').trim();
+          const nextLine = lines[index + 1]?.trim() || '';
+          if (title && nextLine && title.length < 100) {
+            steps.push({
+              '@type': 'HowToStep',
+              position: steps.length + 1,
+              name: title,
+              text: nextLine.substring(0, 200)
+            });
+          }
+        }
+      });
+    }
+
+    return steps.length > 0 ? steps : undefined;
+  };
+
   // Convertir le markdown en HTML (version améliorée)
   const formatContent = (content: string) => {
     const lines = content.trim().split('\n');
