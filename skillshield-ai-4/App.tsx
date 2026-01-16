@@ -23,6 +23,7 @@ import { CaseStudiesPage } from './components/CaseStudiesPage';
 import { PressPage } from './components/PressPage';
 import { SEOHead } from './components/SEOHead';
 import { StructuredData } from './components/StructuredData';
+import { PromoCodeModal } from './components/PromoCodeModal';
 import { Menu, ShieldCheck, Home, X, Upload, Mail } from 'lucide-react';
 import { Logo } from './components/ui/Logo';
 import { SectionId, PageView } from './types';
@@ -34,6 +35,7 @@ const App: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [blogArticleSlug, setBlogArticleSlug] = useState<string | null>(null);
   const [quizToken, setQuizToken] = useState<string | null>(null);
+  const [showPromoModal, setShowPromoModal] = useState(false);
   
   // -- GESTION LOGO (MODE ÉDITION RÉACTIVÉ) --
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -94,6 +96,30 @@ const App: React.FC = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Afficher le modal promo code à l'arrivée (si pas déjà soumis)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    // Vérifier si l'utilisateur a déjà soumis son email
+    try {
+      const alreadySubmitted = localStorage.getItem('skillshield_promo_code_submitted');
+      if (alreadySubmitted === 'true') {
+        return; // Ne pas afficher si déjà soumis
+      }
+    } catch (e) {
+      // Ignorer les erreurs localStorage
+    }
+    
+    // Afficher le modal après 2 secondes sur la page d'accueil
+    if (currentPage === 'home') {
+      const timer = setTimeout(() => {
+        setShowPromoModal(true);
+      }, 2000); // 2 secondes après l'arrivée
+      
+      return () => clearTimeout(timer);
+    }
+  }, [currentPage]);
 
   // Détecter les routes pour afficher les bonnes pages
   useEffect(() => {
@@ -477,6 +503,13 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
       <SEOHead {...seoData} />
+      
+      {/* Modal promo code */}
+      <PromoCodeModal 
+        isOpen={showPromoModal} 
+        onClose={() => setShowPromoModal(false)} 
+      />
+      
       {currentPage === 'home' && (
         <>
           <StructuredData type="Organization" />
