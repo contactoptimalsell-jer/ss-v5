@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface StructuredDataProps {
-  type: 'Organization' | 'Service' | 'FAQPage' | 'WebSite' | 'BreadcrumbList';
+  type: 'Organization' | 'Service' | 'FAQPage' | 'WebSite' | 'BreadcrumbList' | 'HowTo';
   data?: any;
 }
 
@@ -100,6 +100,20 @@ export const StructuredData: React.FC<StructuredDataProps> = ({ type, data }) =>
           '@context': 'https://schema.org',
           '@type': 'BreadcrumbList',
           itemListElement: data?.items || []
+        };
+        break;
+
+      case 'HowTo':
+        structuredData = {
+          '@context': 'https://schema.org',
+          '@type': 'HowTo',
+          name: data?.name || '',
+          description: data?.description || '',
+          image: data?.image || 'https://skillshield.app/og-image.jpg',
+          totalTime: data?.totalTime || '',
+          supply: data?.supply || [],
+          tool: data?.tool || [],
+          step: data?.steps || []
         };
         break;
     }

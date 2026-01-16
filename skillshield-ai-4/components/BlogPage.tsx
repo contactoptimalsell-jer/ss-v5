@@ -66,6 +66,56 @@ const articles: BlogArticle[] = [
     date: '2025-01-16',
     category: 'Actualité',
     keywords: ['IA 2025', 'transformation IA PME', 'actualités IA', 'productivité IA', 'automatisation 2025']
+  },
+  {
+    id: '6',
+    title: 'Comment Identifier les Processus Automatisables avec l\'IA : Guide Étape par Étape',
+    description: 'Découvrez comment identifier les processus automatisables dans votre entreprise. Guide pratique avec grille d\'analyse, critères de sélection, et exemples concrets par secteur. Gagnez du temps dès la phase d\'audit.',
+    slug: 'comment-identifier-processus-automatisables-ia',
+    readTime: '10 min',
+    date: '2025-01-20',
+    category: 'HowTo',
+    keywords: ['processus automatisables', 'identifier tâches IA', 'audit automatisation', 'processus répétitifs']
+  },
+  {
+    id: '7',
+    title: 'Comment Mettre en Place un Agent IA pour la Gestion des Emails : Tutoriel Complet',
+    description: 'Apprenez à mettre en place un agent IA pour automatiser la gestion de vos emails. Étape par étape : configuration, formation, déploiement. Réduisez votre temps de traitement d\'emails de 8h à 1h par semaine.',
+    slug: 'comment-agent-ia-gestion-emails',
+    readTime: '14 min',
+    date: '2025-01-22',
+    category: 'HowTo',
+    keywords: ['agent IA emails', 'automatisation emails', 'gestion emails IA', 'tri emails automatique']
+  },
+  {
+    id: '8',
+    title: 'Comment Automatiser la Prospection Commerciale avec l\'IA : Guide Pratique',
+    description: 'Découvrez comment automatiser votre prospection commerciale avec l\'IA. Qualification de leads, prise de rendez-vous, suivi commercial. Multipliez votre nombre de rendez-vous qualifiés par 3 avec un agent IA sur mesure.',
+    slug: 'comment-automatiser-prospection-commerciale-ia',
+    readTime: '12 min',
+    date: '2025-01-25',
+    category: 'HowTo',
+    keywords: ['prospection IA', 'qualification leads IA', 'automatisation commercial', 'agent IA SDR']
+  },
+  {
+    id: '9',
+    title: 'Comment Mesurer le ROI de l\'Automatisation IA : Formules et Exemples Concrets',
+    description: 'Apprenez à calculer le ROI réel de votre automatisation IA. Formules de calcul, métriques à suivre, exemples concrets par secteur. Mesurez l\'impact réel de l\'IA sur votre productivité et vos résultats.',
+    slug: 'comment-mesurer-roi-automatisation-ia',
+    readTime: '16 min',
+    date: '2025-01-28',
+    category: 'HowTo',
+    keywords: ['ROI automatisation', 'calcul ROI IA', 'mesurer impact IA', 'métriques automatisation']
+  },
+  {
+    id: '10',
+    title: 'Comment Sécuriser les Usages IA en Entreprise : Guide RGPD et Conformité',
+    description: 'Découvrez comment sécuriser les usages IA dans votre entreprise. Conformité RGPD, gestion des données sensibles, cadre d\'usage sécurisé. Protégez votre entreprise des risques juridiques liés à l\'IA.',
+    slug: 'comment-securiser-usages-ia-entreprise-rgpd',
+    readTime: '13 min',
+    date: '2025-02-01',
+    category: 'HowTo',
+    keywords: ['IA RGPD', 'sécurité IA entreprise', 'conformité IA', 'données sensibles IA']
   }
 ];
 
