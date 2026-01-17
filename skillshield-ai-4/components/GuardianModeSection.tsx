@@ -2,8 +2,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Shield, Bot, Eye, UserCheck, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { Button } from './ui/Button';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const GuardianModeSection: React.FC = () => {
+  const { t } = useLanguage();
   const openCalendly = () => {
     window.open('https://calendly.com/b00784336-essec?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app', '_blank');
   };
@@ -11,24 +13,24 @@ export const GuardianModeSection: React.FC = () => {
   const layers = [
     {
       icon: Bot,
-      title: "1. Audit IA",
-      description: "Cartographie de vos usages IA actuels. Identification des risques RGPD, données sensibles, shadow AI. Opportunités d'automatisation chiffrées.",
+      title: t.guardianMode.layer1Title,
+      description: t.guardianMode.layer1Desc,
       color: "text-cyan-400",
       bg: "bg-cyan-500/10",
       border: "border-cyan-500/20"
     },
     {
       icon: Eye,
-      title: "2. Implémentation IA",
-      description: "Automatisations concrètes sur-mesure. Outils internes et workflows métiers. Pas de SaaS générique, mais des solutions adaptées à votre entreprise.",
+      title: t.guardianMode.layer2Title,
+      description: t.guardianMode.layer2Desc,
       color: "text-violet-400",
       bg: "bg-violet-500/10",
       border: "border-violet-500/20"
     },
     {
       icon: UserCheck,
-      title: "3. Accompagnement mensuel",
-      description: "Amélioration continue. Nouvelles automatisations selon vos besoins. Cadre d'usage sécurisé et conforme RGPD.",
+      title: t.guardianMode.layer3Title,
+      description: t.guardianMode.layer3Desc,
       color: "text-orange-400",
       bg: "bg-orange-500/10",
       border: "border-orange-500/20"
@@ -38,18 +40,18 @@ export const GuardianModeSection: React.FC = () => {
   const protections = [
     {
       icon: AlertTriangle,
-      text: "Risques RGPD identifiés",
-      result: "→ Cadre d'usage sécurisé mis en place"
+      text: t.guardianMode.protection1Text,
+      result: t.guardianMode.protection1Result
     },
     {
       icon: Eye,
-      text: "Opportunités d'automatisation",
-      result: "→ Implémentées avec ROI mesurable"
+      text: t.guardianMode.protection2Text,
+      result: t.guardianMode.protection2Result
     },
     {
       icon: CheckCircle2,
-      text: "Résultats en 30 jours",
-      result: "→ 20 à 40% de tâches automatisées"
+      text: t.guardianMode.protection3Text,
+      result: t.guardianMode.protection3Result
     }
   ];
 
@@ -70,18 +72,18 @@ export const GuardianModeSection: React.FC = () => {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 mb-6 backdrop-blur-sm">
             <Shield className="w-4 h-4 text-violet-400" />
-            <span className="text-sm font-bold text-violet-300 tracking-wide uppercase">Solution SkillShield</span>
+            <span className="text-sm font-bold text-violet-300 tracking-wide uppercase">{t.guardianMode.solutionBadge}</span>
           </div>
           
           <h2 className="text-3xl md:text-5xl font-bold font-display text-white mb-6">
-            Audit IA rapide. <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">Implémentation ciblée.</span>
+            {t.guardianMode.title} <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">{t.guardianMode.titleHighlight}</span>
           </h2>
           
           <p className="text-gray-300 text-lg max-w-3xl mx-auto mb-4">
-            Nous aidons les PME à réduire les risques liés à l'IA
+            {t.guardianMode.subtitle1}
           </p>
           <p className="text-gray-400 text-base max-w-3xl mx-auto">
-            et à automatiser 20 à 40% de leurs tâches internes en 30 jours.
+            {t.guardianMode.subtitle2}
           </p>
         </motion.div>
 
@@ -95,28 +97,28 @@ export const GuardianModeSection: React.FC = () => {
         >
           <div className="bg-violet-500/10 border border-violet-500/20 rounded-2xl p-8 backdrop-blur-sm">
             <p className="text-gray-300 text-lg leading-relaxed mb-4">
-              <span className="font-bold text-white">Intervention humaine + IA. Sur-mesure. Pas de SaaS générique.</span>
+              <span className="font-bold text-white">{t.guardianMode.problemTitle}</span>
             </p>
             <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-400">
               <div className="flex items-start gap-2">
                 <span className="text-violet-400 mt-1">•</span>
-                <span>Audit rapide de vos usages IA actuels</span>
+                <span>{t.guardianMode.problem1}</span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="text-violet-400 mt-1">•</span>
-                <span>Identification des risques RGPD et données</span>
+                <span>{t.guardianMode.problem2}</span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="text-violet-400 mt-1">•</span>
-                <span>Opportunités d'automatisation chiffrées</span>
+                <span>{t.guardianMode.problem3}</span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="text-violet-400 mt-1">•</span>
-                <span>Implémentation concrète, pas de théorie</span>
+                <span>{t.guardianMode.problem4}</span>
               </div>
             </div>
             <p className="text-cyan-300 font-semibold mt-6 text-center">
-              Résultats visibles en 30 jours. ROI mesurable dès le premier mois.
+              {t.guardianMode.problemResult}
             </p>
           </div>
         </motion.div>
@@ -131,10 +133,10 @@ export const GuardianModeSection: React.FC = () => {
         >
           <div className="text-center mb-12">
             <h3 className="text-2xl md:text-4xl font-bold font-display text-white mb-4">
-              Comment <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">SkillShield</span> fonctionne
+              {t.guardianMode.howItWorks} <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">{t.guardianMode.howItWorksHighlight}</span> {t.guardianMode.howItWorksEnd}
             </h3>
             <p className="text-gray-400 text-lg">
-              Service premium d'audit et d'implémentation IA pour PME de services.
+              {t.guardianMode.howItWorksDesc}
             </p>
           </div>
 
@@ -178,7 +180,7 @@ export const GuardianModeSection: React.FC = () => {
           <div className="max-w-3xl mx-auto">
             <div className="bg-gradient-to-br from-violet-500/10 to-cyan-500/10 border border-violet-500/20 rounded-2xl p-8 backdrop-blur-sm">
               <h4 className="text-xl font-bold text-white mb-6 text-center">
-                Ce que vous obtenez
+                {t.guardianMode.protectionTitle}
               </h4>
               <div className="space-y-4">
                 {protections.map((protection, index) => {
@@ -221,20 +223,20 @@ export const GuardianModeSection: React.FC = () => {
         >
           <div className="max-w-3xl mx-auto bg-gradient-to-br from-green-500/10 to-cyan-500/10 border border-green-500/20 rounded-2xl p-8 backdrop-blur-sm">
             <h3 className="text-2xl md:text-3xl font-bold font-display text-white mb-6">
-              Résultats mesurables
+              {t.guardianMode.resultsTitle}
             </h3>
             <div className="space-y-3 text-lg">
               <p className="text-gray-300">
-                <span className="font-bold text-green-400">20 à 40% de tâches automatisées</span> en 30 jours.
+                <span className="font-bold text-green-400">{t.guardianMode.results1}</span> {t.guardianMode.results1Highlight}
               </p>
               <p className="text-gray-300">
-                <span className="font-bold text-cyan-400">Risques RGPD identifiés et sécurisés</span> dès l'audit.
+                <span className="font-bold text-cyan-400">{t.guardianMode.results2}</span> {t.guardianMode.results2Highlight}
               </p>
               <p className="text-gray-300">
-                <span className="font-bold text-violet-400">ROI mesurable</span> dès le premier mois.
+                <span className="font-bold text-violet-400">{t.guardianMode.results3}</span> {t.guardianMode.results3Highlight}
               </p>
               <p className="text-white font-bold text-xl mt-6">
-                Implémentation concrète, pas de théorie.
+                {t.guardianMode.results4}
               </p>
             </div>
           </div>
@@ -249,22 +251,22 @@ export const GuardianModeSection: React.FC = () => {
           className="text-center"
         >
           <p className="text-gray-400 text-lg mb-6 max-w-2xl mx-auto">
-            Service premium pour PME de services : agences immobilières, cabinets comptables, ESN, PME B2B.
+            {t.guardianMode.ctaDesc}
           </p>
           <p className="text-white font-bold text-xl mb-8">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">Audit rapide. Implémentation ciblée. Résultats en 30 jours.</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">{t.guardianMode.ctaTitle}</span>
           </p>
           
           <div className="flex flex-col items-center gap-4">
             <p className="text-gray-300 text-sm mb-2">
-              Intervention humaine + IA. Sur-mesure. Pas de formation inutile.
+              {t.guardianMode.ctaSubtitle}
             </p>
             <Button 
               onClick={openCalendly} 
               icon={<Shield className="w-5 h-5"/>}
               className="shadow-violet-500/20 hover:shadow-violet-500/40 border border-white/10"
             >
-              Demander un audit IA
+              {t.guardianMode.ctaButton}
             </Button>
           </div>
         </motion.div>

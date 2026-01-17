@@ -6,8 +6,10 @@ import { AuditResult, SectionId } from '../types';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { VisualizationDashboard } from './VisualizationDashboard';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const AuditTool: React.FC = () => {
+  const { t } = useLanguage();
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AuditResult | null>(null);
@@ -70,9 +72,9 @@ export const AuditTool: React.FC = () => {
           const hoursRemaining = nextAvailableAt 
             ? Math.ceil((nextAvailableAt.getTime() - Date.now()) / (60 * 60 * 1000))
             : 24;
-          throw new Error(data.message || `Un PDF a déjà été envoyé à cette adresse. Vous pourrez renvoyer dans ${hoursRemaining} heure${hoursRemaining > 1 ? 's' : ''}.`);
+          throw new Error(data.message || `${t.auditTool.rateLimitError} ${hoursRemaining} ${t.auditTool.rateLimitErrorHours}.`);
         }
-        throw new Error(data.message || 'Erreur lors de l\'envoi du PDF');
+        throw new Error(data.message || t.language === 'fr' ? 'Erreur lors de l\'envoi du PDF' : 'Error sending PDF');
       }
 
       // Seulement si la réponse est OK, on met pdfSent à true
@@ -80,7 +82,7 @@ export const AuditTool: React.FC = () => {
       setEmail('');
       setPdfError(null); // Effacer toute erreur précédente
     } catch (error: any) {
-      setPdfError(error.message || 'Une erreur est survenue. Veuillez réessayer.');
+      setPdfError(error.message || (t.language === 'fr' ? 'Une erreur est survenue. Veuillez réessayer.' : 'An error occurred. Please try again.'));
       setPdfSent(false); // S'assurer que pdfSent est false en cas d'erreur
     } finally {
       setSendingPDF(false);
@@ -96,16 +98,16 @@ export const AuditTool: React.FC = () => {
       <div className="container mx-auto px-6 max-w-4xl">
         <div className="text-center mb-12">
           <span className="inline-block px-4 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-sm font-bold mb-4">
-            🎯 Diagnostic Rapide • 3 Minutes
+            {t.auditTool.badge}
           </span>
           <h2 className="text-3xl md:text-5xl font-bold font-display text-white mb-4">
-            Évaluez en 3 minutes le <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">potentiel et les risques IA</span> de votre entreprise
+            {t.auditTool.title} <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">{t.auditTool.titleHighlight}</span> {t.auditTool.titleEnd}
           </h2>
           <p className="text-gray-300 text-lg font-medium mb-2">
-            Outil de pré-qualification pour dirigeants. Diagnostic rapide de vos opportunités d'automatisation et identification des risques.
+            {t.auditTool.subtitle1}
           </p>
           <p className="text-gray-500 text-sm">
-            <span className="text-violet-300 font-semibold">Diagnostic rapide</span> • <span className="text-cyan-300 font-semibold">Aide à la décision</span> • <span className="text-green-300 font-semibold">Résultats en 3 minutes</span>
+            <span className="text-violet-300 font-semibold">{t.auditTool.subtitle2}</span> • <span className="text-cyan-300 font-semibold">{t.auditTool.subtitle3}</span> • <span className="text-green-300 font-semibold">{t.auditTool.subtitle4}</span>
           </p>
         </div>
 
@@ -114,14 +116,14 @@ export const AuditTool: React.FC = () => {
             <form onSubmit={handleAudit} className="space-y-6">
               <div>
                 <label htmlFor="problem" className="block text-sm font-medium text-cyan-200 mb-2">
-                  Quelle tâche chronophage aimeriez-vous voir disparaître ?
+                  {t.auditTool.label}
                 </label>
                 <div className="relative">
                   <textarea
                     id="problem"
                     rows={6}
                     className="w-full bg-slate-900/50 border-2 border-violet-400/30 rounded-xl p-4 text-white placeholder-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all outline-none resize-none"
-                    placeholder="Ex: Je passe 2h par jour à trier mes emails, faire des devis manuellement, répondre aux mêmes questions..."
+                    placeholder={t.auditTool.placeholder}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                   />
@@ -130,7 +132,7 @@ export const AuditTool: React.FC = () => {
               
               <div className="flex justify-end">
                 <Button type="submit" disabled={loading || !input} icon={loading ? <Loader2 className="animate-spin" /> : <Zap />}>
-                  {loading ? 'Analyse de votre potentiel...' : 'Voir la solution IA'}
+                  {loading ? t.auditTool.buttonLoading : t.auditTool.button}
                 </Button>
               </div>
             </form>
@@ -197,7 +199,7 @@ export const AuditTool: React.FC = () => {
                           <div className="flex items-center gap-3 mb-6">
                               <BarChart3 className="w-6 h-6 text-orange-400" />
                               <h4 className="text-2xl font-bold text-white">
-                                  Benchmark IA/Automatisation
+                                  {t.auditTool.benchmarkTitle}
                               </h4>
                           </div>
                           <p className="text-gray-300 mb-6 text-sm">
@@ -268,18 +270,19 @@ export const AuditTool: React.FC = () => {
                           <div className="flex items-center gap-3 mb-4">
                             <FileText className="w-6 h-6 text-cyan-400" />
                             <h4 className="text-2xl font-bold text-white">
-                              Recevez votre Plan d'Automatisation en PDF
+                              {t.auditTool.sendPDFTitle}
                             </h4>
                           </div>
                           <p className="text-gray-300 mb-6">
-                            Téléchargez votre <strong className="text-cyan-300">plan d'automatisation personnalisé en 5 étapes</strong>, prêt à mettre en œuvre. 
-                            Inclut notre analyse, vos solutions IA, les benchmarks de votre secteur et un plan d'action détaillé.
+                            {t.language === 'fr' 
+                              ? <>Téléchargez votre <strong className="text-cyan-300">plan d'automatisation personnalisé en 5 étapes</strong>, prêt à mettre en œuvre. Inclut notre analyse, vos solutions IA, les benchmarks de votre secteur et un plan d'action détaillé.</>
+                              : <>Download your <strong className="text-cyan-300">personalized automation plan in 5 steps</strong>, ready to implement. Includes our analysis, your AI solutions, your sector benchmarks and a detailed action plan.</>}
                           </p>
                           
                           <form onSubmit={handleSendPDF} className="space-y-4">
                             <div>
                               <label htmlFor="email" className="block text-sm font-medium text-cyan-200 mb-2">
-                                Votre email
+                                {t.auditTool.sendPDFLabel}
                               </label>
                               <div className="flex gap-3">
                                 <input
@@ -295,7 +298,7 @@ export const AuditTool: React.FC = () => {
                                       setPdfError(null);
                                     }
                                   }}
-                                  placeholder="votre@email.com"
+                                  placeholder={t.auditTool.sendPDFPlaceholder}
                                   className="flex-1 bg-slate-900/50 border-2 border-cyan-400/30 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all outline-none"
                                 />
                                 <Button 
@@ -304,7 +307,7 @@ export const AuditTool: React.FC = () => {
                                   icon={sendingPDF ? <Loader2 className="animate-spin" /> : <Mail className="w-5 h-5" />}
                                   className="shrink-0"
                                 >
-                                  {sendingPDF ? 'Envoi...' : 'Recevoir le PDF'}
+                                  {sendingPDF ? t.auditTool.sendPDFButtonLoading : t.auditTool.sendPDFButton}
                                 </Button>
                               </div>
                             </div>
@@ -318,7 +321,7 @@ export const AuditTool: React.FC = () => {
                                 <div className="flex items-start gap-2">
                                   <span className="text-red-400 font-bold">⚠️</span>
                                   <div>
-                                    <p className="font-semibold mb-1">Impossible d'envoyer le PDF</p>
+                                    <p className="font-semibold mb-1">{t.auditTool.sendPDFError}</p>
                                     <p>{pdfError}</p>
                                   </div>
                                 </div>
@@ -326,7 +329,9 @@ export const AuditTool: React.FC = () => {
                             )}
                             
                             <p className="text-xs text-gray-400 text-center">
-                              🔒 Votre email ne sera jamais partagé. Envoyé depuis contact@skillshield-ai.com
+                              {t.language === 'fr' 
+                                ? '🔒 Votre email ne sera jamais partagé. Envoyé depuis contact@skillshield-ai.com'
+                                : '🔒 Your email will never be shared. Sent from contact@skillshield-ai.com'}
                             </p>
                           </form>
                         </>
@@ -334,18 +339,19 @@ export const AuditTool: React.FC = () => {
                         <div className="text-center py-4">
                           <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
                           <h4 className="text-2xl font-bold text-white mb-2">
-                            PDF envoyé avec succès ! 🎉
+                            {t.auditTool.sendPDFSuccess} 🎉
                           </h4>
                           <p className="text-gray-300 mb-4">
-                            Vérifiez votre boîte de réception (et vos spams). 
-                            Le PDF devrait arriver dans quelques instants.
+                            {t.language === 'fr' 
+                              ? 'Vérifiez votre boîte de réception (et vos spams). Le PDF devrait arriver dans quelques instants.'
+                              : 'Check your inbox (and spam). The PDF should arrive in a few moments.'}
                           </p>
                           <Button 
                             onClick={() => setPdfSent(false)}
                             variant="secondary"
                             className="mt-4"
                           >
-                            Envoyer à un autre email
+                            {t.language === 'fr' ? 'Envoyer à un autre email' : 'Send to another email'}
                           </Button>
                         </div>
                       )}
@@ -372,7 +378,7 @@ export const AuditTool: React.FC = () => {
                             onClick={openCalendly}
                             className="shrink-0 whitespace-nowrap shadow-[0_0_30px_-5px_rgba(139,92,246,0.3)] hover:shadow-[0_0_40px_-5px_rgba(34,211,238,0.4)]"
                           >
-                              En parler de vive voix (15 min)
+                              {t.auditTool.calendarButton}
                           </Button>
                       </div>
                   </div>

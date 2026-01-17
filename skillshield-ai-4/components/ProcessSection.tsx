@@ -2,37 +2,39 @@ import React from 'react';
 import { SectionId } from '../types';
 import { Search, Compass, Bot, Rocket } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const ProcessSection: React.FC = () => {
+  const { t } = useLanguage();
   const steps = [
     {
       icon: Search,
-      title: "1. Diagnostic",
-      desc: "Audit rapide de vos usages IA. Identification des risques RGPD et opportunités d'automatisation. Rapport clair et actionnable.",
+      title: t.process.step1Title,
+      desc: t.process.step1Desc,
       color: "text-blue-400",
       bg: "bg-blue-500/10",
       border: "border-blue-500/20"
     },
     {
       icon: Compass,
-      title: "2. Décisions",
-      desc: "Priorisation des automatisations selon ROI. Validation des choix avec vous. Feuille de route sur 30 jours.",
+      title: t.process.step2Title,
+      desc: t.process.step2Desc,
       color: "text-yellow-400",
       bg: "bg-yellow-500/10",
       border: "border-yellow-500/20"
     },
     {
       icon: Bot,
-      title: "3. Implémentation",
-      desc: "Mise en place des automatisations concrètes. Outils internes et workflows métiers. Accompagnement pas à pas.",
+      title: t.process.step3Title,
+      desc: t.process.step3Desc,
       color: "text-violet-400",
       bg: "bg-violet-500/10",
       border: "border-violet-500/20"
     },
     {
       icon: Rocket,
-      title: "4. Résultats",
-      desc: "20 à 40% de tâches automatisées. Risques sécurisés. ROI mesurable dès le premier mois. Amélioration continue.",
+      title: t.process.step4Title,
+      desc: t.process.step4Desc,
       color: "text-green-400",
       bg: "bg-green-500/10",
       border: "border-green-500/20"
@@ -44,10 +46,10 @@ export const ProcessSection: React.FC = () => {
       <div className="container mx-auto px-6">
         <div className="text-center mb-20">
           <h2 className="text-3xl md:text-5xl font-bold font-display text-white mb-6">
-            Comment <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">ça marche</span>
+            {t.process.title} <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">{t.process.titleHighlight}</span>
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            Processus simple et rassurant pour dirigeants pressés. Résultats visibles en 30 jours.
+            {t.process.subtitle}
           </p>
         </div>
 

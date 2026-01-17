@@ -2,43 +2,45 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, XCircle, Building2, Users, Target, AlertTriangle } from 'lucide-react';
 import { Card } from './ui/Card';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const TargetAudienceSection: React.FC = () => {
+  const { t } = useLanguage();
   const forWho = [
     {
       icon: Building2,
-      text: "PME de services (10 à 100 salariés)"
+      text: t.targetAudience.forWho1
     },
     {
       icon: Users,
-      text: "Agences immobilières, cabinets comptables, cabinets de conseil, ESN, PME B2B"
+      text: t.targetAudience.forWho2
     },
     {
       icon: Target,
-      text: "Dirigeants, associés, managers opérationnels"
+      text: t.targetAudience.forWho3
     },
     {
       icon: CheckCircle2,
-      text: "Équipes débordées qui cherchent des solutions concrètes"
+      text: t.targetAudience.forWho4
     },
     {
       icon: CheckCircle2,
-      text: "Dirigeants pragmatiques orientés résultats"
+      text: t.targetAudience.forWho5
     }
   ];
 
   const notForWho = [
     {
       icon: XCircle,
-      text: "Startups deeptech"
+      text: t.targetAudience.notForWho1
     },
     {
       icon: XCircle,
-      text: "Grands groupes (plus de 100 salariés)"
+      text: t.targetAudience.notForWho2
     },
     {
       icon: XCircle,
-      text: "Projets IA expérimentaux ou recherche"
+      text: t.targetAudience.notForWho3
     }
   ];
 
@@ -58,11 +60,11 @@ export const TargetAudienceSection: React.FC = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-5xl font-bold font-display text-white mb-6">
-            Pour qui <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-violet-400">/</span> Pour qui pas
+            {t.targetAudience.title} <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-violet-400">{t.targetAudience.titleSlash}</span> {t.targetAudience.titleNot}
           </h2>
           
           <p className="text-gray-300 text-lg max-w-3xl mx-auto">
-            Nous filtrons pour augmenter la crédibilité et garantir des résultats adaptés.
+            {t.targetAudience.subtitle}
           </p>
         </motion.div>
 
@@ -80,7 +82,7 @@ export const TargetAudienceSection: React.FC = () => {
                   <div className="w-12 h-12 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center">
                     <CheckCircle2 className="w-6 h-6 text-green-400" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white">Pour qui</h3>
+                  <h3 className="text-2xl font-bold text-white">{t.targetAudience.forWho}</h3>
                 </div>
                 
                 <div className="space-y-4">
@@ -111,7 +113,7 @@ export const TargetAudienceSection: React.FC = () => {
                   <div className="w-12 h-12 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center">
                     <XCircle className="w-6 h-6 text-red-400" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white">Pour qui pas</h3>
+                  <h3 className="text-2xl font-bold text-white">{t.targetAudience.notForWho}</h3>
                 </div>
                 
                 <div className="space-y-4">
@@ -140,7 +142,7 @@ export const TargetAudienceSection: React.FC = () => {
         >
           <div className="max-w-3xl mx-auto bg-slate-800/50 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
             <p className="text-gray-300">
-              <span className="font-bold text-white">Objectif :</span> Filtrer et augmenter la crédibilité. Nous garantissons des résultats adaptés à votre profil d'entreprise.
+              <span className="font-bold text-white">{t.targetAudience.bottomNote}</span> {t.targetAudience.bottomNoteText}
             </p>
           </div>
         </motion.div>
