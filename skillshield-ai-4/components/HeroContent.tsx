@@ -148,15 +148,15 @@ export const HeroContent: React.FC = () => {
             <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 text-sm">
               <div className="flex items-center gap-2 text-cyan-300 bg-cyan-500/10 px-4 py-2 rounded-full border border-cyan-500/20">
                 <CheckCircle2 className="w-4 h-4" />
-                <span className="font-semibold">Audit rapide • 30 jours pour résultats</span>
+                <span className="font-semibold text-xs sm:text-sm">{t.heroContent.subtitle}</span>
               </div>
               <div className="flex items-center gap-2 text-violet-300 bg-violet-500/10 px-4 py-2 rounded-full border border-violet-500/20">
                 <ShieldCheck className="w-4 h-4" />
-                <span className="font-semibold">Risques RGPD identifiés et sécurisés</span>
+                <span className="font-semibold text-xs sm:text-sm">{t.language === 'fr' ? 'Risques RGPD identifiés et sécurisés' : 'GDPR risks identified and secured'}</span>
               </div>
               <div className="flex items-center gap-2 text-orange-300 bg-orange-500/10 px-4 py-2 rounded-full border border-orange-500/20">
                 <Timer className="w-4 h-4" />
-                <span className="font-semibold">ROI mesurable dès le premier mois</span>
+                <span className="font-semibold text-xs sm:text-sm">{t.language === 'fr' ? 'ROI mesurable dès le premier mois' : 'Measurable ROI from the first month'}</span>
               </div>
             </div>
           </motion.div>
@@ -171,10 +171,14 @@ export const HeroContent: React.FC = () => {
           >
             <div className="bg-slate-800/40 rounded-xl p-6 md:p-8 border border-white/10 backdrop-blur-sm">
               <p className="text-white text-base md:text-lg font-medium mb-3 italic">
-                "En 30 jours, 35% de nos tâches automatisées. Risques RGPD sécurisés. ROI visible dès le premier mois."
+                {t.language === 'fr' 
+                  ? '"En 30 jours, 35% de nos tâches automatisées. Risques RGPD sécurisés. ROI visible dès le premier mois."'
+                  : '"In 30 days, 35% of our tasks automated. GDPR risks secured. Visible ROI from the first month."'}
               </p>
               <p className="text-cyan-300 text-sm">
-                — Dirigeant PME, Cabinet comptable
+                {t.language === 'fr' 
+                  ? '— Dirigeant PME, Cabinet comptable'
+                  : '— SME Director, Accounting Firm'}
               </p>
             </div>
           </motion.div>
