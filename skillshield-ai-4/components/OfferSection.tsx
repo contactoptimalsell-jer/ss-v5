@@ -3,17 +3,19 @@ import { motion } from 'framer-motion';
 import { Search, Bot, UserCheck, CheckCircle2, TrendingUp, ShieldCheck, Zap } from 'lucide-react';
 import { Card } from './ui/Card';
 import { AnimatedText } from './ui/AnimatedText';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const OfferSection: React.FC = () => {
+  const { t } = useLanguage();
   const offers = [
     {
       icon: Search,
-      title: "1. Audit IA",
-      description: "Cartographie de vos usages IA. Identification des risques RGPD. Opportunités d'automatisation chiffrées.",
+      title: t.offer.auditTitle,
+      description: t.offer.auditDesc,
       bullets: [
-        "Cartographie des usages IA",
-        "Risques RGPD identifiés",
-        "Opportunités chiffrées avec ROI"
+        t.offer.audit1,
+        t.offer.audit2,
+        t.offer.audit3
       ],
       color: "text-cyan-400",
       bg: "bg-cyan-500/10",
@@ -21,12 +23,12 @@ export const OfferSection: React.FC = () => {
     },
     {
       icon: Bot,
-      title: "2. Implémentation IA",
-      description: "Automatisations sur-mesure. Outils internes adaptés à votre entreprise. Pas de SaaS générique.",
+      title: t.offer.implementationTitle,
+      description: t.offer.implementationDesc,
       bullets: [
-        "Automatisations concrètes",
-        "Outils internes sur-mesure",
-        "Pas de SaaS générique"
+        t.offer.implementation1,
+        t.offer.implementation2,
+        t.offer.implementation3
       ],
       color: "text-violet-400",
       bg: "bg-violet-500/10",
@@ -34,12 +36,12 @@ export const OfferSection: React.FC = () => {
     },
     {
       icon: UserCheck,
-      title: "3. Accompagnement mensuel",
-      description: "Amélioration continue. Nouvelles automatisations selon vos besoins. Cadre sécurisé et conforme RGPD.",
+      title: t.offer.supportTitle,
+      description: t.offer.supportDesc,
       bullets: [
-        "Amélioration continue",
-        "Nouvelles automatisations",
-        "Cadre sécurisé RGPD"
+        t.offer.support1,
+        t.offer.support2,
+        t.offer.support3
       ],
       color: "text-orange-400",
       bg: "bg-orange-500/10",
@@ -64,21 +66,17 @@ export const OfferSection: React.FC = () => {
         >
           <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-violet-500/10 border border-violet-500/20 mb-4 sm:mb-6 backdrop-blur-sm">
             <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-violet-400" />
-            <span className="text-xs sm:text-sm font-bold text-violet-300 tracking-wide uppercase">Notre Offre</span>
+            <span className="text-xs sm:text-sm font-bold text-violet-300 tracking-wide uppercase">{t.offer.title}</span>
           </div>
           
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-display text-white mb-3 sm:mb-4 px-4">
-            <AnimatedText type="wordByWord" delay={0.2} highlightWords={['3', 'briques', 'SkillShield']} highlightColor="text-violet-400 font-bold">
-              Les 3 briques de
-            </AnimatedText>
-            {' '}
-            <AnimatedText type="gradient" delay={0.8} className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
-              SkillShield
+            <AnimatedText type="wordByWord" delay={0.2} highlightWords={t.language === 'fr' ? ['3', 'briques', 'SkillShield'] : ['3', 'building', 'SkillShield']} highlightColor="text-violet-400 font-bold">
+              {t.offer.subtitle} {t.offer.skillshield}
             </AnimatedText>
           </h2>
           
-          <AnimatedText type="highlight" delay={1.0} className="text-gray-300 text-sm sm:text-base max-w-2xl mx-auto block px-4" highlightWords={['Audit IA', 'Implémentation', 'sur-mesure', 'Accompagnement']} highlightColor="text-cyan-300 font-semibold">
-            Audit IA • Implémentation sur-mesure • Accompagnement continu
+          <AnimatedText type="highlight" delay={1.0} className="text-gray-300 text-sm sm:text-base max-w-2xl mx-auto block px-4" highlightWords={t.language === 'fr' ? ['Audit IA', 'Implémentation', 'sur-mesure', 'Accompagnement'] : ['AI Audit', 'Implementation', 'custom', 'Support']} highlightColor="text-cyan-300 font-semibold">
+            {t.offer.description}
           </AnimatedText>
         </motion.div>
 
@@ -137,7 +135,7 @@ export const OfferSection: React.FC = () => {
         >
           <div className="max-w-2xl mx-auto bg-violet-500/10 border border-violet-500/20 rounded-xl p-4 sm:p-6 backdrop-blur-sm px-4">
             <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
-              <span className="font-bold text-white">Résultats visibles en 30 jours.</span> ROI mesurable dès le premier mois. Implémentation concrète, orientée résultats.
+              {t.offer.results}
             </p>
           </div>
         </motion.div>

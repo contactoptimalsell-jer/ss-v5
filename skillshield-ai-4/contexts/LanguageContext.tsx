@@ -9,6 +9,7 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: Translations;
+  language?: Language; // For compatibility
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);

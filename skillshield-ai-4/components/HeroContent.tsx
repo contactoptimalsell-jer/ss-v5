@@ -4,8 +4,10 @@ import { Button } from './ui/Button';
 import { Sparkles, ArrowRight, Zap, ShieldCheck, CheckCircle2, Star, Rocket, Heart, Timer } from 'lucide-react';
 import { SectionId } from '../types';
 import { AnimatedText } from './ui/AnimatedText';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const HeroContent: React.FC = () => {
+  const { t } = useLanguage();
   const openCalendly = () => {
     window.open('https://calendly.com/b00784336-essec?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app', '_blank');
   };
@@ -25,28 +27,28 @@ export const HeroContent: React.FC = () => {
           >
             <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-violet-500/10 border border-violet-500/20 mb-4 sm:mb-6">
               <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-violet-400" />
-              <span className="text-violet-300 text-xs sm:text-sm font-bold">La solution existe</span>
+              <span className="text-violet-300 text-xs sm:text-sm font-bold">{t.heroContent.solution}</span>
             </div>
             <h1 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight mb-4 sm:mb-6 md:mb-8 leading-tight sm:leading-[1.1]">
-              <AnimatedText type="wordByWord" delay={0.1} className="block text-white mb-2" highlightWords={['Sécurisez', 'usages', 'IA']} highlightColor="text-cyan-400">
-                Sécurisez vos usages IA.
+              <AnimatedText type="wordByWord" delay={0.1} className="block text-white mb-2" highlightWords={t.language === 'fr' ? ['Sécurisez', 'usages', 'IA'] : ['Secure', 'usage', 'AI']} highlightColor="text-cyan-400">
+                {t.heroContent.secure}
               </AnimatedText>
               <AnimatedText type="gradient" delay={0.8} className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-300 to-violet-400">
-                Automatisez 20-40% de vos tâches.
+                {t.heroContent.automate}
               </AnimatedText>
             </h1>
             <AnimatedText type="fadeInUp" delay={1.2} className="max-w-2xl mx-auto text-base sm:text-lg md:text-xl text-gray-300 leading-relaxed font-medium block px-4">
-              Audit IA • Implémentation sur-mesure • Résultats en 30 jours
+              {t.heroContent.subtitle}
             </AnimatedText>
             <p className="max-w-xl mx-auto text-xs sm:text-sm text-gray-400 mt-3 sm:mt-4 px-4">
-              <AnimatedText type="highlight" delay={1.5} highlightWords={['78%', 'concurrents', 'déjà']} highlightColor="text-orange-300 font-semibold">
-                78% de vos concurrents ont déjà commencé.
+              <AnimatedText type="highlight" delay={1.5} highlightWords={t.language === 'fr' ? ['78%', 'concurrents', 'déjà'] : ['78%', 'competitors', 'already']} highlightColor="text-orange-300 font-semibold">
+                {t.heroContent.competitorsStarted}
               </AnimatedText>
               <AnimatedText type="pulse" delay={1.8} className="block mt-1">
-                Ne restez pas le dernier.
+                {t.heroContent.dontStayLast}
               </AnimatedText>
             </p>
-            <p className="max-w-xl mx-auto text-gray-400/60 text-[10px] mt-2 italic">Source: Elementor Blog</p>
+            <p className="max-w-xl mx-auto text-gray-400/60 text-[10px] mt-2 italic">{t.hero.source}</p>
           </motion.div>
 
           {/* Value proposition - Plus concise */}
@@ -57,8 +59,8 @@ export const HeroContent: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="text-center mb-10 md:mb-12"
           >
-            <AnimatedText type="wordByWord" delay={0.2} className="max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-gray-300 leading-relaxed block px-4" highlightWords={['PME', 'services', '10-100', 'agences', 'cabinets', 'ESN']} highlightColor="text-cyan-300 font-semibold">
-              Pour PME de services (10-100 salariés) : agences immobilières, cabinets comptables, ESN, PME B2B
+            <AnimatedText type="wordByWord" delay={0.2} className="max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-gray-300 leading-relaxed block px-4" highlightWords={t.language === 'fr' ? ['PME', 'services', '10-100', 'agences', 'cabinets', 'ESN'] : ['SMEs', 'services', '10-100', 'agencies', 'firms', 'companies']} highlightColor="text-cyan-300 font-semibold">
+              {t.heroContent.forPME}
             </AnimatedText>
           </motion.div>
 
@@ -120,7 +122,7 @@ export const HeroContent: React.FC = () => {
                 >
                   <span className="flex items-center gap-2">
                     <Rocket className="w-5 h-5" />
-                    Demander un audit IA
+                    {t.heroContent.requestAudit}
                   </span>
                 </Button>
               </motion.div>
@@ -135,7 +137,7 @@ export const HeroContent: React.FC = () => {
                   className="bg-white/10 hover:bg-white/20 backdrop-blur-md border-2 border-white/20 text-white text-lg md:text-xl px-8 md:px-10 py-5 md:py-6 rounded-2xl font-bold transition-all duration-300"
                 >
                   <span className="flex items-center gap-2">
-                    Voir comment ça marche
+                    {t.heroContent.howItWorks}
                     <ArrowRight className="w-5 h-5" />
                   </span>
                 </Button>
@@ -191,7 +193,7 @@ export const HeroContent: React.FC = () => {
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <span className="text-sm font-medium">Évaluez votre potentiel IA</span>
+              <span className="text-sm font-medium">{t.language === 'fr' ? 'Évaluez votre potentiel IA' : 'Evaluate your AI potential'}</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-y-1 transition-transform" />
             </motion.button>
           </motion.div>

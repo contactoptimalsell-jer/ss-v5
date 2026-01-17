@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Gift, Sparkles, Mail, CheckCircle2 } from 'lucide-react';
 import { Button } from './ui/Button';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface PromoCodeModalProps {
   isOpen: boolean;
@@ -9,13 +10,14 @@ interface PromoCodeModalProps {
 }
 
 export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose }) => {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState('');
 
   const promoCode = 'TRANSFORM5';
-  const discount = '-5%';
+  const discount = t.promo.discount;
 
   useEffect(() => {
     if (isOpen) {
@@ -46,7 +48,7 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
     setError('');
 
     if (!email || !email.includes('@')) {
-      setError('Veuillez entrer une adresse email valide');
+      setError(t.language === 'fr' ? 'Veuillez entrer une adresse email valide' : 'Please enter a valid email address');
       return;
     }
 
@@ -83,10 +85,10 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
           setEmail('');
         }, 3000);
       } else {
-        setError(data.error || 'Une erreur est survenue. Veuillez réessayer.');
+        setError(data.error || (t.language === 'fr' ? 'Une erreur est survenue. Veuillez réessayer.' : 'An error occurred. Please try again.'));
       }
     } catch (err) {
-      setError('Une erreur est survenue. Veuillez réessayer.');
+      setError(t.language === 'fr' ? 'Une erreur est survenue. Veuillez réessayer.' : 'An error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -126,7 +128,7 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
                 <button
                   onClick={onClose}
                   className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all"
-                  aria-label="Fermer"
+                  aria-label={t.promo.close}
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -150,7 +152,7 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
                         transition={{ delay: 0.3 }}
                         className="text-2xl sm:text-3xl font-display font-bold text-white mb-2"
                       >
-                        Offre Spéciale 🎁
+                        {t.promo.specialOffer}
                       </motion.h2>
                       
                       <motion.p
@@ -159,7 +161,7 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
                         transition={{ delay: 0.4 }}
                         className="text-gray-300 text-sm sm:text-base leading-relaxed"
                       >
-                        Vous arrivez <span className="text-cyan-400 font-semibold">au bon moment</span> !
+                        {t.promo.rightMoment}
                       </motion.p>
                       
                       <motion.div
@@ -170,7 +172,7 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
                       >
                         <Sparkles className="w-4 h-4 text-violet-400" />
                         <span className="text-white font-bold text-lg">{discount}</span>
-                        <span className="text-gray-300 text-sm">sur votre première implémentation IA</span>
+                        <span className="text-gray-300 text-sm">{t.promo.onFirst}</span>
                       </motion.div>
                     </div>
 
@@ -182,24 +184,23 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
                       className="bg-slate-800/50 rounded-xl p-4 mb-6 border border-white/5"
                     >
                       <p className="text-gray-300 text-sm leading-relaxed text-center">
-                        Bénéficiez de <span className="text-violet-400 font-semibold">{discount}</span> sur votre première implémentation IA avec le code{' '}
-                        <span className="font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2 py-1 rounded">{promoCode}</span>
+                        {t.promo.benefit} <span className="font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2 py-1 rounded">{promoCode}</span>
                       </p>
                     </motion.div>
 
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div>
-                        <label htmlFor="promo-email" className="block text-sm font-medium text-gray-300 mb-2">
-                          <Mail className="w-4 h-4 inline mr-2 text-cyan-400" />
-                          Votre email pour recevoir le code promo
+                        <label htmlFor="promo-email" className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+                          <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline mr-2 text-cyan-400" />
+                          {t.promo.emailLabel}
                         </label>
                         <input
                           id="promo-email"
                           type="email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          placeholder="votre@email.com"
+                          placeholder={t.promo.emailPlaceholder}
                           required
                           className="w-full px-4 py-3 rounded-xl bg-slate-900/50 border-2 border-white/10 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-white placeholder-gray-500 transition-all outline-none"
                         />
@@ -221,12 +222,11 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
                         className="w-full"
                         icon={isSubmitting ? <Sparkles className="w-5 h-5 animate-spin" /> : <Gift className="w-5 h-5" />}
                       >
-                        {isSubmitting ? 'Envoi en cours...' : `Recevoir mon code ${discount}`}
+                        {isSubmitting ? t.promo.sending : t.promo.receive}
                       </Button>
 
                       <p className="text-gray-500 text-xs text-center">
-                        En renseignant votre email, vous acceptez de recevoir des communications de SkillShield AI. 
-                        Vous pouvez vous désabonner à tout moment.
+                        {t.promo.consent}
                       </p>
                     </form>
 
@@ -236,7 +236,7 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
                         onClick={onClose}
                         className="text-gray-400 hover:text-white text-sm underline underline-offset-4 transition-colors"
                       >
-                        Plus tard
+                        {t.promo.later}
                       </button>
                     </div>
                   </>
@@ -257,17 +257,17 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
                     </motion.div>
                     
                     <h3 className="text-2xl font-display font-bold text-white mb-2">
-                      Code promo envoyé ! ✨
+                      {t.promo.sent}
                     </h3>
                     
                     <p className="text-gray-300 mb-6">
-                      Vérifiez votre boîte email (<span className="text-cyan-400 font-semibold">{email}</span>) pour recevoir votre code <span className="font-mono font-bold text-violet-400">{promoCode}</span>
+                      {t.promo.checkEmail.replace('{email}', email).replace('{code}', promoCode)}
                     </p>
                     
                     <div className="bg-gradient-to-r from-violet-500/20 to-cyan-500/20 rounded-xl p-4 border border-violet-400/30">
-                      <p className="text-white font-bold text-lg mb-1">Votre code promo :</p>
+                      <p className="text-white font-bold text-lg mb-1">{t.promo.yourCode}</p>
                       <p className="font-mono text-2xl font-bold text-cyan-400">{promoCode}</p>
-                      <p className="text-gray-300 text-sm mt-2">{discount} de réduction sur votre première implémentation IA</p>
+                      <p className="text-gray-300 text-sm mt-2">{discount} {t.promo.reduction}</p>
                     </div>
 
                     {/* Bouton fermer */}
@@ -277,7 +277,7 @@ export const PromoCodeModal: React.FC<PromoCodeModalProps> = ({ isOpen, onClose 
                         variant="secondary"
                         className="w-full"
                       >
-                        Fermer
+                        {t.promo.close}
                       </Button>
                     </div>
                   </motion.div>
