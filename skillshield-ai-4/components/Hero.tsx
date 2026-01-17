@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Clock, AlertTriangle } from 'lucide-react';
 import { AnimatedStat } from './ui/AnimatedStat';
 import { AnimatedText } from './ui/AnimatedText';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const Hero: React.FC = () => {
+  const { t } = useLanguage();
   const [timeWasted, setTimeWasted] = useState(0);
   const [moneyLost, setMoneyLost] = useState(0);
 
@@ -81,26 +83,26 @@ export const Hero: React.FC = () => {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 border border-red-500/20 mb-4">
               <AlertTriangle className="w-4 h-4 text-red-400" />
-              <span className="text-red-300 text-sm font-bold">Pendant que vous lisez ceci...</span>
+              <span className="text-red-300 text-sm font-bold">{t.hero.reading}</span>
             </div>
             
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-tight">
-              <AnimatedText type="wordByWord" delay={0.1} className="block mb-2" highlightWords={['concurrents']} highlightColor="text-red-400 font-bold">
-                Vos concurrents
+              <AnimatedText type="wordByWord" delay={0.1} className="block mb-2" highlightWords={[t.hero.competitors]} highlightColor="text-red-400 font-bold">
+                {t.hero.competitors}
               </AnimatedText>
               <AnimatedText type="gradient" delay={0.6} className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-400 to-orange-400">
-                automatisent déjà.
+                {t.hero.automating}
               </AnimatedText>
             </h1>
 
             {/* Real-time loss counter - Psychological trigger */}
             <div className="bg-slate-900/60 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-red-500/20">
-              <p className="text-gray-400 text-sm mb-4">Coût de l'inaction (depuis votre arrivée) :</p>
+              <p className="text-gray-400 text-sm mb-4">{t.hero.inactionCost}</p>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-red-300">
                     <Clock className="w-5 h-5" />
-                    <span className="text-sm">Temps perdu</span>
+                    <span className="text-sm">{t.hero.timeLost}</span>
                   </div>
                   <span className="text-white font-bold text-lg">
                     {timeWasted.toFixed(1)} min
@@ -109,7 +111,7 @@ export const Hero: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-red-300">
                     <TrendingDown className="w-5 h-5" />
-                    <span className="text-sm">Opportunités perdues</span>
+                    <span className="text-sm">{t.hero.opportunities}</span>
                   </div>
                   <span className="text-white font-bold text-lg">
                     {moneyLost.toFixed(2)} €
@@ -118,9 +120,9 @@ export const Hero: React.FC = () => {
               </div>
               <div className="mt-4 pt-4 border-t border-red-500/20">
                 <p className="text-red-200 text-xs">
-                  💡 <span className="font-semibold">78% des PME de votre secteur</span> ont déjà commencé leur automatisation IA
+                  💡 <span className="font-semibold">{t.hero.statistic}</span>
                 </p>
-                <p className="text-red-300/60 text-[10px] mt-1 italic">Source: Elementor Blog</p>
+                <p className="text-red-300/60 text-[10px] mt-1 italic">{t.hero.source}</p>
               </div>
             </div>
           </motion.div>
@@ -134,31 +136,31 @@ export const Hero: React.FC = () => {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 mb-4">
               <TrendingUp className="w-4 h-4 text-green-400" />
-              <span className="text-green-300 text-sm font-bold">Ceux qui ont agi :</span>
+              <span className="text-green-300 text-sm font-bold">{t.hero.acted}</span>
             </div>
 
             <div className="bg-gradient-to-br from-violet-500/10 to-cyan-500/10 backdrop-blur-sm rounded-xl p-8 border border-violet-500/20">
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4 sm:mb-6">
-                Ils ont récupéré en moyenne :
+                {t.hero.recovered}
               </h2>
               
               <div className="space-y-4">
                 <AnimatedStat
-                  label="Temps récupéré"
+                  label={t.hero.timeRecovered}
                   value="12-20h / semaine"
                   color="green"
                   delay={0.1}
                 />
                 
                 <AnimatedStat
-                  label="Tâches automatisées"
+                  label={t.hero.tasksAutomated}
                   value="20-40%"
                   color="violet"
                   delay={0.3}
                 />
                 
                 <AnimatedStat
-                  label="ROI moyen"
+                  label={t.hero.avgROI}
                   value="300-500%"
                   color="cyan"
                   delay={0.5}
@@ -166,9 +168,9 @@ export const Hero: React.FC = () => {
               </div>
 
               <div className="mt-6 pt-6 border-t border-white/10">
-                <p className="text-white text-sm font-semibold mb-2">En seulement 30 jours</p>
+                <p className="text-white text-sm font-semibold mb-2">{t.hero.in30Days}</p>
                 <p className="text-gray-400 text-xs">
-                  Risques RGPD sécurisés • Automatisations opérationnelles • ROI visible
+                  {t.hero.risksSecure}
                 </p>
               </div>
             </div>
@@ -184,12 +186,12 @@ export const Hero: React.FC = () => {
         >
           <div className="bg-gradient-to-r from-orange-500/10 via-red-500/10 to-orange-500/10 rounded-xl p-6 border border-orange-500/20 backdrop-blur-sm max-w-3xl mx-auto">
             <p className="text-white text-base sm:text-lg md:text-xl font-bold mb-2">
-              Êtes-vous prêt à rester en arrière ?
+              {t.hero.readyBehind}
             </p>
             <p className="text-gray-300 text-sm md:text-base">
-              Ou préférez-vous rejoindre les 78% qui ont déjà pris de l'avance ?
+              {t.hero.orJoin} 78% {t.hero.alreadyAhead}
             </p>
-            <p className="text-gray-400/60 text-[10px] mt-2 italic">Source: Elementor Blog</p>
+            <p className="text-gray-400/60 text-[10px] mt-2 italic">{t.hero.source}</p>
           </div>
         </motion.div>
       </div>

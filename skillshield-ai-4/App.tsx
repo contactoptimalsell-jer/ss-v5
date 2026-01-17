@@ -24,12 +24,15 @@ import { PressPage } from './components/PressPage';
 import { SEOHead } from './components/SEOHead';
 import { StructuredData } from './components/StructuredData';
 import { PromoCodeModal } from './components/PromoCodeModal';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
+import { useLanguage } from './contexts/LanguageContext';
 import { Menu, ShieldCheck, Home, X, Upload, Mail } from 'lucide-react';
 import { Logo } from './components/ui/Logo';
 import { SectionId, PageView } from './types';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const App: React.FC = () => {
+  const { t } = useLanguage();
   const [currentPage, setCurrentPage] = useState<PageView>('home');
   const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -562,20 +565,20 @@ const App: React.FC = () => {
                <>
                  <button onClick={() => scrollToSection(SectionId.PROBLEM)} className="hover:text-cyan-400 transition-colors">Problème</button>
                  <button onClick={() => scrollToSection(SectionId.APPROACH)} className="hover:text-cyan-400 transition-colors">Méthode</button>
-                 <button onClick={() => navigateTo('virtual-employees')} className="hover:text-cyan-400 transition-colors">Nos Agents</button>
-                 <button onClick={() => navigateTo('blog')} className="hover:text-cyan-400 transition-colors">Blog</button>
-                 <button onClick={() => navigateTo('case-studies')} className="hover:text-cyan-400 transition-colors">Études de Cas</button>
-                 <button onClick={() => navigateTo('press')} className="hover:text-cyan-400 transition-colors">Presse</button>
-                 <button onClick={() => navigateTo('about')} className="hover:text-cyan-400 transition-colors">À propos</button>
+                 <button onClick={() => navigateTo('virtual-employees')} className="hover:text-cyan-400 transition-colors">{t.nav.agents}</button>
+                 <button onClick={() => navigateTo('blog')} className="hover:text-cyan-400 transition-colors">{t.nav.blog}</button>
+                 <button onClick={() => navigateTo('case-studies')} className="hover:text-cyan-400 transition-colors">{currentPage === 'home' ? 'Études de Cas' : 'Case Studies'}</button>
+                 <button onClick={() => navigateTo('press')} className="hover:text-cyan-400 transition-colors">{currentPage === 'home' ? 'Presse' : 'Press'}</button>
+                 <button onClick={() => navigateTo('about')} className="hover:text-cyan-400 transition-colors">{t.nav.about}</button>
                  <button onClick={() => navigateTo('faq')} className="hover:text-cyan-400 transition-colors">FAQ</button>
                </>
              ) : (
                <>
                  <button onClick={() => navigateTo('home')} className="flex items-center gap-2 hover:text-cyan-400 transition-colors">
-                    <Home className="w-4 h-4" /> Accueil
+                    <Home className="w-4 h-4" /> {t.nav.home}
                  </button>
                  {currentPage !== 'virtual-employees' && (
-                     <button onClick={() => navigateTo('virtual-employees')} className="hover:text-cyan-400 transition-colors">Nos Agents</button>
+                     <button onClick={() => navigateTo('virtual-employees')} className="hover:text-cyan-400 transition-colors">{t.nav.agents}</button>
                  )}
                  {currentPage !== 'blog' && (
                      <button onClick={() => navigateTo('blog')} className="hover:text-cyan-400 transition-colors">Blog</button>
@@ -595,18 +598,22 @@ const App: React.FC = () => {
                </>
              )}
              
+             <LanguageSwitcher />
              <button onClick={openCalendly} className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-violet-400/50 transition-all text-white">
-                Audit Gratuit
+                {t.nav.audit}
              </button>
           </div>
 
-          <button 
-            className="md:hidden text-white p-2 hover:bg-white/5 rounded-lg transition-colors"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Menu"
-          >
-             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="md:hidden flex items-center gap-2">
+            <LanguageSwitcher />
+            <button 
+              className="text-white p-2 hover:bg-white/5 rounded-lg transition-colors"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Menu"
+            >
+               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
       </nav>
 
